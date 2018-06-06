@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+    <title>享你了-智能停车APP</title>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+
+<script src="http://pv.sohu.com/cityjson?ie=utf-8"></script>
+<!-- <script src="http://webapi.amap.com/maps?v=1.4.3&key=3910a844be295cd0a8cb336180521f9d"></script> -->
+<script type="text/javascript">
+    window.localStorage.setItem('mobileId', returnCitySN.cip);
+    // 禁用浏览器自带的 滑动事件
+    document.body.addEventListener('touchmove', function(e) {
+        e.preventDefault();
+    });
+//     window.localStorage.setItem('userAgent',window.navigator.userAgent);
+//     // 获取手机机型
+//     alert(window.navigator.userAgent);
+//  let agentStr = window.navigator.userAgent
+//  foreach (Match m in Regex.Matches(agentStr, "Mozilla/5.0\s*\([^\(\)]*?(Windows[^\(\)]*?|Android[^\(\)]*?|iPhone);\s*([^\(\)]*?)\)"))
+// { Console.WriteLine(m.Groups[2].Value); }
+
+
+</script>
+
+</html>
