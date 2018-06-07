@@ -23,10 +23,9 @@ import 'lib-flexible/flexible.js';
 
 /*导入axios*/
 import axios from 'axios';
+//吴正添加取消请求
 Vue.prototype.$http = axios;
-
 Vue.config.productionTip = false
-
 Vue.use(vueResourse)
     // 使用轮播组件
     // Vue.use(VueAwesomeSwiper);

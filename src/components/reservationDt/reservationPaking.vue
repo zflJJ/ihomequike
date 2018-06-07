@@ -563,7 +563,6 @@ export default {
     
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
-    this.Interval();
   },
   deactivated(){
     clearInterval(this.intervalMy);
