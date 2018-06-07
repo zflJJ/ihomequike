@@ -180,7 +180,7 @@ export default {
       lockId: null,
       network: true,
       count: 0,
-      source:null
+      source: null
     }
   },
   components: {
@@ -207,7 +207,7 @@ export default {
     },
     // 获取预约订单详情的
     async getOrder() {
-      let _this=this
+      let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
       if (this.count == 0) {
@@ -220,7 +220,8 @@ export default {
       this.source = this.$http.CancelToken.source()
       this.$http
         .post(
-          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',{data:data,cancelToken: this.source.token}
+          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
+          { data: data, cancelToken: this.source.token }
         )
         .then(res => {
           // console.log(res)
@@ -539,6 +540,20 @@ export default {
         })
         this.getOrder()
       }
+    },
+    hiddenFun() {
+      let vm = this
+      if (document.hidden) {
+        vm.source.cancel()
+        vm.seconds1302 = '00'
+        vm.minutes1302 = '00'
+        vm.hours1302 = '00'
+        vm.hour = '00'
+        vm.minutes = '00'
+        vm.seconds = '00'
+      } else {
+        vm.getOrder()
+      }
     }
   },
   created() {
@@ -568,21 +583,7 @@ export default {
     this._initScroll()
     var lastTime = +new Date()
     let vm = this
-    document.addEventListener('visibilitychange', function() {
-      if (document.visibilityState == 'visible') {
-        if (document.hidden) {
-          vm.source.cancel()
-          vm.seconds1302 = '00'
-          vm.minutes1302 = '00'
-          vm.hours1302 = '00'
-          vm.hour = '00'
-          vm.minutes = '00'
-          vm.seconds = '00'
-        } else {
-          vm.getOrder()
-        }
-      }
-    })
+    document.addEventListener('visibilitychange', function() {})
     let org = JSON.parse(localStorage.getItem('H5_geoLocation'))
     this.orgX = org.lng
     this.orgY = org.lat
@@ -590,8 +591,11 @@ export default {
   activated() {
     //从预约列表页面带获取传入的参数值
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
-
     this.getOrder()
+    document.addEventListener('visibilitychange', _this.hiddenFun, false)
+  },
+  deactivated() {
+    document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
   beforeRouteLeave(to, from, next) {
