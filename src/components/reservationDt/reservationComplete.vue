@@ -1,6 +1,6 @@
 <template>
   <div id="appoint-info">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
@@ -244,8 +244,9 @@ export default {
     },
     // 获取预约订单详情的
     async getOrder(){
-      let orderId = window.localStorage.getItem("orderId");
+      // let orderId = window.localStorage.getItem("orderId");
       // let orderId = 2773
+      let orderId = 4135;
       let res = await getOrderInfo(orderId);
       // alert(JSON.stringify(res))
       // console.log(res);
@@ -269,7 +270,7 @@ export default {
         zpayReserve = objDatas.reserveFee;
       }else{
         let payFee = null;
-        payFee = objDatas.reserveFee - objDatas.reserveCouponFee;
+        payFee = (objDatas.reserveFee - objDatas.reserveCouponFee).toFixed(2);
         zpayReserve = payFee <= 0 ? 0 : payFee;
       }
       this.$set(objDatas,'zpayReserve',zpayReserve);
@@ -279,7 +280,7 @@ export default {
         zpayParking = objDatas.parkingFee;
       }else{
         let payFee = null;
-        payFee = objDatas.parkingFee - objDatas.parkingCouponFee;
+        payFee = (objDatas.parkingFee - objDatas.parkingCouponFee).toFixed(2);
         zpayParking = payFee <= 0 ? 0 : payFee;
       }
       this.$set(objDatas,'zpayParking',zpayParking);
@@ -495,7 +496,8 @@ export default {
   .appoit-info-box
     position absolute
     width 100%
-    top 3.9375rem
+    // top 3.9375rem
+    top 0rem
     bottom 3.5rem
     // overflow hidden
   .item2-sytle

@@ -371,7 +371,7 @@ export default {
         zpayReserve = objDatas.reserveFee;
       }else{
         let payFee = null;
-        payFee = objDatas.reserveFee - objDatas.reserveCouponFee;
+        payFee = (objDatas.reserveFee - objDatas.reserveCouponFee).toFixed(2);
         zpayReserve = payFee <= 0 ? 0 : payFee;
       }
       this.$set(objDatas,'zpayReserve',zpayReserve);
