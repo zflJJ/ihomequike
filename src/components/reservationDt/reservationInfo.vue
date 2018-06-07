@@ -578,7 +578,6 @@ export default {
           vm.hour = '00'
           vm.minutes = '00'
           vm.seconds = '00'
-          vm.getOrder=null
         } else {
           vm.getOrder()
         }
