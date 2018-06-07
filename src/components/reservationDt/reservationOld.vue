@@ -187,7 +187,6 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){  
-
       this.userId = JSON.parse(localStorage.getItem('userId'));
       // this.userId = 30;
       this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
