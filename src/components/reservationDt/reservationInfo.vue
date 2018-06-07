@@ -1,6 +1,6 @@
 <template>
   <div id="appoint-info">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
@@ -207,7 +207,7 @@ export default {
     // 获取预约订单详情的
     async getOrder(){
       let orderId = window.localStorage.getItem("orderId");
-      var data = {order_id:4192,timestamp: new Date().getTime()}
+      var data = {order_id:orderId,timestamp: new Date().getTime()}
       if(this.count == 0){
         this.count = 1;
       }else {
@@ -236,9 +236,9 @@ export default {
             this.scroll.refresh();
           }
         }
-        this.getOrder();
+        // this.getOrder();
       }).catch(e => {
-        this.getOrder();
+        // this.getOrder();
         console.log(e)
       })
     },
@@ -537,16 +537,10 @@ export default {
     this.orderId = JSON.parse(localStorage.getItem('orderId'));
 
     this.getOrder();
-    // this.Interval();
-
   },
   mounted () {
-    // this.netWork();
   },
   beforeRouteLeave(to, from, next){
-    // if(from.path=='/appointInfo'){
-    //   clearInterval(this.interval);
-    // }
     // 将MessageBOx 关闭掉
     MessageBox.close(false)
     next();
@@ -727,7 +721,8 @@ export default {
   .appoit-info-box
     position absolute
     width 100%
-    top 3.9375rem
+    // top 3.9375rem
+    top 0rem
     bottom 3.5rem
     // overflow hidden
   .item2-sytle
