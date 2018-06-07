@@ -1,6 +1,6 @@
 <template>
   <div id="counp">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <mt-field
       label=""
       placeholder="请输入优惠券编号"
@@ -87,6 +87,7 @@
       },
       async getCounp(){
         let userId = localStorage.getItem("userId");
+        // let userId = 30;
         let res = await getCounpNumber(userId,this.counpNumber);
         console.log(res);
         if(res.error_code == 2000){
@@ -110,6 +111,7 @@
           Indicator.open();
         }
         let userId = localStorage.getItem('userId');
+        // let userId = 30;
         let res = await getMyCounpLists(userId, this.pageNum);
         console.log(res);
         if(res.error_code == '2000'){
@@ -316,7 +318,7 @@
   top 0
   bottom 0
   .in-style
-    margin-top 4.75rem
+    // margin-top 4.75rem
     height 3.125rem
     padding-left 1.1875rem
     padding-right 0.9375rem
@@ -330,7 +332,7 @@
     color #fff
   .coup-box
     width 100%
-    top 8rem
+    top 4rem
     // top 3.975rem
     bottom 0
     overflow hidden
