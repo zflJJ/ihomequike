@@ -784,7 +784,8 @@ export default {
       border-top 0.0625rem solid #E6E6E6
       background-color #FFF
     .car-info
-      padding-top 0.9375rem
+      // padding-top 0.9375rem
+      padding-top 10px
       padding-bottom 1.375rem
       .car-style
         display flex
