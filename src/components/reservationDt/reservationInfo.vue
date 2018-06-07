@@ -1,19 +1,19 @@
 <template>
   <div id="appoint-info">
-    <sub-header :headerMark="headerMark"></sub-header>   
-    <div class="appoit-info-box" ref="appoitInfoBox">   
+    <sub-header :headerMark="headerMark"></sub-header>
+    <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
         <div class="content">
-          <div class="guide-show" v-if="orderData.type === 2">
+          <div class="guide-show" v-if="orderData.parklocNumber">
             <div class="imgstyle">
              <div class="img-car-text">
-               <span v-if="orderData.type === 2">
+               <span v-if="orderData.parklocNumber">
                  <span class="border-text">车位</span><span>编号</span>
                </span>
              </div>
               <div class="car-ploate">
-                <div v-if="orderData.type === 2 && orderData.parklocNumber !== null">
+                <div v-if="orderData.parklocNumber">
                   {{orderData.parklocNumber}}
                 </div>
               </div>
@@ -23,7 +23,7 @@
           <div class="plate">
               <div class="plate-info">
                 <p>
-                  <span  class="name-text">{{orderData.parklotName}}</span>
+                  <span  class="name-textOne">{{orderData.parklotName}}</span>
                   <span class="yellow-s" v-if="orderData.parklotKind === 0">室内</span>
                   <span class="yellow-s" v-else-if="orderData.parklotKind === 1">室外</span>
                   <span class="yellow-s" v-else-if="orderData.parklotKind === 2">室内+室外</span>
@@ -80,8 +80,8 @@
               <span class="ta-info">￥ {{orderData.reserveFee}}</span>
             </div>
           </div>
-          
-        </div> 
+
+        </div>
         <div class="order-info">
           预约支付明细
         </div>
@@ -99,7 +99,7 @@
               </span>
             </div>
           </div>
-        </div> 
+        </div>
       </div>
     </div>
     <!--1.0 支付预约费 的时候显示约车位和约车场的数据-->
@@ -207,16 +207,17 @@ export default {
     // 获取预约订单详情的
     async getOrder(){
       let orderId = window.localStorage.getItem("orderId");
-      var data = {order_id:orderId,timestamp: new Date().getTime()}
+      var data = {order_id:4192,timestamp: new Date().getTime()}
       if(this.count == 0){
         this.count = 1;
       }else {
         data.isQuickReserve = 1;
       }
+      console.log(data)
       this.$http.post("http://develop.qhiehome.com/apiread/order/reserve/detail/query",data).then(res => {
         // console.log(res)
         if(res.body.error_code == 2000){
-          if(res.body.data.state == 1301){  
+          if(res.body.data.state == 1301){
             if(res.body.data.parkingState){
               if(res.body.data.parkingState == 1302){
                 localStorage.setItem("orderId",res.body.data.orderParkingId)
@@ -232,7 +233,7 @@ export default {
             this.dispoceOrderDat(res.body.data);
             this.orderData = res.body.data;
             this.parklotId = res.body.data.parklotId;
-            this.scroll.refresh();                        
+            this.scroll.refresh();
           }
         }
         this.getOrder();
@@ -303,7 +304,7 @@ export default {
         this.addTime(stopTime);
       }
     },
-  
+
     // 停车时间累加操作  这个是对数据的处理
     addTime(stopTime){
       console.log(stopTime);
@@ -360,8 +361,8 @@ export default {
           message:'当前网络无连接',
           position: 'bottom',
           duration:2000
-        });        
-        return false;        
+        });
+        return false;
       }else {
         this.lockDown(item);
         if(item == 1){
@@ -395,7 +396,7 @@ export default {
       //     message:'操作失败',
       //     position: 'bottom',
       //     duration:2000
-      //   });       
+      //   });
       // }
     },
 
@@ -473,13 +474,13 @@ export default {
           }
         });
     },
-    
+
 
     //取消预约请求(成功的话，表示还没有入场；不成功的话，表示已经入场，那么跳转到预约列表，重新得到订单);
     async cancelAppoint(){
       let res =  await canCelMyAppoint(this.orderId);
       if(res.error_code === 2000){
-        localStorage.setItem('myParklotId',this.parklotId)   
+        localStorage.setItem('myParklotId',this.parklotId)
         this.$router.push({
           name:'reservationOld',
           query:{parklotId: this.parklotId}
@@ -497,20 +498,20 @@ export default {
 
   },
   created () {
-    window.addEventListener("online", function () {  
-      this.network = true;      
+    window.addEventListener("online", function () {
+      this.network = true;
       return true;
-    }, true);  
-    window.addEventListener("offline", function () {  
+    }, true);
+    window.addEventListener("offline", function () {
       this.network = false;
       Toast({
         message:'当前网络无连接',
-        position: 'bottom',        
+        position: 'bottom',
         duration:2000
       })
-      Indicator.close();            
+      Indicator.close();
       return false;
-    }, true); 
+    }, true);
 
     this._initScroll();
     var lastTime = +new Date;
@@ -531,13 +532,13 @@ export default {
     this.orgY = org.lat;
   },
   activated () {
-     
+
     //从预约列表页面带获取传入的参数值
     this.orderId = JSON.parse(localStorage.getItem('orderId'));
-    
+
     this.getOrder();
     // this.Interval();
-    
+
   },
   mounted () {
     // this.netWork();
@@ -569,10 +570,20 @@ export default {
   bottom 0
   background-color #F4F4F4
   overflow hidden
+  .name-textOne
+    font-size 1.1rem
+    font-weight normal
+    font-stretch normal
+    line-height 1.4rem
+    letter-spacing 0rem
+    color #333333
   .name-text
-    font-size 0.9375rem
-    color #000
-    font-weight 600
+    font-size 1rem
+    color #1a1a1a
+    font-weight normal
+    font-stretch normal
+    line-height 2.7rem
+    letter-spacing 0rem
   .content
     z-index 1
     .guide-show
@@ -580,7 +591,7 @@ export default {
       background-color #ffffff
       box-sizing border-box
       border-bottom 0.0625rem solid #E6E6E6
-      height 7.5rem
+      height 7.7rem
       .imgstyle
         height 100%
         position relative
@@ -603,6 +614,9 @@ export default {
         align-items center
         font-size 2.375rem
         color #fff
+        /*width 21.5rem*/
+        /*height 5.5rem*/
+
     .plate
       padding 0.9375rem 1rem 1.125rem 0.875rem
       background-color #fff
@@ -613,22 +627,28 @@ export default {
         justify-content space-between
         font-size  0.9375rem
       .yellow-s
-        font-size 0.625rem
-        color #fff
-        // padding-right 0.2125rem
-        padding 0.2125rem
-        background-color #f7bd3d
-        border-radius 10px
+        padding 0.1rem 0.3rem 0.2rem  0.3rem
+        background-color #f6bc41
+        border-radius 0.1rem
+        padding 0.2125rem                                                                                                                                                  font-size 0.7rem
+        font-weight normal
+        font-stretch normal
+        line-height 1.2rem
+        letter-spacing 0rem
+        color #ffffff
       .daohang-img
         width 1.125rem
         height 1.125rem
         bg-img('../../assets/img/parking_go')
       .plate-content
         margin-top 0.525rem
-        font-size 0.8125rem
-        color #656565
+        font-size 0.8rem
+        font-weight normal
+        font-stretch normal
+        letter-spacing 0rem
+        color #666666
   .order-info
-    padding 0.4rem 0 0.4rem 0.875rem
+    padding 0.4rem 0 0.1rem 0.875rem
     font-size  0.8125rem
     color #656565
   .lastOne
@@ -636,7 +656,7 @@ export default {
   .plate-card
     border-top 2px solid #E6E6E6
     background-color #fff
-    padding-left 0.875rem
+    padding-left 0.5rem
     color #1A1A1A
     margin-top 0.625rem
     .p-message
@@ -650,18 +670,22 @@ export default {
     .time-add
       display flex
     .time-style
-      height 1.75rem
-      width 1.75rem
+      height 1.9rem
+      width 1.9rem
       background-color #3f3f3f
-      color #FFF
       text-align center
-      line-height 1.75rem
-      border-radius 0.266667rem
+      border-radius 0.2rem
+      font-size 1rem
+      font-weight normal
+      font-stretch normal
+      line-height 1.9rem
+      letter-spacing 0rem
+      color #ffffff
     .time-text
-      font-size 0.9375rem
-      line-height 1.75rem
-      padding-right 0.3125rem
-      padding-left 0.3125rem
+      font-size 0.9rem
+      line-height 1.9rem
+      padding-right 0.4rem
+      padding-left 0.4rem
     .ta-info
       font-size  0.8125rem
       color #656565
@@ -675,14 +699,14 @@ export default {
     bottom 0
     margin-bottom 0
     z-index 1000
-    color #FFF     
+    color #FFF
   .btnbgc
     height 4rem
     width 100%
     background-color rgb(245,245,245)
     position absolute
     bottom 0rem
-    
+
     .off-order
       position absolute
       width 60%
@@ -699,7 +723,9 @@ export default {
       border-radius 2rem
       background url("../../assets/img/Background@3x.png") no-repeat
       background-size cover
-      // position relative
+
+      width 15.7rem
+      height 3rem
   .appoit-info-box
     position absolute
     width 100%
