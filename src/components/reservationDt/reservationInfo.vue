@@ -614,8 +614,6 @@ export default {
         align-items center
         font-size 2.375rem
         color #fff
-        /*width 21.5rem*/
-        /*height 5.5rem*/
 
     .plate
       padding 0.9375rem 1rem 1.125rem 0.875rem
