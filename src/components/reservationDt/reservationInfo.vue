@@ -213,11 +213,13 @@ export default {
       }else {
         data.isQuickReserve = 1;
       }
-      console.log(data)
+     // console.log(data)
       this.$http.post("http://develop.qhiehome.com/apiread/order/reserve/detail/query",data).then(res => {
         // console.log(res)
         if(res.body.error_code == 2000){
-          if(res.body.data.state == 1301){
+          if(res.body.data==null||res.body.data==''||res.body.data==undefined){
+            this.getOrder()
+          }else if(res.body.data.state == 1301){
             if(res.body.data.parkingState){
               if(res.body.data.parkingState == 1302){
                 localStorage.setItem("orderId",res.body.data.orderParkingId)
@@ -236,9 +238,8 @@ export default {
             this.scroll.refresh();
           }
         }
-        this.getOrder();
       }).catch(e => {
-        this.getOrder();
+        //this.getOrder();
         console.log(e)
       })
     },
