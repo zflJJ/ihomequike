@@ -244,9 +244,9 @@ export default {
     },
     // 获取预约订单详情的
     async getOrder(){
-      // let orderId = window.localStorage.getItem("orderId");
+      let orderId = window.localStorage.getItem("orderId");
       // let orderId = 2773
-      let orderId = 4135;
+      // let orderId = 4135;
       let res = await getOrderInfo(orderId);
       // alert(JSON.stringify(res))
       // console.log(res);
