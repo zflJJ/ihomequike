@@ -1,6 +1,5 @@
 <template>
   <div id="appoint">
-    <sub-header :headerMark="headerMark"></sub-header>
     <div class="content p-a" ref="apponitBox"  @click="isHideen">
       <div>
         <!--1.0 车场信息-->
@@ -14,6 +13,7 @@
               <span v-else-if="pointedItem.parklotKind === 2" class="cars-color">室内+室外</span>
             </div>
             <div class="dis-2">
+
               <span class="redNumber">{{pointedItem.reservableAmount}}</span>
             </div>
           </div>
@@ -28,30 +28,21 @@
         </div>
 
         <div class="info text-plate">
-          <div>
-            <span class="textMin">入场车牌号</span>
+          <div class='plate-title'>
+            <span>请输入真实有效的车牌号码</span>
           </div>
         </div>
-        <div class="info">
-          <div>
-            <!-- <div class="ic ic-toll" style="vertical-align: middle"></div> -->
-            <!-- <span class="textMin">入场车牌号</span> -->
-          </div>
-          <br>
-          <div class="car-distance car-bottom">
-             <div class="selct-plate flex">
-              <input type="text" class="input-style" @click.stop="isNotsync(1)" v-model="proInfo">
-              &nbsp;
-              <input type="text" class="input-style2" @click.stop="isNotsync(2)" v-model="iniInfo">
-              &nbsp;&nbsp;
-              <input type="text" v-model="plateNum" @click.stop="isNotsync(3)" placeholder="车牌号码" class="plate-input" maxlength="6"></div>
-              <div class="plate-b fl-o">
-            </div>
-          </div>
+        <!--增加键盘输入框开始-->
+        <div class="input-wrap">
+          <div :class="['input-case',{caseactive:currentIndentIndex==inde}]" v-for='(item,inde) in indentLists' :key="inde" @click="changeInput($event)" :inde='inde'>{{item}}</div>
+          <div :class="['input-letter',{active:currentPlateIndex>0}]" @click='showKey'>
+           <span :class="['letter-item',{letteractive:currentPlateIndex==inde&&cursorFlag}]" v-for='(item,inde) in plateLists' :key="inde">{{item}}</span>
         </div>
+       </div>
+        <!--增加键盘输入框结束-->
         <div class="textInfo">请输入正确车牌，否则道闸无法放行。</div>
 
-        <div class="info text-plate">
+        <div class="info text-plate" style="padding-top:0.7rem;padding-bottom:0.7rem;font-size:0.9rem;color:#1a1a1a;">
           <div>
             <span class="textMin">验证手机号码</span>
           </div>
@@ -60,7 +51,7 @@
           <div class="car-distance">
             <div class="phone test-input p-r">
               <span class="phone-ic input-ic p-a"></span>
-              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList">
+              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem">
               <!--这里需要有一个两倍图 和 3倍图  需要对类名做判断-->
               <template v-if="isclosephone">
                 <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="closephone">
@@ -74,7 +65,7 @@
             </div>       
             <div class="code test-input p-r">
               <span class="code-ic input-ic p-a"></span>
-              <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4">
+              <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4" style="marging-top:0.9rem">
 
               <!--这里需要一个2倍图 和 3 倍图-->
               <template v-if="isclosecode">
@@ -103,7 +94,7 @@
           <div class="exprie">{{leaveTime}}</div>
         </div>
         <div class="tips">
-          <div class="tips-text">请按时离场，超时将收取额外费用。</div>
+          <div class="tips-text" style="font-size:0.8rem;color:#999999;">请按时离场，超时将收取额外费用。</div>
         </div>
       </div>
     </div>
@@ -125,12 +116,13 @@
                   v-on:confirm="confirmFn">
     </vue-pickers>
     <!-- 车牌 -->
-    <custom-key></custom-key>    
+    <transition :name="show?'slideUp':'slideDown'">
+      <key-board @getinput='getkeyboard' @hiden='hideKey' :showflag='KeyBoardflag' v-show="show"></key-board>
+    </transition>   
   </div>
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin';
-import subHeader from './header';
 import {saveUserBind,pay} from '../../server/getData';
 import {getMyCars} from '../../server/getData';
 import {postParklot} from '../../server/getData';
@@ -139,8 +131,8 @@ import {Toast,Indicator} from 'mint-ui';
 import { MessageBox } from 'mint-ui'; // 这个是一个消息提示框
 import BScroll from 'better-scroll';
 import VuePickers from "vue-pickers";
-import customKey from '../commonComponents/custom.vue'
-import Common from '../../common/js/common';
+import KeyBoard from '../commonComponents/keyboard.vue'
+import common from '../../common/js/common';
 import { debug } from 'util';
 
 
@@ -156,7 +148,6 @@ export default {
       proInfo:'粤',  //省份
       iniInfo:'B',     //车牌号位
       cletoast:null,      //车牌的提示信息
-      headerMark:'预约',
       phoneNumber:null, //用户输入的手机号
       code:'',        //用户输入的验证码
       codeBack:false, //是否已经成功推送短信验证码
@@ -228,7 +219,17 @@ export default {
       systemTime:null,//系统时间
       systemTimeFlag:false,
       pagechange: false, // 表示页面是否后台运行过
-      getSecond: null //表示页面在后台运行的时间
+      getSecond: null, //表示页面在后台运行的时间
+      KeyBoardflag: 0,
+      show: 0,
+      indentLists: ['粤', 'B'],
+      plateLists: ['车', '牌', '号', '码', null, null, null],
+      isPlateFlag: true,
+      cursorFlag: false,
+      currentPlateIndex: 0,
+      maxIndex: 5,
+      currentIndentIndex: null,
+      clickFlag: true
     }
   },
   computed:{
@@ -241,11 +242,103 @@ export default {
     },
   },
   components: {
-    subHeader,
     VuePickers,
-    customKey,
+    KeyBoard,
   },
   methods: {
+    getkeyboard (msg) {
+      let _this = this
+      if (_this.isPlateFlag) {
+        // 输入字母数字
+        if (msg === '删') {
+          _this.delPlate(msg)
+        } else {
+          _this.inputPlate(msg)
+        }
+      } else {
+        // 输入地区标识
+        if (msg === '删') {
+          return false
+        } else {
+          _this.inputIndent(msg)
+        }
+      }
+    },
+    hideKey () {
+      this.show = false
+    },
+    showKey () {
+      this.KeyBoardflag = 0
+      this.show = true
+      this.isPlateFlag = true
+      this.cursorFlag = true
+      this.currentIndentIndex = null
+    },
+    inputPlate (msg) {
+      let _this = this
+      let currentPlateIndex = _this.currentPlateIndex
+      _this.cursorFlag = true
+      // 判断是否正在输入状态
+      if (currentPlateIndex === 0) {
+        _this.plateLists = [null, null, null, null, null, null, null]
+      }
+      let lists = [..._this.plateLists]
+      if (currentPlateIndex <= _this.maxIndex) {
+        lists[currentPlateIndex] = msg
+        _this.plateLists = lists
+        currentPlateIndex++
+        _this.currentPlateIndex = currentPlateIndex
+      }
+    },
+    delPlate (mag) {
+      let _this = this
+      let currentPlateIndex = _this.currentPlateIndex
+      if (currentPlateIndex === 0) {
+        return false
+      } else {
+        --currentPlateIndex
+        _this.currentPlateIndex = currentPlateIndex
+      }
+      if (currentPlateIndex === 0) {
+        _this.plateLists = ['车', '牌', '号', '码', null, null]
+      } else {
+        let lists = [..._this.plateLists]
+        lists[currentPlateIndex] = null
+        _this.plateLists = lists
+      }
+    },
+    inputIndent (msg) {
+      let _this = this
+      let indentLists = [..._this.indentLists]
+      let currentIndentIndex = _this.currentIndentIndex
+      indentLists[currentIndentIndex] = msg
+      _this.indentLists = indentLists
+      if (currentIndentIndex === 1) {
+        _this.isPlateFlag = true
+        _this.cursorFlag = true
+        _this.currentIndentIndex = null
+      } else {
+        _this.currentIndentIndex = 1
+        _this.KeyBoardflag = 0
+      }
+    },
+    changeInput (e) {
+      let _this = this
+      let inde = Number(e.target.getAttribute('inde'))
+      _this.isPlateFlag = false
+      _this.cursorFlag = false
+      _this.show = true
+      _this.currentIndentIndex = inde
+      if (inde === 0) {
+        _this.KeyBoardflag = 1
+      } else {
+        _this.KeyBoardflag = 0
+      }
+    },
+    getItem(item) {
+      this.phoneNumber = item;
+      this.phoneArr = null;
+    },
     isHideen(){
       this.$root.eventHub.$emit('showK',null);
     },
@@ -306,14 +399,6 @@ export default {
           // 这里有个提示框  并且确认键（跳转到首页）
           this.messInfo();
         }else{
-          // debugger
-          // for(let i=0;i<this.reserveTimeList.length;i++){
-          //   console.log(this.systemTime)
-          //   if(this.systemTime > this.reserveTimeList[i].startTime && this.systemTime < this.reserveTimeList[i].endTime){
-          //     this.systemTimeFlag = true;
-          //     break;
-          //   }
-          // }
           this.filterTime(this.pointedItem.reserveTimeList);
           // console.log(this.timeList);
           this.disposeTime(this.timeList);
@@ -419,18 +504,7 @@ export default {
 
     //车牌
   // 输入框获取焦点事件，并激活模拟键盘 测试提交信息
-    isNotsync(index){
-      this.$root.eventHub.$emit('showK',index);
-      document.activeElement.blur()
-    },
-    focusEvent(){
-      this.cletoast.close();
-    },
-    // 点击选择牌头
-    chooseHPlate(){
-      this.plateShowed = true;
-      this.$root.eventHub.$emit('show-plate-selection');
-    },
+    
 
     // 动态遍历 phoneList
     getPhoneList() {
@@ -858,8 +932,6 @@ export default {
     },
     //立即预约
     async goApoint(){  
-      this.plateNo = this.proInfo + this.iniInfo + this.plateNum;
-      console.log(this.plateNo)
       // 点击立即预约的时候要做的事情是：
       // 1. 若入场车牌号填写不合法，toast提示：请输入正确的入场车牌号。
       //   若手机号码填写不合法，toast提示：请输入正确的手机号码。
@@ -871,7 +943,12 @@ export default {
       //   若没有空泊位，toast提示：车位已经被约满了。  （后台的）
       //   若无误，预约费为0时， toast提示：预约成功。进入【支付成功页面】，后台将此车位状态改为被预约。预约费不为0时，进入【支付】页面。后台将此车位状态改为被预约。
 
-      
+      //吴正增加车牌号码开始
+      let indentLists = [...this.indentLists]
+      let plateLists = [...this.plateLists]
+      let strs = indentLists.join('') + plateLists.join('')
+      this.plateNo=strs
+      //吴正增加代码结束
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
           message:'请选择您的车牌号',
@@ -951,22 +1028,6 @@ export default {
         this.params.jpushId = "H5";
         // timestamp	是	string	时间戳  时间戳
         this.params.timestamp = +new Date();
-        //       params:{
-        //   plateNumber:null, // 车牌号
-        //   phone:null,       //手机号     
-        //   startTime:null,   // 用户选择的时间戳
-        //   endTime:null,     // 用户选择的结束时间戳   
-        //   shareStartTime:null, // 共享开始时间戳
-        //   shareEndTime:null,  // 共享结束时间戳
-        //   totalFee:null,     //预约费
-        //   parklotId:null,    // 车场ID
-        //   ip:null,          // 用户IP
-        //   phoneModel:null,  //手机型号
-        //   unionId:null,     // 
-        //   openId:null,
-        //   timestamp:null, //时间戳
-        //   userId: null,  // 用户ID
-        // },
         let res = await saveUserBind(this.params);
         // alert(JSON.stringify(this.params));
         if(res.error_code == 2000){
@@ -1012,11 +1073,6 @@ export default {
         //如果金额存在 跳转到支付界面去， 不存在 或者为0 先调起预约支付接口
         else if(res.error_code === 2905){
           this.messInfo();
-          // Indicator.close();
-          // Toast({
-          //   message:'车位已经被预约满了',
-          //   duration:1500
-          // })
           return;
         }else if(res.error_code === 2904){  //车牌号被重复预约
           Indicator.close();
@@ -1051,32 +1107,6 @@ export default {
 
       }
       
-      // this.params.openId = "openId";
-      // this.params.unionId = "unionId";
-      
-      // this.params.plateNumber = this.plateNo;
-      // this.params.phone = this.phoneNumber;
-      // this.params.totalFee = this.price;
-      // this.params.parklotId = 11;            
-      // // this.params.unionId = window.localStorage.getItem("unionId");      
-      // // this.params.openId = window.localStorage.getItem("openId");     
-      // this.params.timestamp = +new Date();
-      // let u = window.navigator.userAgent;
-      // let uArr = u.split(";");
-      // let len = null;
-      // for(let i=0;i<uArr.length;i++){
-      //    if (uArr[i].indexOf("Build/") > 0) {
-      //      len = i;
-      //      break;
-      //    } 
-      // }
-      // try {
-      //   // this.params.ip = window.localStorage.getItem("mobileId")      
-      //   // this.params.phoneModel = uArr[len].substring(0, uArr[len].indexOf("Build/"));  
-      // } catch (error) {
-        
-      // }   
-      // console.log(this.params);
       
     },
     //选择车牌号
@@ -1097,42 +1127,10 @@ export default {
   created () {
     // debugger
     this.parkLotId = Number(JSON.parse(localStorage.getItem('H5_park_lot_id')));
-     //接受选择的省份和牌头
-    this.$root.eventHub.$on('confirm-plate-h',e=>{
-      this.proInfo = e.proInfo;
-      this.iniInfo = e.iniInfo;
-      this.plateShowed = false;
-    });
-    //隐藏车牌选择组件
-    this.$root.eventHub.$on('hide-plate',()=>{
-      this.plateShowed = false;
-    });
-    this.$root.eventHub.$on('getItems',(item)=>{
-        this.proInfo = item;
-    });
-    this.$root.eventHub.$on('getkeyData',(item)=>{
-        this.iniInfo = item;
-    });
-    this.$root.eventHub.$on('getkeyNumber',(item)=>{
-      if(item === 'del'){
-          this.plateNum = this.plateNum.slice(0,this.plateNum.length-1);
-          return;
-      }
-      if(this.plateNum.length === 6){
-        return;
-      }else{
-        this.plateNum = this.plateNum + item;
-      }
-    });
     //安全验证隐藏
     this.$root.eventHub.$on('hide-savety-confirm',()=>{
       this.savetyConfirmShowed = false;
     });
-    //默认手机号获取
-    // let phone = Common.getStorage('userPhone');
-    // if(phone){
-      // this.phoneNumber = phone;
-    // }
   },
   deactivated() {
     // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件
@@ -1224,13 +1222,13 @@ export default {
     z-index 20000 !important
   .content
     width 100%
-    top 3.975rem
+    top 0
     bottom 3.5rem
     overflow hidden
     .textInfo
-      color #9a9a9a
+      color #999999
       margin-top 0.25rem
-      font-size 0.75rem
+      font-size 0.8rem
       padding-left 0.9375rem
       padding-bottom    .5rem
     .info
@@ -1385,6 +1383,7 @@ export default {
       display flex
       align-items center
       color #999999
+      font-size 0.9rem
       .redNumber
         color rgb(208, 29, 149)
         font-size 1.2rem
@@ -1400,46 +1399,6 @@ export default {
         border none
         out-line none
         text-align right
-      /*.address
-        font-size .75rem
-        color #666666
-        margin-top .5rem
-        overflow hidden
-        text-overflow ellipsis
-        white-space wrap
-    .price
-      border-bottom 1px solid #E6E6E6
-      .price-num
-        color #ff5c5a
-        font-size .875rem
-    .charge-standard
-      a
-        font-size .875rem
-        color #999
-    .car
-      .info
-        margin-right .875rem
-        color #999
-        border-bottom none
-      .ic
-        width .5625rem
-        height .9375rem
-        bg-img('../../assets/img/arrow_r')
-        margin-right .9375rem
-        margin-top: .15rem
-
-    !*.ic*!
-      !*width .75rem*!
-      !*height 1rem*!
-      !*left .9rem*!
-      !*top .95rem*!
-      !*bg-img('../../assets/img/btn_map')*!
-    .item
-      padding .75rem .9375rem
-      font-size 1rem
-      color #1A1A1A
-      background-color #FFF*/
-
   .to-appoint
     position fixed
     width 100%
@@ -1470,12 +1429,11 @@ export default {
   border:4px solid #E6E6E6
   border 0
   border-radius :1.5rem
-  height:3rem
+  height:2.8rem
   padding-left:3rem
-  margin-top 0.5rem
-  margin-bottom 0.5rem
+  margin-top 0.2rem
+  margin-bottom 0.2rem
 .p-r 
-  // border-bottom 0.0625rem solid #e6e6e6
   .phone
     min-width: 85%
     margin-top 0.6rem
@@ -1496,7 +1454,7 @@ export default {
     display :inline-block
     height:50%
     max-width :40%
-    font-size 1rem
+    font-size 0.9rem
     line-height :50%
     border :none
     outline :none
@@ -1523,13 +1481,10 @@ export default {
     transform :translateY(-50%)
     right: .8rem
   .get-code-btn
-    border:1px solid #D01D95
     height 1.56rem
     line-height :1.56rem
     font-size .875rem
-    // font-size .75rem
     color :#D01D95
-    border-radius  .78rem
     top 50%
     transform :translateY(-50%)
     min-width :30%
@@ -1538,6 +1493,44 @@ export default {
   input
     color :#D01D95
     margin-top 0.6rem
+.input-wrap
+  display flex
+  width 25rem
+  height 3.8rem
+  background-color #ffffff
+  padding 0.7rem 0 0.7rem 0.5rem
+  .input-case
+    margin-left 0.5rem
+    width 2.4rem
+    height 2.4rem
+    border 0.0625rem solid #cccccc
+    border-radius 0.2rem
+    text-align center
+    line-height calc(2.4rem - 2px)
+    font-size 1.1rem
+  .input-letter
+    margin-left 0.8rem
+    width 16rem
+    height 2.4rem
+    padding 0.6rem 0
+    font-size 1rem
+    color #cccccc
+    .letter-item
+      display block
+      float left
+      width 1.2rem
+      height 1.2rem
+      line-height 1.2rem
+      text-align right
+    .letteractive
+      border-left 1px solid #d01c95
+.active
+ color  #1a1a1a!important
+.caseactive
+  color  #d01c95!important
+.plate-title
+  font-size 0.9rem
+  color #999999
 </style>
 
 

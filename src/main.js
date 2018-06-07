@@ -6,6 +6,7 @@ import Vue from 'vue'
 import vueResourse from 'vue-resource'
 import MintUI from 'mint-ui'
 import 'mint-ui/lib/style.css'
+import './assets/font/iconfont.css'
 import App from './App'
 Vue.use(MintUI)
 import router from './router'
