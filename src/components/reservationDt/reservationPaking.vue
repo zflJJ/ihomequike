@@ -599,7 +599,6 @@ export default {
     
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
-    this.Interval();
   },
   // 开始加载地图
   mounted () {
