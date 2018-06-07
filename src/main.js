@@ -33,7 +33,7 @@ Vue.use(vueResourse)
     /* eslint-disable no-new */
 
 /*使用了axios配置*/
-axios.defaults.timeout = 1000;
+//axios.defaults.timeout = 1000;
 // axios.defaults.timeout = 500000
 // axios.defaults.headers.post['Content-Type'] = 'application/json;charset=UTF-8'
 // axios.defaults.baseURL = 'http://119.23.25.170:8088/api/' //1.1
