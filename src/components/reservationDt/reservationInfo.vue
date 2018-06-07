@@ -220,7 +220,9 @@ export default {
           if(res.body.data==null||res.body.data==''||res.body.data==undefined){
             this.getOrder()
           }else if(res.body.data.state == 1301){
-            if(res.body.data.parkingState){
+           if(res.body.data.parkingState==null){
+             this.getOrder()
+           }else if(res.body.data.parkingState){
               if(res.body.data.parkingState == 1302){
                 localStorage.setItem("orderId",res.body.data.orderParkingId)
                 this.$router.push('reservationPaking');
@@ -228,6 +230,7 @@ export default {
                 this.$router.push('reservationOld');
               }
             }
+
             this.lockId = null;
             this.desX = res.body.data.lng;
             this.desY = res.body.data.lat;
@@ -238,8 +241,9 @@ export default {
             this.scroll.refresh();
           }
         }
+        // this.getOrder();
       }).catch(e => {
-        //this.getOrder();
+        // this.getOrder();
         console.log(e)
       })
     },
