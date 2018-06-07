@@ -1,6 +1,5 @@
 <template>
   <div id="appoint-info">
-    <sub-header :headerMark="headerMark"></sub-header>
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
@@ -202,7 +201,6 @@ export default {
   name:'appointInfo',
   data () {
     return {
-      headerMark:'预约详情',
       orderId:'',  //根据后台返回的订单号
       estateName:'', //车场名
       startTime:'',  //开始时间
@@ -238,7 +236,6 @@ export default {
     }
   },
   components: {
-    subHeader
   },
   /*这里没有必要再做处理，直接在上一级页面做处理即可*/
   computed: {
@@ -766,7 +763,7 @@ export default {
   .appoit-info-box
     position absolute
     width 100%
-    top 3.9375rem
+    top 0
     bottom 3.375rem
     // overflow hidden
   .item2-sytle

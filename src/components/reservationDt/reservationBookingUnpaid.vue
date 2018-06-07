@@ -1,6 +1,5 @@
 <template>
   <div id="appoint-info">
-    <sub-header :headerMark="headerMark"></sub-header>
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
@@ -178,7 +177,6 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin';
-
 import BScroll from 'better-scroll';
 import subHeader from './header';
 import {Indicator,Toast} from 'mint-ui';
@@ -225,7 +223,6 @@ export default {
     }
   },
   components: {
-    subHeader
   },
   /*这里没有必要再做处理，直接在上一级页面做处理即可*/
   computed: {
