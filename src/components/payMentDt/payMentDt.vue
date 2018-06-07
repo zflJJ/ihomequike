@@ -1,10 +1,10 @@
 <template>
   <div id="pay-ment" ref="payment">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="pay-ment-box" ref="payMentBox">
       <div class="content">
         <div class="coup">
-          <div class="ct-info">选择优惠券信息</div>
+          <div class="ct-info" style="margin-top: .5rem">选择优惠券信息</div>
           <div class="ct-item clearfix" @click="goCounp">优惠券<span class="coup-ic f-r"></span><span class="coup-num f-r">{{counpsTips}}</span></div>
         </div>
         <div class="payWays p-r">
@@ -444,7 +444,7 @@
     // margin-top 4.5rem
     .coup
       .ct-item
-        border-bottom 1px solid #e5e5e5e5e5e5
+        // border-bottom 1px solid #e5e5e5e5e5e5
       .coup-num
         margin-top .05rem
         color #FF5C5A
@@ -458,14 +458,14 @@
   .ct-item
     padding .75rem 1.2rem
     background-color #ffffff
-    font-size 1rem
-    border-top 1px solid #e5e5e5
+    font-size 1.1rem
+    // border-top 1px solid #e5e5e5
   .ct-info
     padding .5rem 1.2rem
-    font-size .875rem
+    font-size .9rem
   .payWays
     margin-top .5rem
-    border-bottom .0625rem solid #e5e5e5
+    // border-bottom .0625rem solid #e5e5e5
     .pay
       .info
         font-size .875rem
@@ -509,7 +509,8 @@
   .pay-ment-box
     position absolute
     width 100%
-    top 4.5rem
+    // top 4.5rem
+    top 0rem
     bottom 0
     overflow hidden
 </style>

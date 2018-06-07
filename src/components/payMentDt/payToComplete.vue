@@ -1,10 +1,10 @@
 <template>
   <div id="pay-To-Complete">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="bgc"></div>
     <div v-if="routerFlag == 'reservationPaking' " class="comfirm" @click="btn1">再次预约</div>         
     <div v-else class="comfirm" @click="btn1">查看订单</div>   
-    <img class="bgc2" src="../../assets/img/erweima.jpg">
+    <img class="bgc2" src="../../assets/img/product.jpg">
     <div class="text">关注公众号，随时预约更多停车场空泊位。</div>
   </div>
 </template>

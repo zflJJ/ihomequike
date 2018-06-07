@@ -1,6 +1,6 @@
 <template>
   <div id="car">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <!--<no-data-tips :tipMark ="tipMark"  :parkItems="carItems"></no-data-tips>-->
     <no-data-tips :tipMark ="tipMark"  :parkItems="carItems"></no-data-tips>
 
@@ -157,6 +157,7 @@ export default {
     async getCars(){
       Indicator.open();
       let userId = localStorage.getItem('userId');
+      // let userId = 30;
       let res = await getMyCars(userId,this.pageNum);
       console.log(res);
       if(res.error_code == 2000){
@@ -178,6 +179,7 @@ export default {
     //删除车牌号
     async removeCar(ids){
       let userId = localStorage.getItem('userId');
+      // let userId = 30;
       let res =await removeMyCars(userId,ids);
       console.log(res);
       if(res.error_code === 2000){
@@ -241,12 +243,6 @@ export default {
     },
   },
   beforeRouteEnter(to, from, next) {
-    // if(from.path =='/myAcount'){
-    //   localStorage.setItem('carFromAcount',true);
-    // }
-    // else if(from.path == '/appoint'){
-    //   localStorage.setItem('carFromAcount',false);
-    // }
     next();
   }
 }
@@ -262,11 +258,12 @@ export default {
   bottom 0
   .content-box
     width 100%
-    top 3.9375rem
+    // top 3.9375rem
+    top 0rem
     bottom 3.5rem
     overflow hidden
     .content
-      padding-top .8125rem
+      // padding-top .8125rem
       .car-lists
         padding 1.125rem .9375rem
         background-color #FFF
@@ -291,7 +288,7 @@ export default {
       .edited
         padding-left 3.125rem
       .bd-top
-        border-top 1px solid #E6E6E6
+        // border-top 1px solid #E6E6E6
   .bottom-bars
     width 100%
     height 3.5rem

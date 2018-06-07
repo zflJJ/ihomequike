@@ -1,6 +1,6 @@
 <template>
   <div id="appoint">
-    <sub-header :headerMark="headerMark"></sub-header>
+    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="content p-a" ref="apponitBox">
       <div>
         <!--1.0 车场信息-->
@@ -187,8 +187,11 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){  
+
       this.userId = JSON.parse(localStorage.getItem('userId'));
+      // this.userId = 30;
       this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      // this.parklotId = 16;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -774,19 +777,19 @@ export default {
     z-index 20000 !important
   .content
     width 100%
-    top 3.975rem
+    top 0rem
     bottom 3.5rem
     overflow hidden
     .info
-      padding-left 0.9375rem
-      padding-right 0.9375rem
+      padding-left 1rem
+      padding-right 1rem
       border-bottom 0.0625rem  solid #E6E6E6
-      border-top 0.0625rem solid #E6E6E6
       background-color #FFF
     .car-info
-      // padding-top 0.9375rem
-      padding-top 10px
-      padding-bottom 1.375rem
+      padding-top 1.1rem
+      padding-bottom 1.4rem
+      height 5.3rem
+      box-sizing border-box
       .car-style
         display flex
         justify-content space-between
@@ -805,7 +808,7 @@ export default {
     /*.car-distance
       margin-top 0.55rem*/
     .text-distance
-      font-size 0.875rem
+      font-size 0.9rem
       color #9a9a9a
 
     .ic
@@ -819,9 +822,9 @@ export default {
     .ic-toll
       bg-img('../../assets/img/home_order_rule')
     .text
-        font-size 0.9375rem
-        font-weight 700
-        color #000
+      font-size 1rem
+      font-weight 700
+      color #000
     .toll-rules
       margin-top  0.5625rem
       padding-top .9275rem
@@ -830,7 +833,7 @@ export default {
         font-size .75rem
     .plate-number
       box-sizing border-box
-      margin-top 0.5625rem
+      margin-top 0.7rem
       display flex
       justify-content space-between
       align-items center
@@ -842,7 +845,7 @@ export default {
       margin-top 0
 
     .stop-time
-      margin-top 0.5625rem
+      margin-top .5rem
       height 3.625rem
       display flex
       justify-content space-between
@@ -862,19 +865,23 @@ export default {
     .dis-2
       display flex
       align-items center
+      font-size 1rem
       color #9a9a9a
       .plate-info
-        font-size .75rem
+        font-size 1rem
         color #9a9a9a
         border none
         out-line none
         text-align right
       .redNumber
+        padding-right .3rem
+        font-size 1.4rem
         color rgb(208, 29, 149)
     .dis-inline
       display inline
       .black-location
         float right
+        font-size .8rem
         color #9a9a9a
   .to-appoint
     position fixed
@@ -902,6 +909,9 @@ export default {
       width 37.33333%
     .price-style
       font-size 1.2rem
+   .exprie
+      font-size 1rem
+
 
 </style>
 
