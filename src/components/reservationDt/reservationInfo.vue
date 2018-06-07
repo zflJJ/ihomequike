@@ -241,14 +241,9 @@ export default {
             this.scroll.refresh();
           }
         }
-<<<<<<< HEAD
         // this.getOrder();
       }).catch(e => {
         // this.getOrder();
-=======
-      }).catch(e => {
-        //this.getOrder();
->>>>>>> 9a4f7cbf1f1f82101966aa57700f036b6e7ca0ff
         console.log(e)
       })
     },
