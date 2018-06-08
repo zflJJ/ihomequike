@@ -188,7 +188,6 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin';
-
 import BScroll from 'better-scroll';
 import subHeader from './header';
 import {Indicator,Toast} from 'mint-ui';
@@ -230,7 +229,8 @@ export default {
       network:true,
       goPayFlag:true,//是否执行
       intervalMy:null,
-      count:0
+      count:0,
+      visibFlag: true, // 阈值
     }
   },
   components: {
@@ -244,14 +244,12 @@ export default {
   },
   methods: {
     //做轮询操作,查询订单状态
-    Interval(){
-      // this.intervalMy = setInterval(this.getOrder, 10000);
-      let _this = this;
-      this.intervalMy = setInterval(() => {
-        _this.getOrder();
-      }, 10000);
-      
-    },
+    // Interval(){
+    //   let _this = this;
+    //   this.intervalMy = setInterval(() => {
+    //     _this.getOrder();
+    //   }, 10000);
+    // },
     goPay(){
       this.getOrder(1);
     },
@@ -271,7 +269,7 @@ export default {
       });
     },
     // 获取预约订单详情的
-    async getOrder(num){
+    getOrder(num){
       var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}
       if(this.count == 0){
         this.count = 1;
@@ -302,6 +300,10 @@ export default {
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
             this.$router.push('payToComplete');  
+          }else if(res.body.data.state == 1302 && this.visibFlag){ 
+            this.intervalMy = setTimeout(() => {
+              this.getOrder();
+            }, 10000);
           }
           this.getOrderFlag = false;        
           this.lockId = null;
@@ -521,14 +523,17 @@ export default {
     visibEvent(){
       if(document.visibilityState=='hidden'){
         console.log('执行了');
-        clearInterval(this.intervalMy);
+        clearTimeout(this.intervalMy);
+        this.visibFlag = false
       }else{
+        this.visibFlag = true;
         this.seconds1302 = '00';
         this.minutes1302 = '00';
         this.hours1302 = '00';
         this.hour = "00";
         this.minutes = "00";
         this.seconds = "00";
+        clearTimeout(this.intervalMy);
         this.getOrder();
       }
     },
@@ -560,14 +565,12 @@ export default {
   },
   activated () {
     //从预约列表页面带获取传入的参数值
-    
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
   },
   deactivated(){
-    clearInterval(this.intervalMy);
+    clearTimeout(this.intervalMy);
     document.removeEventListener('visibilitychange',this.visibEvent,false);
-
   },
   // 开始加载地图
   mounted () {
