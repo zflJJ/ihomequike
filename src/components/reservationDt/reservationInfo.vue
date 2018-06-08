@@ -208,6 +208,7 @@ export default {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
+      // var data = { order_id: 4373, timestamp: new Date().getTime() }
       if (this.count == 0) {
         this.count = 1
       } else {
