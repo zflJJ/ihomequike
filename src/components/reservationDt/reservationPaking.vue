@@ -348,13 +348,13 @@ export default {
         objDatas.enterTime = '————';
       }else{
         let enterTime = formatTimeStamp(objDatas.enterTime);
-        objDatas.enterTime = enterTime.substr(0,16);
+        objDatas.enterTime = enterTime.substr(5,11);
       }
       if(objDatas.leaveTime === null){
         objDatas.leaveTime = '————';
       }else{
         let leaveTime = formatTimeStamp(objDatas.leaveTime);
-        objDatas.leaveTime = leaveTime.substr(0,16);
+        objDatas.leaveTime = leaveTime.substr(5,11);
       }
       this.countdown = objDatas.enterCountdownTime;
       this.downCounts();
