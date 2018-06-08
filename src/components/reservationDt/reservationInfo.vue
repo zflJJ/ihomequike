@@ -140,7 +140,6 @@ import BScroll from 'better-scroll'
 import subHeader from './header'
 import { Indicator, Toast } from 'mint-ui'
 import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData'
-// import { setTimeout, clearInterval } from 'timers';
 import { MessageBox } from 'mint-ui'
 import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
@@ -179,7 +178,7 @@ export default {
       AMAP: null, // 高德地图的实例
       lockId: null,
       network: true,
-      count: 0
+      count: 0,
     }
   },
   components: {
@@ -205,7 +204,7 @@ export default {
       })
     },
     // 获取预约订单详情的
-    async getOrder() {
+    getOrder() {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
@@ -214,22 +213,18 @@ export default {
       } else {
         data.isQuickReserve = 1
       }
-      // console.log(data)
       //取消请求
-      this.$http
-        .post(
-          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
-          data
-        )
+      this.$http.post('http://develop.qhiehome.com/apiread/order/reserve/detail/query',data)
         .then(res => {
-          // console.log(res)
           if (res.body.error_code == 2000) {
             if (
-              res.body.data == null ||
-              res.body.data == '' ||
-              res.body.data == undefined
+              res.body.data.orderId == null &&
+              res.body.data.enterCountdownTime
             ) {
-                this.getOrder()
+              this.countdown = res.body.data.enterCountdownTime
+              this.downCounts()
+              this.getOrder()
+              console.log(1234);
             } else if (res.body.data.state == 1301) {
               
               if (res.body.data.parkingState == null) {
@@ -248,7 +243,6 @@ export default {
                   this.$router.push('reservationOld')
                 }
               }
-
               this.lockId = null
               this.desX = res.body.data.lng
               this.desY = res.body.data.lat
@@ -259,10 +253,8 @@ export default {
               this.scroll.refresh()
             }
           }
-          // this.getOrder();
         })
         .catch(e => {
-          // this.getOrder();
           console.log(e)
         })
     },
@@ -442,7 +434,6 @@ export default {
       let minutes = 0
       let seconds = 0
       let miliSeconds = 0
-      console.log(this.countdown)
       hour = parseInt(
         (this.countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
       )
@@ -470,7 +461,6 @@ export default {
         }
         if (hour == 0 && minutes == 0 && seconds == 0) {
           clearInterval(this.interval)
-          // this.$router.push('appointment');
         }
         hour += ''
         minutes += ''
@@ -543,7 +533,6 @@ export default {
     hiddenFun() {
       let vm = this
       if (document.hidden) {
-        vm.httpFlag = false
         vm.seconds1302 = '00'
         vm.minutes1302 = '00'
         vm.hours1302 = '00'
@@ -551,7 +540,6 @@ export default {
         vm.minutes = '00'
         vm.seconds = '00'
       } else {
-        vm.httpFlag = true
         vm.getOrder()
       }
     }
@@ -591,13 +579,15 @@ export default {
   activated() {
     //从预约列表页面带获取传入的参数值
     let _this = this
+    _this.count = 0;
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
-    //document.addEventListener('visibilitychange', _this.hiddenFun, false)
+    // document.addEventListener('visibilitychange', _this.hiddenFun, false)
   },
   deactivated() {
     let _this = this
-    //document.removeEventListener('visibilitychange', _this.hiddenFun, false)
+    clearInterval(this.Interval);
+    // document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
   beforeRouteLeave(to, from, next) {

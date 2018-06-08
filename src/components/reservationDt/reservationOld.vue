@@ -187,10 +187,10 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){  
-      // this.userId = JSON.parse(localStorage.getItem('userId'));
-      this.userId = 30;
-      // this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
-      this.parklotId = 16;
+      this.userId = JSON.parse(localStorage.getItem('userId'));
+      // this.userId = 30;
+      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      // this.parklotId = 16;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -628,10 +628,10 @@ export default {
     },
     //立即预约
     async goApoint(){     
-      // this.params.parklot_id
       console.log(this.params);
-      // this.params.user_id = localStorage.getItem('userId');
-      this.params.user_id = 30;
+      this.params.user_id = localStorage.getItem('userId');
+      // this.params.user_id = 30;
+      
       this.params.plate_id = this.plateNoId;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
