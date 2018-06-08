@@ -206,7 +206,7 @@ export default {
       })
     },
     // 获取预约订单详情的
-    async getOrder() {
+    getOrder() {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
@@ -217,11 +217,12 @@ export default {
       }
       // console.log(data)
       //取消请求
-      this.source = this.$http.CancelToken.source()
-      this.$http
-        .post(
-          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
-          { data: data, cancelToken: this.source.token }
+      // console.log(this.$http.Cancel);
+      // this.source = this.$http.CancelToken.source();
+      // this.source = this.axios.CancelToken.source();
+      console.log(this.source);
+      this.$http.post('http://develop.qhiehome.com/apiread/order/reserve/detail/query',
+            data
         )
         .then(res => {
           // console.log(res)
@@ -249,7 +250,6 @@ export default {
                   this.$router.push('reservationOld')
                 }
               }
-
               this.lockId = null
               this.desX = res.body.data.lng
               this.desY = res.body.data.lat
@@ -260,10 +260,8 @@ export default {
               this.scroll.refresh()
             }
           }
-          // this.getOrder();
         })
         .catch(e => {
-          // this.getOrder();
           console.log(e)
         })
     },
@@ -592,9 +590,11 @@ export default {
     //从预约列表页面带获取传入的参数值
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
+    let _this = this;
     document.addEventListener('visibilitychange', _this.hiddenFun, false)
   },
   deactivated() {
+    let _this = this
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
