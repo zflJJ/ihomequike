@@ -193,10 +193,8 @@ import BScroll from 'better-scroll';
 import subHeader from './header';
 import {Indicator,Toast} from 'mint-ui';
 import {canCelMyAppoint, getOrderInfo,lockChange} from '../../server/getData';
-// import { setTimeout, clearInterval } from 'timers';
 import { MessageBox } from 'mint-ui';
 import { asyncAMap } from '../../common/js/H5plugin';
-import { clearInterval } from 'timers';
 export default {
   name:'appointInfo',
   data () {
@@ -296,7 +294,11 @@ export default {
               this.$router.push('payMentDt');  
             }
             return false;
-          }else if(res.body.data.state == 1304 || res.body.data.state == 1307 || res.body.data.state == 1308 || res.body.data.state == 1309 || res.body.data.state == 1310){                   
+          }else if(res.body.data.state == 1304 || 
+          res.body.data.state == 1307 || 
+          res.body.data.state == 1308 || 
+          res.body.data.state == 1309 || 
+          res.body.data.state == 1310){                   
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
             this.$router.push('payToComplete');  
@@ -320,48 +322,6 @@ export default {
           console.log(res,'错误码是'+res.error_code);
         }        
       })            
-      let res = await getOrderInfo(JSON.parse(localStorage.getItem('orderId')));
-      // let res = await getOrderInfo(1200);        
-      console.log(res);
-      // alert(JSON.stringify(res.data.orderId))
-      if(res.error_code === 2000){
-        if(res.data.state == 1303){                    
-          this.getOrderFlag = true;
-          localStorage.setItem('H5_fees',res.data.parkingFee);  //保存的支付金额   
-          localStorage.setItem('orderId',res.data.orderId);  //保存停车订单ID
-          this.orderData = res.data;                         
-          this.dispoceOrderDat(res.data);  
-          localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
-          localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-          if(res.data.parkingFee == 0){
-            this.$router.push('payToComplete');  
-          }else {
-            this.$router.push('payMentDt');  
-          }
-          return false;
-        }else if(res.data.state == 1304 || res.data.state == 1307 || res.data.state == 1308 || res.data.state == 1309 || res.data.state == 1310){                   
-          localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
-          localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-          this.$router.push('payToComplete');  
-        }
-        this.getOrderFlag = false;        
-        this.lockId = null;
-        this.desX = res.data.lng;
-        this.desY = res.data.lat;
-        this.lockId = res.data.lockId;
-        this.dispoceOrderDat(res.data);
-        this.orderData = res.data;
-        if(num == 1){
-          Indicator.close();                    
-          Toast({
-            message:'请先离场再支付',
-            position: 'bottom',
-            duration:2000
-          });            
-        }
-      }else{
-        console.log(res,'错误码是'+res.error_code);
-      }
     },
     // 预处理 订单详情的数据
     dispoceOrderDat(objDatas){
@@ -558,6 +518,20 @@ export default {
         this.seconds = seconds;
       },1000);
     },
+    visibEvent(){
+      if(document.visibilityState=='hidden'){
+        console.log('执行了');
+        clearInterval(this.intervalMy);
+      }else{
+        this.seconds1302 = '00';
+        this.minutes1302 = '00';
+        this.hours1302 = '00';
+        this.hour = "00";
+        this.minutes = "00";
+        this.seconds = "00";
+        this.getOrder();
+      }
+    },
   },
   created () {
     window.addEventListener("online", function () {  
@@ -579,17 +553,7 @@ export default {
     this._initScroll();
     var lastTime = +new Date;
     let vm = this;
-    document.addEventListener("visibilitychange", function(){
-      if(document.visibilityState=='visible'){
-        vm.seconds1302 = '00';
-        vm.minutes1302 = '00';
-        vm.hours1302 = '00';
-        vm.hour = "00";
-        vm.minutes = "00";
-        vm.seconds = "00";
-        vm.getOrder();
-      }
-    });
+    document.addEventListener("visibilitychange",vm.visibEvent ,false);
     let org = JSON.parse(localStorage.getItem('H5_geoLocation'));
     this.orgX = org.lng;
     this.orgY = org.lat;
@@ -600,16 +564,16 @@ export default {
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
   },
+  deactivated(){
+    clearInterval(this.intervalMy);
+    document.removeEventListener('visibilitychange',this.visibEvent,false);
+
+  },
   // 开始加载地图
   mounted () {
     // this.loadAMap();
   },
   beforeRouteLeave(to, from, next){
-    // if(from.path=='/appointInfo'){
-    //   clearInterval(this.interval);
-    // }
-    // 将MessageBOx 关闭掉
-    // clearInterval(this.intervalMy);
     MessageBox.close(false)
     next();
   },

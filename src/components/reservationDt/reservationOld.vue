@@ -187,10 +187,10 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){  
-      this.userId = JSON.parse(localStorage.getItem('userId'));
-      // this.userId = 30;
-      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
-      // this.parklotId = 16;
+      // this.userId = JSON.parse(localStorage.getItem('userId'));
+      this.userId = 30;
+      // this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      this.parklotId = 16;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -533,7 +533,6 @@ export default {
         this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+':'+leaveMiunte+':00';
         this.params.shareStartTime = obj.learve.startTime;
         this.params.shareEndTime =  this.params.endTime =  obj.learve.endTime;
-        console.log(timetap)        
         this.params.startTime = timetap;
       }
       // share_startTime:null, // 共享开始时间戳
@@ -548,7 +547,6 @@ export default {
       var x = null;
       let miunte = parseInt(priceTime / 60000);
       console.log(miunte);
-      // this.feeList[0].finishTime = this.feeList[0].finishTime * 60000;
       for(var i=0;i<this.feeList.length;i++){
         if(miunte <= this.feeList[i].finishTime){
           x = i;
@@ -561,7 +559,6 @@ export default {
           x = i-1;
       }
       if(this.feeList[x]){
-        // this.price = this.feeList[x].fee;
         this.price = (this.feeList[x].fee*this.pointedItem.integralPermissionsCoefficient).toFixed(2);
       }
       console.log(this.price);
@@ -609,7 +606,6 @@ export default {
       e.cancelBubble = true
     },
     async doPay(orderId){
-      // debugger
       let url = 'apiwrite/reserve/pay';
       let couponId = null;
       let baseURL = null;
@@ -634,7 +630,8 @@ export default {
     async goApoint(){     
       // this.params.parklot_id
       console.log(this.params);
-      this.params.user_id = localStorage.getItem('userId');
+      // this.params.user_id = localStorage.getItem('userId');
+      this.params.user_id = 30;
       this.params.plate_id = this.plateNoId;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
