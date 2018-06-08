@@ -317,7 +317,8 @@
       'payAmounts':function(){
         // alert(this.payFees)
         // alert(this.discounts)
-        return (this.payFees - this.discounts)>=0?(this.payFees - this.discounts):0;
+
+        return ((this.payFees - this.discounts)>=0?(this.payFees - this.discounts):0).toFixed(2);
       },
       //优惠券提示信息
       'counpsTips':function(){
