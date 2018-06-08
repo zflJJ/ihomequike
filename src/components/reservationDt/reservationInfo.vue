@@ -179,8 +179,7 @@ export default {
       AMAP: null, // 高德地图的实例
       lockId: null,
       network: true,
-      count: 0,
-      source: null
+      count: 0
     }
   },
   components: {
@@ -217,11 +216,10 @@ export default {
       }
       // console.log(data)
       //取消请求
-      this.source = this.$http.CancelToken.source()
       this.$http
         .post(
           'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
-          { data: data, cancelToken: this.source.token }
+          data
         )
         .then(res => {
           // console.log(res)
@@ -231,10 +229,14 @@ export default {
               res.body.data == '' ||
               res.body.data == undefined
             ) {
-              this.getOrder()
+              if (_this.httpFlag) {
+                this.getOrder()
+              }
             } else if (res.body.data.state == 1301) {
               if (res.body.data.parkingState == null) {
-                this.getOrder()
+                if (_this.httpFlag) {
+                  this.getOrder()
+                }
               } else if (res.body.data.parkingState) {
                 if (res.body.data.parkingState == 1302) {
                   localStorage.setItem('orderId', res.body.data.orderParkingId)
@@ -544,7 +546,7 @@ export default {
     hiddenFun() {
       let vm = this
       if (document.hidden) {
-        vm.source.cancel()
+        vm.httpFlag = false
         vm.seconds1302 = '00'
         vm.minutes1302 = '00'
         vm.hours1302 = '00'
@@ -552,6 +554,7 @@ export default {
         vm.minutes = '00'
         vm.seconds = '00'
       } else {
+        vm.httpFlag = true
         vm.getOrder()
       }
     }
@@ -590,11 +593,13 @@ export default {
   },
   activated() {
     //从预约列表页面带获取传入的参数值
+    let _this = this
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
     document.addEventListener('visibilitychange', _this.hiddenFun, false)
   },
   deactivated() {
+    let _this = this
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
