@@ -439,7 +439,7 @@ export default {
       event.cancelBubble = true
     },
     lockEvnet(item){
-      if(!this.network || this.network == false){
+      if(!this.network || !window.navigator.onLine){
         Toast({
           message:'当前网络无连接',
           position: 'bottom',
@@ -539,13 +539,12 @@ export default {
     },
   },
   created () {
-    window.addEventListener("online", function () {  
-      this.network = true;      
+    window.addEventListener("online", function() {  
+    vm.network = true;      
       return true;
     }, true);  
-    window.addEventListener("offline", function () {  
-      this.network = false;
-      // alert(this.network)
+    window.addEventListener("offline", function() {  
+      vm.network = false;
       Toast({
         message:'当前网络无连接',
         position: 'bottom',        
@@ -553,7 +552,7 @@ export default {
       })
       Indicator.close();            
       return false;
-    }, true); 
+    }, true);
 
     this._initScroll();
     var lastTime = +new Date;

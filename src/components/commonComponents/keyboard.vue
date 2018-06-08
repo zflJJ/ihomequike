@@ -1,11 +1,11 @@
 <template>
-    <div id='keyboard' ref='keyboard'>
-      <div class="keyboard-head">
-        <span @click="hideKeyboard">确定</span>
+    <div id='keyboard' ref='keyboard' showflg='1'>
+      <div class="keyboard-head" showflg='1'>
+        <span @click="hideKeyboard" showflg='1'>确定</span>
       </div>
-      <div class="keyboard-lists">
-        <div class="keyboard-item" v-for="(item,inde) in keyboardLists" :key='inde'>
-          <div :class="[{ban:item=='I'||item=='O'},{'iconfont icon-delete':item==='删'}]" @click="(item&&item!='I'&&item!='O')?getItem($event):''"  @touchstart="(item!='I'&&item!='O')?inputStart($event):''" @touchend="(item!='I'&&item!='O')?inputEnd($event):''" :itemdata='item'>
+      <div class="keyboard-lists" showflg='1'>
+        <div class="keyboard-item" v-for="(item,inde) in keyboardLists" :key='inde' showflg='1'>
+          <div :class="[{ban:item=='I'||item=='O'},{'iconfont icon-delete':item==='删'}]" @click="(item&&item!='I'&&item!='O')?getItem($event):''"  @touchstart="(item!='I'&&item!='O')?inputStart($event):''" @touchend="(item!='I'&&item!='O')?inputEnd($event):''" :itemdata='item' showflg='1'>
             {{item==='删'?'':item}}
             </div>
         </div>
