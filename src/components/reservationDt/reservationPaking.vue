@@ -271,6 +271,7 @@ export default {
     // 获取预约订单详情的
     getOrder(num){
       var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}
+      // var data = {order_id:4369,timestamp: new Date().getTime()}
       if(this.count == 0){
         this.count = 1;
       }else {
