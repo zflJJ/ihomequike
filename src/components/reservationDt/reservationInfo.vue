@@ -229,14 +229,11 @@ export default {
               res.body.data == '' ||
               res.body.data == undefined
             ) {
-              if (_this.httpFlag) {
                 this.getOrder()
-              }
             } else if (res.body.data.state == 1301) {
+              
               if (res.body.data.parkingState == null) {
-                if (_this.httpFlag) {
                   this.getOrder()
-                }
               } else if (res.body.data.parkingState) {
                 if (res.body.data.parkingState == 1302) {
                   localStorage.setItem('orderId', res.body.data.orderParkingId)
@@ -596,11 +593,11 @@ export default {
     let _this = this
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
-    document.addEventListener('visibilitychange', _this.hiddenFun, false)
+    //document.addEventListener('visibilitychange', _this.hiddenFun, false)
   },
   deactivated() {
     let _this = this
-    document.removeEventListener('visibilitychange', _this.hiddenFun, false)
+    //document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
   beforeRouteLeave(to, from, next) {
