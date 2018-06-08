@@ -227,6 +227,7 @@ export default {
               this.getOrder()
               console.log(1234);
             } else if (res.body.data.state == 1301) {
+              
               if (res.body.data.parkingState == null) {
                   this.getOrder()
               } else if (res.body.data.parkingState) {

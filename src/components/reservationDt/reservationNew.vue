@@ -1,5 +1,5 @@
 <template>
-  <div id="appoint">
+  <div id="appoint" @click="hiddenJp($event)">
     <div class="content p-a" ref="apponitBox"  @click="isHideen">
       <div>
         <!--1.0 车场信息-->
@@ -34,10 +34,10 @@
         </div>
         <!--增加键盘输入框开始-->
         <div class="input-wrap">
-          <div :class="['input-case',{caseactive:currentIndentIndex==inde}]" v-for='(item,inde) in indentLists' :key="inde" @click="changeInput($event)" :inde='inde'>{{item}}</div>
-          <div :class="['input-letter',{active:currentPlateIndex>0}]" @click='showKey'>
-           <span :class="['letter-item',{letteractive:currentPlateIndex==inde&&cursorFlag}]" v-for='(item,inde) in plateLists' :key="inde">{{item}}</span>
-        </div>
+          <div :class="['input-case',{caseactive:currentIndentIndex==inde}]" v-for='(item,inde) in indentLists' :key="inde" @click="changeInput($event)" :inde='inde' showflg='1'>{{item}}</div>
+          <div :class="['input-letter',{active:currentPlateIndex>0}]" @click='showKey' showflg='1'>
+           <span :class="['letter-item',{letteractive:currentPlateIndex==inde&&cursorFlag}]" v-for='(item,inde) in plateLists' :key="inde" showflg='1'>{{item}}</span>
+          </div>
        </div>
         <!--增加键盘输入框结束-->
         <div class="textInfo">请输入正确车牌，否则道闸无法放行。</div>
@@ -246,6 +246,13 @@ export default {
     KeyBoard,
   },
   methods: {
+    hiddenJp (e){
+      if(e.target.getAttribute('showflg')=='1'){
+        return
+      }else{
+        this.show=false
+      }
+    },
     getkeyboard (msg) {
       let _this = this
       if (_this.isPlateFlag) {
