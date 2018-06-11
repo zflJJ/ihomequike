@@ -228,8 +228,6 @@ export const appointCarport = (params) => {
     return data;
 };
 
-// let res = await pay(this.orderId,1,this.couponId,5,baseURL.URL,spbillCreateIp);
-// pay(url, orderId, 1, couponId, 5, baseURL, spbillCreateIp);
 export const pay = (url, orderId, channel, couponId, wapUrl, spbillCreateIp) => {
     let data = getAxios('post',
         URL + url, {

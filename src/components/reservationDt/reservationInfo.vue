@@ -5,7 +5,7 @@
       <div sytle="position: relative;">
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
         <div class="content">
-          <div class="guide-show" v-if="orderData.parklocNumber">
+          <div class="guide-show" v-if="orderData.type == 2">
             <div class="imgstyle">
               <div class="img-car-text">
                 <span v-if="orderData.parklocNumber">
@@ -82,15 +82,33 @@
           </div>
 
         </div>
-        <div class="order-info">
+        <div class="order-info" v-if="orderData.payChannelReserve != 0">
           预约支付明细
         </div>
-        <div class="plate-card">
+        <div class="plate-card" v-if="orderData.payChannelReserve != 0">
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">支付方式</span>
               <span class="ta-info">
-                <span>
+                <span v-if="orderData.payChannelReserve === 1">
+                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 2">
+                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 3">
+                  现金：￥ {{orderData.reserveFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 4">
+                  优惠券：￥ {{orderData.reserveCouponFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 5">
                   微信：￥ {{orderData.zpayReserve}}&nbsp;
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
@@ -145,89 +163,79 @@ import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
 export default {
-  name: 'reservationInfo',
-  data() {
+  name:'reservationInfo',
+  data () {
     return {
-      headerMark: '预约详情',
-      orderId: '', //根据后台返回的订单号
-      parklotId: '',
-      estateName: '', //车场名
-      startTime: '', //开始时间
+      headerMark:'预约详情',
+      orderId:'',  //根据后台返回的订单号
+      parklotId:'',
+      estateName:'', //车场名
+      startTime:'',  //开始时间
       plateNo: '', //车牌号
-      createTime: '', //预约订单创建时间
-      createFmTime: '', //处理后的订单创建时间
-      endTime: '', //最晚入场时间
-      address: '', //停车场地址
-      hour: '00', //倒计时小时
-      minutes: '00', //倒计时分钟数
-      seconds: '00', //倒计时秒数
-      miliSeconds: '00', //倒计时毫秒数
-      interval: '', //定时计时器
+      createTime:'', //预约订单创建时间
+      createFmTime:'', //处理后的订单创建时间
+      endTime:'',  //最晚入场时间
+      address:'',  //停车场地址
+      hour:'00', //倒计时小时
+      minutes:'00', //倒计时分钟数
+      seconds:'00', //倒计时秒数
+      miliSeconds:'00', //倒计时毫秒数
+      interval:'',  //定时计时器
       //导航
-      orgX: '', // 定位的坐标
-      orgY: '', // 定位的坐标
-      desX: '', // 车场的坐标
-      desY: '', // 车场的坐标
+      orgX:'',  // 定位的坐标
+      orgY:'',  // 定位的坐标
+      desX:'',  // 车场的坐标
+      desY:'',  // 车场的坐标
       // 新增数据
-      orderData: {},
+      orderData:{},
       countdown: null, // 倒计时时间戳
       islockshow: false, // 模态框是否 显示
-      seconds1302: '00', // 停车秒数
-      minutes1302: '00', // 停车分数
-      hours1302: '00', // 停车小时
+      seconds1302: '00',  // 停车秒数
+      minutes1302: '00',// 停车分数
+      hours1302: '00',// 停车小时
       AMAP: null, // 高德地图的实例
-      lockId: null,
-      network: true,
-      count: 0,
+      lockId:null,
+      network:true,
+      count:0,
     }
   },
   components: {
     subHeader
   },
   methods: {
-    Interval() {
-      // setInterval(this.getOrder, 10000)
-    },
     //添加页面滚动
-    _initScroll() {
-      this.$nextTick(() => {
-        if (!this.scroll) {
-          this.scroll = new BScroll(this.$refs.appoitInfoBox, {
-            probeType: 3,
-            scrollY: true,
-            click: true
-          })
+    _initScroll(){
+      this.$nextTick(()=>{
+        if(!this.scroll){
+          this.scroll = new BScroll(this.$refs.appoitInfoBox,{
+            probeType:3,
+            scrollY:true,
+            click:true
+          });
           //滚动刷新事件
-        } else {
-          this.scroll.refresh()
+        }else{
+          this.scroll.refresh();
         }
-      })
+      });
     },
     // 获取预约订单详情的
     getOrder() {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
-      // var data = { order_id: 4373, timestamp: new Date().getTime() }
       if (this.count == 0) {
         this.count = 1
       } else {
         data.isQuickReserve = 1
       }
-      //取消请求
       this.$http.post('http://develop.qhiehome.com/apiread/order/reserve/detail/query',data)
         .then(res => {
           if (res.body.error_code == 2000) {
-            if (
-              res.body.data.orderId == null &&
-              res.body.data.enterCountdownTime
-            ) {
+            if (res.body.data.orderId == null && res.body.data.enterCountdownTime) {
               this.countdown = res.body.data.enterCountdownTime
               this.downCounts()
               this.getOrder()
-              console.log(1234);
             } else if (res.body.data.state == 1301) {
-              
               if (res.body.data.parkingState == null) {
                   this.getOrder()
               } else if (res.body.data.parkingState) {
@@ -381,12 +389,12 @@ export default {
     closeModel() {
       this.islockshow = false
     },
-    closeCs(event) {
+    closeCs(event){
       // 阻断事件冒泡
       event.cancelBubble = true
     },
     lockEvnet(item) {
-      if (!this.network || this.network == false) {
+      if (!this.network || !window.navigator.onLine) {
         Toast({
           message: '当前网络无连接',
           position: 'bottom',
@@ -411,9 +419,9 @@ export default {
       }
     },
     // 对车锁进行处理
-    async lockDown(item) {
-      let res = await lockChange(this.lockId, item)
-      console.log(res)
+    async lockDown(item){
+      let res = await lockChange(this.lockId,item);
+      console.log(res);
       // if(res.error_code == 2000){
       //   Toast({
       //     message:'操作成功',
@@ -444,41 +452,42 @@ export default {
       if (hour <= 0 && minutes <= 0 && seconds <= 0) {
         return
       }
-      if (this.interval != null) {
-        clearInterval(this.interval)
+      if(this.interval != null){
+        clearInterval(this.interval);
       }
-      this.interval = setInterval(() => {
+      this.interval =  setInterval(()=>{
         seconds--
-        if (seconds < 0) {
-          seconds = 59
-          minutes--
+        if(seconds<0){
+          seconds = 59;
+          minutes --;
         }
-        if (seconds < 0) {
-          minutes = 59
-          hour--
+        if(seconds<0){
+          minutes = 59;
+          hour --;
         }
-        if (hour < 0) {
-          hour = 0
+        if(hour<0){
+          hour = 0;
         }
-        if (hour == 0 && minutes == 0 && seconds == 0) {
-          clearInterval(this.interval)
+        if(hour==0 && minutes==0 && seconds==0){
+          clearInterval(this.interval);
+          // this.$router.push('appointment');
         }
-        hour += ''
-        minutes += ''
-        seconds += ''
-        if (minutes.length === 1) {
-          minutes = '0' + minutes
+        hour += '';
+        minutes += '';
+        seconds += '';
+        if(minutes.length === 1){
+            minutes = '0' + minutes;
         }
-        if (seconds.length === 1) {
-          seconds = '0' + seconds
+        if(seconds.length === 1){
+            seconds = '0' + seconds;
         }
-        if (hour.length === 1) {
-          hour = '0' + hour
+        if(hour.length === 1){
+            hour = '0' + hour;
         }
-        this.hour = hour
-        this.minutes = minutes
-        this.seconds = seconds
-      }, 1000)
+        this.hour = hour;
+        this.minutes = minutes;
+        this.seconds = seconds;
+      },1000);
     },
 
     // 取消预约按钮
@@ -646,7 +655,7 @@ export default {
         top 15%
         left 5%
         color #fff
-        font-size 0.8125rem
+        font-size  0.8125rem
       .border-text
         padding-bottom 0.375rem
         border-bottom 2px solid #fff
@@ -659,6 +668,7 @@ export default {
         align-items center
         font-size 2.375rem
         color #fff
+
     .plate
       padding 0.9375rem 1rem 1.125rem 0.875rem
       background-color #fff
@@ -748,6 +758,7 @@ export default {
     background-color rgb(245, 245, 245)
     position absolute
     bottom 0rem
+
     .off-order
       position absolute
       width 60%
@@ -762,14 +773,14 @@ export default {
       margin-bottom 0
       margin-left 20%
       border-radius 2rem
-      background url('../../assets/img/Background@3x.png') no-repeat
+      background url("../../assets/img/Background@3x.png") no-repeat
       background-size cover
+
       width 15.7rem
       height 3rem
   .appoit-info-box
     position absolute
     width 100%
-    // top 3.9375rem
     top 0rem
     bottom 3.5rem
     // overflow hidden

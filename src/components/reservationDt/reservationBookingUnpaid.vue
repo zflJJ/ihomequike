@@ -79,8 +79,8 @@
               <span class="ta-info">￥ {{orderData.reserveFee}}</span>
             </div>
           </div>
-          
-        </div> 
+
+        </div>
         <!-- <div class="order-info">
           预约支付明细
         </div> -->
@@ -149,7 +149,6 @@
     <!-- <template v-if="orderData.state === 1301"> -->
       <!-- <div class="cancel-order p-a t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2">取消预约</div> -->
       <div class="cancel p-a t-c">
-        <div class="canle-style" @click="cancelOrder">取消预约</div>
         <div class="item2-sytle" @click="payGo">立即支付</div>
       </div>
     <!-- </template> -->
@@ -250,8 +249,8 @@ export default {
     },
     // 获取预约订单详情的
     async getOrder(){
-      let orderId = window.localStorage.getItem("orderId");      
-      let res = await getOrderInfo(orderId);  
+      let orderId = window.localStorage.getItem("orderId");
+      let res = await getOrderInfo(orderId);
       console.log(res);
       if(res.error_code === 2000){
         this.lockId = null;
@@ -263,7 +262,7 @@ export default {
         this.createTime = res.data.createTime;
         this.orderData = res.data;
         localStorage.setItem("H5_fees",res.data.reserveFee);
-        window.localStorage.setItem("myParklotId",res.data.parklotId);       
+        window.localStorage.setItem("myParklotId",res.data.parklotId);
       }else{
         console.log(res,'错误码是'+res.error_message);
       }
@@ -330,7 +329,7 @@ export default {
         this.addTime(stopTime);
       }
     },
-  
+
     // 停车时间累加操作  这个是对数据的处理
     addTime(stopTime){
       console.log(stopTime);
@@ -500,7 +499,7 @@ export default {
         });
         return false;
       }
-      let orderId = window.localStorage.getItem("orderId");                            
+      let orderId = window.localStorage.getItem("orderId");
       this.$router.push({
         name:'payMentDt',
         params:{
@@ -531,7 +530,7 @@ export default {
   },
   activated () {
     //从预约列表页面带获取传入的参数值
-    
+
     this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
   },
@@ -697,7 +696,7 @@ export default {
   .item2-sytle
     display inline-block
     color #fff
-    width 50%
+    width 100%
     float right
     height 100%
   .canle-style

@@ -88,8 +88,8 @@
               <span class="ta-info">￥ {{orderData.reserveFee}}</span>
             </div>
           </div>
-          
-        </div> 
+
+        </div>
         <div class="order-info">
           预约支付明细
         </div>
@@ -98,7 +98,25 @@
             <div class="time-info">
               <span class="name-text">支付方式</span>
               <span class="ta-info">
-                <span>
+                <span v-if="orderData.payChannelReserve === 1">
+                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 2">
+                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 3">
+                  现金：￥ {{orderData.reserveFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 4">
+                  优惠券：￥ {{orderData.reserveCouponFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 5">
                   微信：￥ {{orderData.zpayReserve}}&nbsp;
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
@@ -119,7 +137,7 @@
               <span class="ta-info">{{orderData.reserveCouponCode}}</span>
             </div>
           </div>
-        </div> 
+        </div>
 
         <div class="order-info"  v-if="orderData.state != 1309 && orderData.state != 1308">
             停车订单明细
@@ -334,7 +352,7 @@ export default {
         // this.addTime(stopTime);
       }
     },
-  
+
   },
   created () {
     this._initScroll();
@@ -401,7 +419,7 @@ export default {
         display flex
         justify-content space-between
         font-size  0.9375rem
-      .red 
+      .red
         color #d01d95
       .yellow-s
         font-size 0.625rem
@@ -456,7 +474,7 @@ export default {
     .ta-info
       font-size  0.8125rem
       color #656565
-    .red 
+    .red
       color #d01d95
   .cancel
     position fixed
@@ -468,14 +486,14 @@ export default {
     bottom 0
     margin-bottom 0
     z-index 1000
-    color #FFF     
+    color #FFF
   .btnbgc
     height 4rem
     width 100%
     background-color rgb(245,245,245)
     position absolute
     bottom 0rem
-    
+
     .off-order
       position absolute
       width 60%

@@ -1,6 +1,5 @@
 <template>
   <div id="pay-ment" ref="payment">
-    <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="pay-ment-box" ref="payMentBox">
       <div class="content">
         <div class="coup">
@@ -95,7 +94,7 @@
       },
       //获取优惠券数量
       async getCounpNum(){
-      // alert(2)        
+      // alert(2)
         let userId = localStorage.getItem('userId');
         let res = await getMyCounpLists(userId, 0);
         if(res.error_code === 2000 ){
@@ -105,7 +104,7 @@
           // Toast('获取优惠券信息失败');
         }
       },
-      
+
       //点击确认提交
       async confirmPay(){
         if(this.couponId === -1){
@@ -136,7 +135,7 @@
         MessageBox({
           title: '温馨提示',
           message: htmls,
-          showConfirmButton:true,	
+          showConfirmButton:true,
           confirmButtonText:'确认',
           showCancelButton:false,
         }).then(action=>{
@@ -148,7 +147,7 @@
             this.$router.push("reservationOld")
           }
         }).catch(err=>{
-      
+
         })
       },
       //选择支付方式
@@ -163,21 +162,12 @@
 
       //微信支付方式
       async wxPay(){
-        let url = baseURL.URL;
-        let spbillCreateIp = localStorage.getItem('mobileId');  //获取的用户终端IP
-        this.orderId = localStorage.getItem('orderId');  //获取的用户终端IP        
+        let spbillCreateIp = localStorage.getItem("mobileId");
         let channel = 5; // 支付方式
-        // alert(this.payUrl)
-        // alert(this.orderId)
-        
-        let res = await pay(this.payUrl,this.orderId,channel ,this.couponId, baseURL.URL,spbillCreateIp);
-        console.log(res);
-        // alert(JSON.stringify(res));
-        // debugger
-        // alert(JSON.stringify(res));
+        let res = await pay(this.payUrl,this.orderId,channel ,this.couponId,spbillCreateIp);
         if(res.error_code === 2000){
           if(res.data.isZero === 1){
-            // 做跳转支付完成
+            // 做跳转预约详情界面
             Toast({
               message:'支付成功',
               duration:1500
@@ -185,10 +175,19 @@
             setTimeout(() => {
               // 清除缓存 跳转到 订单详情页
               common.removeStorage('H5_payMent_time');
-              common.removeStorage('H5_timeflag');
-              clearInterval(this.timeInter);
+            common.removeStorage('H5_timeflag');
+            // 支付成功之后，将订单ID + 订单状态 + 订单金额
+            localStorage.removeItem('H5_fees');   // 支付金额
+            localStorage.removeItem('H5_order_state'); // 支付的订单状态
+            clearInterval(this.timeInter);
+            // alert(this.orderState);
+            if(this.orderState){
+              //停车费跳转到支付成功页面
+              this.$router.push({name:'payToComplete',params:{flag:1}});
+            }else{
               this.$router.push('payToComplete');
-            }, 1500);
+            }
+          }, 1500);
           }else{
             let params = {};
             // 公众号id	appId	是	String(16)	wx8888888888888888	商户注册具有支付权限的公众号成功后即可获得
@@ -204,13 +203,12 @@
             params.signType ="MD5";
             params.paySign =res.data.sign;
             // 开始调起微信支付
-            // alert(JSON.stringify(params));
             if (typeof WeixinJSBridge == "undefined"){
               if( document.addEventListener ){
-                  document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+                document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
               }else if (document.attachEvent){
-                  document.attachEvent('WeixinJSBridgeReady', onBridgeReady); 
-                  document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+                document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+                document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
               }
             }else{
               // alert('可以调起微信支付了');
@@ -218,10 +216,6 @@
             }
           }
         }else{
-          Toast({
-            message:res.error_message,
-            duration:1500
-          })
           console.log(res,'错误码是'+res.error_code);
         }
       },
@@ -230,33 +224,44 @@
         let vm = this;
         // alert(JSON.stringify(params));
         WeixinJSBridge.invoke(
-            "getBrandWCPayRequest", {
-                "appId":params.appId,     //公众号名称，由商户传入     
-                "timeStamp":params.timeStamp,         //时间戳，自1970年以来的秒数     
-                "nonceStr":params.nonceStr, //随机串     
-                "package":params.package,     
-                "signType":params.signType,         //微信签名方式：     
-                "paySign":params.paySign //微信签名 
-            },
-            function(res){
-                // alert(JSON.stringify(res));
-                if(res.err_msg == "get_brand_wcpay_request:ok" ) {
-                  // 这里要做跳转（跳转到预约详情）
-                  Toast({
-                      message:'支付成功',
-                      duration:1500
-                  })
-                  setTimeout(() => {
-                    common.removeStorage('H5_payMent_time');
-                    common.removeStorage('H5_timeflag');
-                    clearInterval(this.timeInter);
-                    vm.$router.push('/payToComplete');
-                  }, 1500);
-                }else{
-                  console.log('支付失败，继续停留在这个页面');
-                }     
+          "getBrandWCPayRequest", {
+            "appId":params.appId,     //公众号名称，由商户传入
+            "timeStamp":params.timeStamp,         //时间戳，自1970年以来的秒数
+            "nonceStr":params.nonceStr, //随机串
+            "package":params.package,
+            "signType":params.signType,         //微信签名方式：
+            "paySign":params.paySign //微信签名
+          },
+          function(res){
+            // alert(JSON.stringify(res));
+            if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+              // alert('支付成功了');
+              // 这里要做跳转（跳转到预约详情）
+              Toast({
+                message:'支付成功',
+                duration:1500
+              })
+              // alert(vm.orderState);
+              setTimeout(() => {
+                common.removeStorage('H5_payMent_time');
+              common.removeStorage('H5_timeflag');
+              // 支付成功之后， + 订单状态 + 订单金额
+              localStorage.removeItem('H5_fees');   // 支付金额
+              localStorage.removeItem('H5_order_state'); // 支付的订单状态
+              clearInterval(this.timeInter);
+              if(vm.orderState){
+                //停车费跳转到支付成功页面
+                // alert('要跳转到支付完')
+                vm.$router.push({name:'payToComplete',params:{flag:1}});
+              }else{
+                vm.$router.push('/payToComplete');
+              }
+            }, 1500);
+            }else{
+              console.log('支付失败，继续停留在这个页面');
             }
-        ); 
+          }
+        );
       },
       //跳转到优惠券选择页面
       goCounp(){
@@ -339,7 +344,7 @@
       this.payFees = localStorage.getItem('H5_fees');   // 支付金额
       // alert(localStorage.getItem('H5_fees'))
       // alert(this.payFees)
-      
+
       this.orderId = localStorage.getItem('orderId');  // 订单ID
       var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
       // 支付是停车费还是预约费用
