@@ -79,17 +79,35 @@
               <span class="ta-info">￥ {{orderData.reserveFee}}</span>
             </div>
           </div>
-          
-        </div> 
-        <div class="order-info">
+
+        </div>
+        <div class="order-info" v-if="orderData.payChannelReserve != 0">
           预约支付明细
         </div>
-        <div class="plate-card">
+        <div class="plate-card" v-if="orderData.payChannelReserve != 0">
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">支付方式</span>
               <span class="ta-info">
-                <span>
+                <span v-if="orderData.payChannelReserve === 1">
+                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 2">
+                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 3">
+                  现金：￥ {{orderData.reserveFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 4">
+                  优惠券：￥ {{orderData.reserveCouponFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 5">
                   微信：￥ {{orderData.zpayReserve}}&nbsp;
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
@@ -110,7 +128,7 @@
               <span class="ta-info">{{orderData.reserveCouponCode}}</span>
             </div>
           </div> -->
-        </div> 
+        </div>
 
         <!-- <template v-if="orderData.state === 1302"> -->
         <div class="order-info lastOne">
@@ -151,15 +169,15 @@
     </div> -->
     <div>
       <div v-if="orderData.lockId" class="cancel p-a t-c">
-        <div class="item2-sytle" @click="lockModel">控制车锁</div>        
+        <div class="item2-sytle" @click="lockModel">控制车锁</div>
         <div class="canle-style" @click="goPay">离场支付</div>
-      </div>  
-      <div v-else-if="getOrderFlag" class="cancel p-a t-c">      
+      </div>
+      <div v-else-if="getOrderFlag" class="cancel p-a t-c">
         <div class="item2-sytle2" @click="goPay">离场支付</div>
-      </div>         
-      <div v-else class="cancel p-a t-c">      
+      </div>
+      <div v-else class="cancel p-a t-c">
         <div class="item2-sytle2" @click="goPay">离场支付</div>
-      </div>           
+      </div>
     </div>
     <!-- <div v-if="orderData.lockId">
       <div class="cancel p-a t-c">
@@ -270,43 +288,38 @@ export default {
     },
     // 获取预约订单详情的
     getOrder(num){
-      var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}
-      // var data = {order_id:4369,timestamp: new Date().getTime()}
-      if(this.count == 0){
-        this.count = 1;
-      }else {
-        data.isQuickReserve = 1;
+      var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
+      if (this.count == 0) {
+        this.count = 1
+      } else {
+        data.isQuickReserve = 1
       }
       this.$http.post("http://develop.qhiehome.com/apiread/order/reserve/detail/query",data).then(res => {
         if(res.body.error_code === 2000){
-          if(res.body.data.state == 1303){                    
+          if(res.body.data.state == 1303){
             this.getOrderFlag = true;
-            localStorage.setItem('H5_fees',res.body.data.parkingFee);  //保存的支付金额   
+            localStorage.setItem('H5_fees',res.body.data.parkingFee);  //保存的支付金额
             localStorage.setItem('orderId',res.body.data.orderId);  //保存停车订单ID
-            this.orderData = res.body.data;                         
-            this.dispoceOrderDat(res.body.data);  
+            this.orderData = res.body.data;
+            this.dispoceOrderDat(res.body.data);
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-            if(res.body.data.parkingFee == 0){
-              this.$router.push('payToComplete');  
-            }else {
-              this.$router.push('payMentDt');  
+            if(res.body.data.parkingFee == 0 && res.body.data.state != 1303){
+              this.$router.push('payToComplete');
+            }else if(res.body.data.parkingFee != 0 && res.body.data.state != 1303){
+              this.$router.push('payMentDt');
             }
             return false;
-          }else if(res.body.data.state == 1304 || 
-          res.body.data.state == 1307 || 
-          res.body.data.state == 1308 || 
-          res.body.data.state == 1309 || 
-          res.body.data.state == 1310){                   
+          }else if(res.body.data.state == 1304 || res.body.data.state == 1307 || res.body.data.state == 1308 || res.body.data.state == 1309 || res.body.data.state == 1310){
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-            this.$router.push('payToComplete');  
-          }else if(res.body.data.state == 1302 && this.visibFlag){ 
+            this.$router.push('payToComplete');
+          }else if(res.body.data.state == 1302 && this.visibFlag){
             this.intervalMy = setTimeout(() => {
-              this.getOrder();
+                this.getOrder();
             }, 10000);
           }
-          this.getOrderFlag = false;        
+          this.getOrderFlag = false;
           this.lockId = null;
           this.desX = res.body.data.lng;
           this.desY = res.body.data.lat;
@@ -314,17 +327,18 @@ export default {
           this.dispoceOrderDat(res.body.data);
           this.orderData = res.body.data;
           if(num == 1){
-            Indicator.close();                    
+            Indicator.close();
             Toast({
               message:'请先离场再支付',
               position: 'bottom',
               duration:2000
-            });            
+            });
           }
-        }else{
+          this.orderData();
+      }else{
           console.log(res,'错误码是'+res.error_code);
-        }        
-      })            
+        }
+      })
     },
     // 预处理 订单详情的数据
     dispoceOrderDat(objDatas){
@@ -388,7 +402,7 @@ export default {
         this.addTime(stopTime);
       }
     },
-  
+
     // 停车时间累加操作  这个是对数据的处理
     addTime(stopTime){
       console.log(stopTime);
@@ -445,8 +459,8 @@ export default {
           message:'当前网络无连接',
           position: 'bottom',
           duration:2000
-        });        
-        return false;        
+        });
+        return false;
       }else {
         this.lockDown(item);
         if(item == 1){
@@ -462,7 +476,7 @@ export default {
             duration:2000
           });
         }
-      }      
+      }
 
     },
     // 对车锁进行处理
@@ -540,18 +554,18 @@ export default {
     },
   },
   created () {
-    window.addEventListener("online", function() {  
-    vm.network = true;      
+    window.addEventListener("online", function() {
+    vm.network = true;
       return true;
-    }, true);  
-    window.addEventListener("offline", function() {  
+    }, true);
+    window.addEventListener("offline", function() {
       vm.network = false;
       Toast({
         message:'当前网络无连接',
-        position: 'bottom',        
+        position: 'bottom',
         duration:2000
       })
-      Indicator.close();            
+      Indicator.close();
       return false;
     }, true);
 
@@ -711,15 +725,15 @@ export default {
     bottom 0
     margin-bottom 0
     z-index 1000
-    color #FFF       
+    color #FFF
     .cancelOrder
       position fixed
       width 60%
       height 3.375rem
       line-height 3.375rem
       font-size 1.2rem
-      color #FFF    
-      z-index 1000    
+      color #FFF
+      z-index 1000
       bottom 0.5rem
       margin-bottom 0
       margin-left 20%
@@ -738,7 +752,7 @@ export default {
     color #fff
     width 50%
     float right
-    height 100%    
+    height 100%
   .item2-sytle2
     // display flex
     display inline-block
@@ -746,7 +760,7 @@ export default {
     width 100%
     text-align center
     float right
-    height 100%  
+    height 100%
   .canle-style
     // width 50%
     // background-color #fff
@@ -756,7 +770,7 @@ export default {
     background-color #fff
     color #d01d95
     display inline-block
-    float left    
+    float left
   .alert-index
     position absolute
     top 0

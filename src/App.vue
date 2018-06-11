@@ -39,12 +39,9 @@ export default {
     // 获取用户的手机信号， 以及拆分数据（初步测试没有问题）
     let openId = null;
     let url = window.location.href;
-    // alert(url);
     let urlNum = url.indexOf('?');
     let urlherf = url.substr(urlNum+1);
-    // alert(urlherf);
     let flag = url.indexOf('#/login');
-    // alert(flag);
     if(flag !== -1){
       let openIdnum = urlherf.indexOf('openId');
       openId = urlherf.substr(openIdnum+7);
@@ -52,14 +49,13 @@ export default {
     }else{
       flag = url.indexOf('#/home');
       let params = url.substring(urlNum+1,flag);
-      // alert(params);
       let paramsArr = params.split("&");
       let Arr = [];
       for(let i=0;i<paramsArr.length;i++){
         Arr.push(paramsArr[i].split('='));
       }
     }
-    
+
     if(this.GetUrlParam("userId")){
       localStorage.setItem('userId',this.GetUrlParam("userId"));
     }
@@ -78,7 +74,6 @@ export default {
 
 
     //做浏览器兼容，吃力微信支付问题
-    // alert(12344445);
     let u = window.navigator.userAgent;
     // alert(JSON.stringify(u));
     let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
@@ -87,11 +82,6 @@ export default {
     let phoneNum = '';
     if(isiOS === true){
       phoneNum = 'iPhone';
-      // alert('');
-      // var isSafari = u.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") < 1;
-      // if(isSafari === false){
-      //     alert('');
-      // }
     }else{
       console.log(u);
       let uArr = u.split(";");
@@ -100,18 +90,11 @@ export default {
          if (uArr[i].indexOf("Build/") > 0) {
            len = i;
            break;
-         } 
+         }
       }
-      phoneNum = uArr[len].substring(0, uArr[len].indexOf("Build/"));  
-      // this.contains("Build/");
-      //   var i = sss.contains("Build/");  
-      //   console.log(sss,i);
-      //   if (i > -1) {  
-      //       model = sss[i].substring(0, sss[i].indexOf("Build/"));  
-      // }  
+      phoneNum = uArr[len].substring(0, uArr[len].indexOf("Build/"));
     }
     console.log(phoneNum);
-    // alert(phoneNum);
     localStorage.setItem('phoneNum',phoneNum);
   },
   computed: {

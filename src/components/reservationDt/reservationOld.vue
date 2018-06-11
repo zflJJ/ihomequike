@@ -19,7 +19,7 @@
           </div>
           <div class="car-distance">
             <div class="dis-inline">
-              <span class="text-distance">{{pointedItem.address}}</span> 
+              <span class="text-distance">{{pointedItem.address}}</span>
             </div>
             <div class="dis-inline">
               <span class="black-location">空泊位</span>
@@ -156,8 +156,8 @@ export default {
         start_time:null,    // 用户选择的时间戳
         end_time:null,      // 用户选择的结束时间戳
       },
-      systemTime:null,//系统时间   
-      systemTimeFlag:false,   
+      systemTime:null,//系统时间
+      systemTimeFlag:false,
     }
   },
   components: {
@@ -186,18 +186,16 @@ export default {
       })
     },
     //获取预约接口信息
-    async getparklot(){  
-      // this.userId = JSON.parse(localStorage.getItem('userId'));
-      this.userId = 30;
-      // this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
-      this.parklotId = 16;
+    async getparklot(){
+      this.userId = JSON.parse(localStorage.getItem('userId'));
+      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
         console.log(res);
         this.pointedItem = res.data;
         this.params.plate_id = this.pointedItem.plateId;
-        this.params.parklot_id = this.pointedItem.parklotId;      
+        this.params.parklot_id = this.pointedItem.parklotId;
         let plateObj = JSON.parse(localStorage.getItem('H5_chosen_plate'));
         if(!plateObj){
           this.plateNo = res.data.plateNo;
@@ -225,7 +223,7 @@ export default {
           // 对时间段进行拆分
           this.dataChange();
         }
-        this._initScroll();            
+        this._initScroll();
       }else{
         Toast({
           message:'获取预约信息失败',
@@ -242,17 +240,17 @@ export default {
         MessageBox({
           title: '温馨提示',
           message: htmls,
-          showConfirmButton:true,	
+          showConfirmButton:true,
           confirmButtonText:'确认',
           showCancelButton:false,
         }).then(action=>{
           Indicator.open();
           setTimeout(() => {
             Indicator.close();
-            this.getparklot();                     
-          }, 2000);     
+            this.getparklot();
+          }, 2000);
         }).catch(err=>{
-      
+
         })
       },
      // 筛出无效的时间段
@@ -454,7 +452,7 @@ export default {
       this.pickData2.default.push(pData2[hoursarray[0].value][0]);
         this.defaultTime = hoursarray[0].text.substring(0,hoursarray[0].text.length-2) +':' +  pData2[hoursarray[0].value][0].text.substring(0,pData2[hoursarray[0].value][0].text.length-2) + "前";
         console.log(this.defaultTime)
-        this.params.start_time = this.params.startTime;        
+        this.params.start_time = this.params.startTime;
       // }
       // 通过时间戳差值，获取价格信息
       console.log(new Date().getTime())
@@ -465,7 +463,7 @@ export default {
       this.getDefaultTime(hoursarray[0].time);
     },
     getMyDate(mss){
-      var date = new Date(mss);     
+      var date = new Date(mss);
       var hours = date.getHours();
       var minutes = date.getMinutes();
       if(new String(hours).length <= 1){
@@ -507,7 +505,7 @@ export default {
         // debugger
         this.params.shareStartTime = numLeaveTime[0].learve.startTime;
         this.params.shareEndTime = this.params.endTime =   numLeaveTime[0].learve.endTime;
-        console.log(timetap)                
+        console.log(timetap)
         this.params.startTime = timetap;
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
@@ -518,13 +516,13 @@ export default {
       }else{
         var max = numLeaveTime[0].times;
         var len = numLeaveTime.length;
-        let obj = numLeaveTime[0]; 
-        for (var i = 1; i < len; i++){ 
-          if (numLeaveTime[i].times > max) { 
+        let obj = numLeaveTime[0];
+        for (var i = 1; i < len; i++){
+          if (numLeaveTime[i].times > max) {
             max = numLeaveTime[i].times;
             obj =  numLeaveTime[i];
-          } 
-        } 
+          }
+        }
         var leaveTime = formatTimeStamp(obj.learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
         var leaveDay = leaveTime.substr(8,1) != 0 ?  leaveTime.substr(8,2) : leaveTime.substr(9,1);
@@ -573,7 +571,7 @@ export default {
           })
           return;
         }else{
-          this.$root.eventHub.$emit('refer');          
+          this.$root.eventHub.$emit('refer');
           this.show1 = true;
           this.isshow = true;
         }
@@ -583,19 +581,19 @@ export default {
       // debugger
       e.cancelBubble = true;
       this.params.startTime = e.select2.time;
-      this.params.start_time = e.select2.time;      
-      console.log(e.select2.time);      
+      this.params.start_time = e.select2.time;
+      console.log(e.select2.time);
       if(this.systemTimeFlag){
-        this.priceTime = this.systemTime - new Date().getTime();        
+        this.priceTime = this.systemTime - new Date().getTime();
       }else {
-        this.priceTime = e.select2.time - new Date().getTime();        
+        this.priceTime = e.select2.time - new Date().getTime();
       }
       // debugger
       this.getPrice(this.priceTime);
 
       this.defaultTime = e.select1.text.substring(0,e.select1.text.length-2) +':'+ e.select2.text.substring(0,e.select2.text.length-2) + "前";
 
-      console.log(e.select2.time);        
+      console.log(e.select2.time);
       this.getDefaultTime(e.select2.time);
       this.show1 = false;
       this.isshow = false;
@@ -617,7 +615,7 @@ export default {
           message:'预约成功',
           duration:1500
         })
-        localStorage.setItem("routerFlag",null);         
+        localStorage.setItem("routerFlag",null);
         this.$router.push('payToComplete');
       }else{
         Toast({
@@ -627,11 +625,10 @@ export default {
       }
     },
     //立即预约
-    async goApoint(){     
+    async goApoint(){
       console.log(this.params);
-      // this.params.user_id = localStorage.getItem('userId');
-      this.params.user_id = 30;
-      
+       this.params.user_id = localStorage.getItem('userId');
+
       this.params.plate_id = this.plateNoId;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
@@ -642,33 +639,33 @@ export default {
       }
       //无车位的情况
       if(!this.timeList.length){
-        this.messInfo();        
+        this.messInfo();
         return;
       }
       console.log(this.params);
       this.params.share_startTime = this.params.shareStartTime;
       this.params.share_endTime = this.params.shareEndTime;
-      this.params.end_time = this.params.endTime;      
+      this.params.end_time = this.params.endTime;
       if(!this.params.start_time || this.params.start_time  == null){
         this.params.start_time = this.params.startTime;
       }
-      
+
       let res = await appointCarport(this.params);
-    
+
       if(res.error_code == 2801){
-        Indicator.close();        
+        Indicator.close();
         Toast({
           message:'入场时间已过，请重新选择。',
           duration:1500
         })
       }else if(res.error_code == 2900){
-        Indicator.close();        
+        Indicator.close();
         Toast({
           message:'您还有订单未完成。',
           duration:1500
         })
       }else if(res.error_code == 2904){
-        Indicator.close();        
+        Indicator.close();
         Toast({
           message:'该车辆已存在预约订单。',
           duration:1500
@@ -690,8 +687,8 @@ export default {
         localStorage.setItem('goBackFlag',"reservationOld");  //保存的支付界面返回到哪里
         if(totalFee == 0){   //totalFee
             this.doPay(orderId);
-        }else{                           
-          localStorage.setItem("routerFlag",null);                      
+        }else{
+          localStorage.setItem("routerFlag",null);
           this.$router.push({
             name:'payMentDt',
             params:{
@@ -901,7 +898,7 @@ export default {
       color #646464
       font-size 0.75rem
     .ds-2
-      height 100%    
+      height 100%
       width 37.33333%
     .price-style
       font-size 1.2rem

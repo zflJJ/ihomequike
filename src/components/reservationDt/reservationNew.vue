@@ -19,11 +19,11 @@
           </div>
           <div class="car-distance">
             <div class="dis-inline">
-              <span class="text-distance">{{pointedItem.address}}</span> 
+              <span class="text-distance">{{pointedItem.address}}</span>
             </div>
             <div class="dis-inline">
               <span class="black-location">空泊位</span>
-            </div>  
+            </div>
           </div>
         </div>
 
@@ -62,7 +62,7 @@
                   <li v-for="(item,index) in phoneArr" :key="index" @click="getItem(item)">{{item}}</li>
                 </ul>
               </div>
-            </div>       
+            </div>
             <div class="code test-input p-r">
               <span class="code-ic input-ic p-a"></span>
               <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4" style="marging-top:0.9rem">
@@ -73,7 +73,7 @@
               </template>
               &nbsp;
               <span class="get-code-btn p-a t-c" @click="getCode">{{getCodeInfo}}</span>
-            </div>                 
+            </div>
           </div>
         </div>
 
@@ -118,7 +118,7 @@
     <!-- 车牌 -->
     <transition :name="show?'slideUp':'slideDown'">
       <key-board @getinput='getkeyboard' @hiden='hideKey' :showflag='KeyBoardflag' v-show="show"></key-board>
-    </transition>   
+    </transition>
   </div>
 </template>
 <script>
@@ -201,16 +201,16 @@ export default {
       parkItemObj:{},  //停车车场参数
       params:{
         plateNumber:null, // 车牌号
-        phone:null,       //手机号     
+        phone:null,       //手机号
         startTime:null,   // 用户选择的时间戳
-        endTime:null,     // 用户选择的结束时间戳   
+        endTime:null,     // 用户选择的结束时间戳
         shareStartTime:null, // 共享开始时间戳
         shareEndTime:null,  // 共享结束时间戳
         totalFee:null,     //预约费
         parklotId:null,    // 车场ID
         ip:null,          // 用户IP
         phoneModel:null,  //手机型号
-        unionId:null,     // 
+        unionId:null,     //
         openId:null,
         timestamp:null, //时间戳
         userId: null,  // 用户ID
@@ -374,13 +374,9 @@ export default {
       let userId = null;
       //只有扫码进入才有parklotId
       this.parkLotId = localStorage.getItem('myParklotId');
-      // 测试数据
-      // userId = 30;
-      // this.parklotId = 11;
       this.reserveTimeList = [];
       let res = await postParklot(userId,this.parkLotId);
       if(res.error_code === 2000){
-        console.log(res);
         this.pointedItem = res.data;
         // this.params.plate_id = this.pointedItem.plateId;
         this.params.parklotId = this.pointedItem.parklotId;
@@ -432,17 +428,17 @@ export default {
         MessageBox({
           title: '温馨提示',
           message: htmls,
-          showConfirmButton:true,	
+          showConfirmButton:true,
           confirmButtonText:'确认',
           showCancelButton:false,
         }).then(action=>{
           Indicator.open();
           setTimeout(() => {
             Indicator.close();
-            this.getparklot();                     
+            this.getparklot();
           }, 2000);
         }).catch(err=>{
-      
+
         })
       },
     // 筛出无效的时间段
@@ -511,7 +507,7 @@ export default {
 
     //车牌
   // 输入框获取焦点事件，并激活模拟键盘 测试提交信息
-    
+
 
     // 动态遍历 phoneList
     getPhoneList() {
@@ -546,11 +542,11 @@ export default {
       }
     },
     // 当输入验证码的时候
-    inputCodeEvent(){   
+    inputCodeEvent(){
       let code = this.code.trim();
       if (code.length > 4) {
         this.code = code.substr(0, 4);
-      }      
+      }
       if(this.code === null || this.code === ''){
           this.isclosecode = false;
       }else{
@@ -609,7 +605,7 @@ export default {
         }
       }, 1000);
     },
-    
+
     // 向用户账户（phoneNumber） 发送验证码
     async sendRanderCodes(){
       var res = await getPhoneCode(this.phoneNumber,this.anti);
@@ -776,7 +772,7 @@ export default {
       // var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       // var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
       // var seconds = (mss % (1000 * 60)) / 1000;
-      var date = new Date(mss);     
+      var date = new Date(mss);
       var hours = date.getHours();
       var minutes = date.getMinutes();
       console.log(new String(hours))
@@ -786,7 +782,7 @@ export default {
       if(new String(minutes).length <= 1){
         minutes = "0"+ minutes;
       }
-      return hours + ":" + minutes;      
+      return hours + ":" + minutes;
     },
     // 对分钟数
     pData2chang(arr){
@@ -829,13 +825,13 @@ export default {
       }else{
         var max = numLeaveTime[0].times;
         var len = numLeaveTime.length;
-        let obj = numLeaveTime[0]; 
-        for (var i = 1; i < len; i++){ 
-          if (numLeaveTime[i].times > max) { 
+        let obj = numLeaveTime[0];
+        for (var i = 1; i < len; i++){
+          if (numLeaveTime[i].times > max) {
             max = numLeaveTime[i].times;
             obj =  numLeaveTime[i];
-          } 
-        } 
+          }
+        }
         var leaveTime = formatTimeStamp(obj.learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
         var leaveDay = leaveTime.substr(8,1) != 0 ?  leaveTime.substr(8,2) : leaveTime.substr(9,1);
@@ -871,13 +867,13 @@ export default {
       }
       if(this.feeList[x]){
         // this.price = this.feeList[x].fee;
-        this.price = (this.feeList[x].fee*this.pointedItem.integralPermissionsCoefficient).toFixed(2);        
+        this.price = (this.feeList[x].fee*this.pointedItem.integralPermissionsCoefficient).toFixed(2);
       }
       console.log(this.price);
     },
     // 选择入场时间段
     openPicker() {
-        this.$root.eventHub.$emit("init");      
+        this.$root.eventHub.$emit("init");
         if(this.reserveTimeList.length === 0){
           Toast({
             message:'没有预约的时间段',
@@ -896,9 +892,9 @@ export default {
       // e.cancelBubble = true;
       console.log(e);
       if(this.systemTimeFlag){
-        this.priceTime = this.systemTime - new Date().getTime();        
+        this.priceTime = this.systemTime - new Date().getTime();
       }else {
-        this.priceTime = e.select2.time - new Date().getTime();        
+        this.priceTime = e.select2.time - new Date().getTime();
       }
       // debugger
       this.getPrice(this.priceTime);
@@ -927,7 +923,7 @@ export default {
             duration:1500
           })
           setTimeout(()=>{
-            localStorage.setItem("routerFlag",null);                
+            localStorage.setItem("routerFlag",null);
             this.$router.push('payToComplete');
           },1500);
       }else{
@@ -938,12 +934,12 @@ export default {
       }
     },
     //立即预约
-    async goApoint(){  
+    async goApoint(){
       // 点击立即预约的时候要做的事情是：
       // 1. 若入场车牌号填写不合法，toast提示：请输入正确的入场车牌号。
       //   若手机号码填写不合法，toast提示：请输入正确的手机号码。
       //   若手机号码已经绑定了微信用户ID，toast提示：手机号码已被占用。（后台来做）
-      //   若验证码未填或填写错误，toast提示：请输入正确的验证码。 
+      //   若验证码未填或填写错误，toast提示：请输入正确的验证码。
       //   若该账户有未完成订单，toast提示：您还有订单未完成。跳转到订单详情页。(后台在做)
       //   若该车牌存在未完成的订单，toast提示：该车辆已存在预约订单。 （后台）
       //   若入场时间小于当前时间，toast提示：入场时间已过，请重新选择。 （不用管）
@@ -965,8 +961,8 @@ export default {
       }
       //无车位的情况
       if(!this.timeList.length){
-        this.messInfo();         
-        this.getparklot();       
+        this.messInfo();
+        this.getparklot();
         // Toast({
         //   message: '暂无可预约车位',
         //   duration: 1500
@@ -975,7 +971,7 @@ export default {
       }
       // 开始验证
       // let plateNoReg =  /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;
-      let plateNoReg =  /([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF])|([DF]([A-HJ-NP-Z0-9])[0-9]{4})))|([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1})|^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;    
+      let plateNoReg =  /([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF])|([DF]([A-HJ-NP-Z0-9])[0-9]{4})))|([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1})|^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;
       let phoneReg = /^1(3|4|5|7|8)\d{9}$/;
       if(!plateNoReg.test(this.plateNo)){
         Toast({
@@ -1020,7 +1016,7 @@ export default {
         // totalFee	是	double	预约费  (参数变了要改一下)
         // console.log(this.price);
         this.params.totalFee = this.price;
-        // parklotId	是	int	
+        // parklotId	是	int
         this.params.parklotId = this.parkLotId;
         // ip	是	string	IP地址
         // console.log(localStorage.getItem('mobileId'));
@@ -1042,7 +1038,7 @@ export default {
           let orderId = res.data.orderId;   //订单号
           let totalFee = res.data.totalFee; //预约费用
           localStorage.setItem('orderId',orderId);
-          localStorage.setItem('userId',res.data.userId);          
+          localStorage.setItem('userId',res.data.userId);
           localStorage.setItem('H5_fees',res.data.totalFee);  //保存的支付金额
 
           if(res.data.orderState && res.data.orderState != null){
@@ -1062,12 +1058,12 @@ export default {
                 duration:1500
               })
             }
-            return;                         
-          }       
+            return;
+          }
           if(totalFee == 0){   //totalFee
             this.doPay(orderId);
-          }else{         
-            localStorage.setItem("routerFlag",null);                        
+          }else{
+            localStorage.setItem("routerFlag",null);
             this.$router.push({
               name:'payMentDt',
               params:{
@@ -1113,8 +1109,8 @@ export default {
         }
 
       }
-      
-      
+
+
     },
     //选择车牌号
     chooseCar(){
@@ -1133,7 +1129,7 @@ export default {
   },
   created () {
     // debugger
-    this.parkLotId = Number(JSON.parse(localStorage.getItem('H5_park_lot_id')));
+    this.parkLotId = Number(JSON.parse(localStorage.getItem('myParklotId')));
     //安全验证隐藏
     this.$root.eventHub.$on('hide-savety-confirm',()=>{
       this.savetyConfirmShowed = false;
@@ -1148,29 +1144,29 @@ export default {
     document.removeEventListener("visibilitychange", this.documentEvent);
   },
   activated () {
-    // window.addEventListener("offline", function () {  
+    // window.addEventListener("offline", function () {
     //   Toast({
     //     message:'当前网络无连接',
     //     duration:1500
     //   })
     // }, true);
-    window.addEventListener("online", function () {  
+    window.addEventListener("online", function () {
       Toast({
         message:'当前网络连接正常',
-        position: 'bottom',        
+        position: 'bottom',
         duration:1500
       })
-      Indicator.close();      
-    }, true);  
-    window.addEventListener("offline", function () {  
+      Indicator.close();
+    }, true);
+    window.addEventListener("offline", function () {
       Toast({
         message:'当前网络无连接',
-        position: 'bottom',        
+        position: 'bottom',
         duration:2000
       })
-      Indicator.close();            
+      Indicator.close();
       return false;
-    }, true);  
+    }, true);
     this.timeToget();
     this.getparklot();
     this.plateNum = '';
@@ -1306,12 +1302,12 @@ export default {
       width 2.125rem
       height 2.125rem
       padding-left .5rem
-      color #D01D95     
+      color #D01D95
     .input-style2
       width 2.125rem
       height 2.125rem
       padding-left .6rem
-      color #D01D95   
+      color #D01D95
     .plate-input
       height 2.5rem
       line-height 2.5rem
@@ -1429,7 +1425,7 @@ export default {
       height 100%
     .ds-2
       width 37.33333%
-      height 100%      
+      height 100%
     .price-style
       font-size 1.4rem
 .test-input
@@ -1440,7 +1436,7 @@ export default {
   padding-left:3rem
   margin-top 0.2rem
   margin-bottom 0.2rem
-.p-r 
+.p-r
   .phone
     min-width: 85%
     margin-top 0.6rem
