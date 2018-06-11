@@ -192,9 +192,8 @@ export default {
     
   },
   activated(){
-      this.plateNum = '';
-      this.proInfo = '粤';
-      this.iniInfo = 'B';
+    this.indentLists=['粤', 'B'];
+    this.plateLists=['车', '牌', '号', '码', null, null, null];
   }
 }
 </script>
