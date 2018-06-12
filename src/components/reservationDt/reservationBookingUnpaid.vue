@@ -2,7 +2,6 @@
   <div id="appoint-info">
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">
-        <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
         <div class="content">
           <div class="guide-show" v-if="orderData.type === 2">
             <div class="imgstyle">
@@ -34,21 +33,6 @@
           </div>
         </div>
         <div class="plate-card">
-          <!-- <template v-if="orderData.state === 1301">
-            <div class="p-message">
-              <div class="time-info">
-                <span class="name-text">入场时间</span>
-                <div class="time-add">
-                  <div class="time-style">{{hour}}</div>
-                  <div class="time-text">时</div>
-                  <div class="time-style">{{minutes}}</div>
-                  <div class="time-text">分</div>
-                  <div class="time-style">{{seconds}}</div>
-                </div>
-              </div>
-            </div>
-          </template> -->
-
             <div class="p-message">
               <div class="time-info">
                 <span class="name-text">订单状态</span>
@@ -79,99 +63,13 @@
               <span class="ta-info">￥ {{orderData.reserveFee}}</span>
             </div>
           </div>
-
         </div>
-        <!-- <div class="order-info">
-          预约支付明细
-        </div> -->
-        <!-- <div class="plate-card">
-          <div class="p-message">
-            <div class="time-info">
-              <span class="name-text">支付方式</span>
-              <span class="ta-info">
-                <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
-                  </span>
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}&nbsp;
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
-                  </span>
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 3">
-                  现金：{{orderData.reserveFee}}
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 4">
-                  优惠券：￥ {{orderData.reserveCouponFee}}
-                </span>
-              </span>
-            </div>
-          </div> -->
-          <!-- <div class="p-message" v-if="orderData.reserveTradeNo != null">
-            <div class="time-info">
-              <span class="name-text">支付流水号</span>
-              <span class="ta-info">{{orderData.reserveTradeNo}}</span>
-            </div>
-          </div>
-          <div class="p-message" v-if="orderData.reserveCouponCode !== null">
-            <div class="time-info">
-              <span class="name-text">优惠券编号</span>
-              <span class="ta-info">{{orderData.reserveCouponCode}}</span>
-            </div>
-          </div> -->
-        <!-- </div>  -->
-
-        <!-- <template v-if="orderData.state === 1302"> -->
-        <!-- <div class="order-info lastOne">
-            停车订单明细
-          </div>
-        <div class="plate-card">
-          <div class="p-message">
-            <div class="time-info">
-              <span class="name-text">入场时间</span>
-              <span class="ta-info">{{orderData.enterTime}}</span>
-            </div>
-          </div>
-        </div> -->
-          <!-- <div class="p-message">
-            <div class="time-info">
-              <span class="name-text">离场时间</span>
-              <span class="ta-info">{{orderData.parkingFee}}</span>
-            </div>
-          </div> -->
-        <!-- </template> -->
       </div>
     </div>
-    <!--1.0 支付预约费 的时候显示约车位和约车场的数据-->
-    <!-- <template v-if="orderData.state === 1301"> -->
-      <!-- <div class="cancel-order p-a t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2">取消预约</div> -->
       <div class="cancel p-a t-c">
+        <div class="cancel-order p-a t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2">取消预约</div>
         <div class="item2-sytle" @click="payGo">立即支付</div>
       </div>
-    <!-- </template> -->
-    <!-- 2.0 已经停车时候的UI显示界面  这个是停车位的数据 -->
-    <!-- <template v-if ="orderData.state === 1302 && orderData.type === 2" >
-      <div class="cancel-order p-a t-c" @click="lockModel">控制地锁</div>
-    </template>
-
-    <div class="alert-index" v-show="islockshow" @click="closeModel">
-      <div @click="closeCs" class="al-info">
-        <div class="al-header">控制地锁</div>
-        <div class="al-conter">
-          <div class="lock-img">
-            <div class="lock-up lock-wh" @click="lockEvnet(1)"></div>
-          </div>
-          <div class="lock-img">
-            <div class="lock-down lock-wh" @click="lockEvnet(2)"></div>
-          </div>
-        </div>
-        <div class="al-header" @click="closeModel">关闭</div>
-      </div>
-    </div> -->
-    <!-- <div style="display:none" id="gdAMp"></div> -->
   </div>
 </template>
 <script>
@@ -672,33 +570,25 @@ export default {
     margin-bottom 0
     z-index 1000
     color #FFF
-    // position absolute
-    // width 60%
-    // height 3rem
-    // line-height 3rem
-    // color #FFF
-    // background-color #D01D95
-    // font-size 1.2rem
-    // margin-bottom 0
-    // z-index 1000
-    // bottom 0.5rem
-    // margin-bottom 0
-    // margin-left 20%
-    // border-radius 2rem
-    // background url("../../assets/img/Background@3x.png") no-repeat
-    // background-size cover
   .appoit-info-box
     position absolute
     width 100%
     top 3.9375rem
     bottom 3.5rem
-    // overflow hidden
+  .cancel-order
+    /*display inline-block*/
+    background-color #FFF
+    color #d01d95
+    width 50%
+    float left
+    height 100%
   .item2-sytle
     display inline-block
     color #fff
-    width 100%
     float right
+    width 50%
     height 100%
+    text-align center
   .canle-style
     height 100%
     width 50%
