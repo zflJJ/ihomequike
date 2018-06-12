@@ -164,14 +164,14 @@
       async wxPay(){
         let spbillCreateIp = localStorage.getItem("mobileId");
         let channel = 5; // 支付方式
-        alert(JSON.stringify(this.payUrl));
-        alert(JSON.stringify(this.orderId));
-        alert(channel);
-        alert(JSON.stringify(this.couponId));
-        alert(JSON.stringify(spbillCreateIp));
+        // alert(JSON.stringify(this.payUrl));
+        // alert(JSON.stringify(this.orderId));
+        // alert(channel);
+        // alert(JSON.stringify(this.couponId));
+        // alert(JSON.stringify(spbillCreateIp));
         let res = await pay(this.payUrl,this.orderId,channel ,this.couponId,spbillCreateIp);
         if(res.error_code === 2000){
-          alert(JSON.stringify(res));
+          // alert(JSON.stringify(res));
           if(res.data.isZero === 1){
             // 做跳转预约详情界面
             Toast({
@@ -222,14 +222,14 @@
             }
           }
         }else{
-          alert(JSON.stringify(res));
+          // alert(JSON.stringify(res));
           console.log(res,'错误码是'+res.error_code);
         }
       },
       //公总号微信支付
       onBridgeReady(params){
         let vm = this;
-        alert(JSON.stringify(params));
+        // alert(JSON.stringify(params));
         WeixinJSBridge.invoke(
           "getBrandWCPayRequest", {
             "appId":params.appId,     //公众号名称，由商户传入
@@ -240,7 +240,7 @@
             "paySign":params.paySign //微信签名
           },
           function(res){
-            alert(JSON.stringify(res));
+            // alert(JSON.stringify(res));
             if(res.err_msg == "get_brand_wcpay_request:ok" ) {
               Toast({
                 message:'支付成功',

@@ -39,7 +39,7 @@ export default {
       proInfo:'粤',  //省份
       iniInfo:'B',     //车牌号位
       cletoast:null,
-       KeyBoardflag: 0,
+      KeyBoardflag: 0,
       show: 0,
       indentLists: ['粤', 'B'],
       plateLists: ['车', '牌', '号', '码', null, null, null],
@@ -147,6 +147,7 @@ export default {
     },
     async addCar(plate){
       var userId = localStorage.getItem('userId');
+      // var userId = 30
       let res = await addMyCars(userId,plate);
       this.clickFlag=true
       if(res.error_code === 2000){
@@ -192,9 +193,11 @@ export default {
     
   },
   activated(){
-    this.indentLists=['粤', 'B'];
-    this.plateLists=['车', '牌', '号', '码', null, null, null];
-  }
+    
+  },
+  deactivated() {
+    this.$destroy(true);
+  },
 }
 </script>
 <style lang="stylus">

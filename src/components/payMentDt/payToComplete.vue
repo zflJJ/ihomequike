@@ -3,7 +3,7 @@
     <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="bgc"></div>
     <div v-if="routerFlag == 'reservationPaking' " class="comfirm" @click="btn1">再次预约</div>         
-    <div v-else class="comfirm" @click="btn1">查看订单</div>   
+    <div v-else class="comfirm" @click="btnOrderInfoEvent">查看订单</div>   
     <img class="bgc2" src="../../assets/img/product.jpg">
     <div class="text">关注公众号，随时预约更多停车场空泊位。</div>
   </div>
@@ -28,23 +28,20 @@
     },
     methods: {
       btn1(){
-        if(this.routerFlag == "reservationPaking"){
-          localStorage.setItem("routerFlag",null);
-          localStorage.setItem('orderId',null);  //保存停车订单ID
-          this.routerFlag = null;
-          this.$router.push({
-            name:'reservationOld',
-          });          
-        }else {
-          this.$router.push({
-            name:'reservationinfo',
-          });
-        }
-
+        localStorage.setItem("routerFlag",null);
+        localStorage.setItem('orderId',null);  //保存停车订单ID
+        this.$router.push({
+          name:'reservationOld',
+        });
       },
       btn2(){
         window.location.href = "https://mp.weixin.qq.com/mp/profile_ext?action=home&__biz=MzU0MzE3OTk3NA==&scene=124#wechat_redirect"
       },
+      btnOrderInfoEvent(){
+        this.$router.push({
+          name:'reservationinfo',
+        });
+      }
     },
     created(){            
     },

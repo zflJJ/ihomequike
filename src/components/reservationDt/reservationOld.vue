@@ -187,10 +187,11 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){
-      // this.userId = JSON.parse(localStorage.getItem('userId'));
-      // this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
-      this.userId = 30;
-      this.parklotId = 16;
+      this.userId = JSON.parse(localStorage.getItem('userId'));
+      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      // 测试
+      // this.userId = 30;
+      // this.parklotId = 262;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -580,7 +581,6 @@ export default {
     },
     // 选择时间后的确定按钮
     confirmFn(e){
-      // debugger
       e.cancelBubble = true;
       this.params.startTime = e.select2.time;
       this.params.start_time = e.select2.time;
@@ -590,12 +590,8 @@ export default {
       }else {
         this.priceTime = e.select2.time - new Date().getTime();
       }
-      // debugger
       this.getPrice(this.priceTime);
-
       this.defaultTime = e.select1.text.substring(0,e.select1.text.length-2) +':'+ e.select2.text.substring(0,e.select2.text.length-2) + "前";
-
-      console.log(e.select2.time);
       this.getDefaultTime(e.select2.time);
       this.show1 = false;
       this.isshow = false;
@@ -629,10 +625,11 @@ export default {
     //立即预约
     async goApoint(){
       console.log(this.params);
-      // this.params.user_id = localStorage.getItem('userId');
-      this.params.user_id = 30;
-      this.params.plate_id = 16;
+      // 测试
+      this.params.user_id = localStorage.getItem('userId');
       this.params.plate_id = this.plateNoId;
+      // this.params.user_id = 30;
+      // this.params.plate_id = 117;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
           message:'请选择您的车牌号',
@@ -692,7 +689,7 @@ export default {
             this.doPay(orderId);
         }else{
           localStorage.setItem("routerFlag",null);
-          alert(JSON.stringify(orderId));
+          // alert(JSON.stringify(orderId));
           this.$router.push({
             name:'payMentDt',
             params:{

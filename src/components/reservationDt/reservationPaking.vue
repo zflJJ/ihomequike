@@ -255,19 +255,8 @@ export default {
   },
   /*这里没有必要再做处理，直接在上一级页面做处理即可*/
   computed: {
-    // plateInfo(){
-    //   let plateNo = this.plateNo;
-    //   return plateNo.substr(0,2) + ' • ' + plateNo.substr(2,plateNo.length);
-    // }
   },
   methods: {
-    //做轮询操作,查询订单状态
-    // Interval(){
-    //   let _this = this;
-    //   this.intervalMy = setInterval(() => {
-    //     _this.getOrder();
-    //   }, 10000);
-    // },
     goPay(){
       this.getOrder(1);
     },
@@ -291,22 +280,22 @@ export default {
       var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
       if (this.count == 0) {
         this.count = 1
-      } else {
+      } else if(num!=1){
         data.isQuickReserve = 1
       }
       this.$http.post("http://develop.qhiehome.com/apiread/order/reserve/detail/query",data).then(res => {
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
-            this.getOrderFlag = true;
+            this.getOrderFlag  = true;
             localStorage.setItem('H5_fees',res.body.data.parkingFee);  //保存的支付金额
             localStorage.setItem('orderId',res.body.data.orderId);  //保存停车订单ID
             this.orderData = res.body.data;
             this.dispoceOrderDat(res.body.data);
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-            if(res.body.data.parkingFee == 0 && res.body.data.state != 1303){
+            if(res.body.data.parkingFee == 0 && res.body.data.state == 1303){
               this.$router.push('payToComplete');
-            }else if(res.body.data.parkingFee != 0 && res.body.data.state != 1303){
+            }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
               this.$router.push('payMentDt');
             }
             return false;
@@ -315,6 +304,10 @@ export default {
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
             this.$router.push('payToComplete');
           }else if(res.body.data.state == 1302 && this.visibFlag){
+            if(this.intervalMy){
+              clearTimeout(this.intervalMy);
+            }
+            this.intervalMy = null;
             this.intervalMy = setTimeout(() => {
                 this.getOrder();
             }, 10000);
@@ -334,7 +327,7 @@ export default {
               duration:2000
             });
           }
-          this.orderData();
+          // this.orderData();
       }else{
           console.log(res,'错误码是'+res.error_code);
         }
@@ -371,7 +364,7 @@ export default {
         objDatas.leaveTime = leaveTime.substr(5,11);
       }
       this.countdown = objDatas.enterCountdownTime;
-      this.downCounts();
+      // this.downCounts();
       // 预约超时时间计算
       if(objDatas.overTime !== null){
         let hours = parseInt((objDatas.overTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -485,7 +478,7 @@ export default {
     },
 
     //入场时间倒计时
-    downCounts(){
+    /* downCounts(){
       let hour = 0;
       let minutes = 0;
       let seconds = 0;
@@ -534,7 +527,7 @@ export default {
         this.minutes = minutes;
         this.seconds = seconds;
       },1000);
-    },
+    }, */
     visibEvent(){
       if(document.visibilityState=='hidden'){
         console.log('执行了');
@@ -572,13 +565,12 @@ export default {
     this._initScroll();
     var lastTime = +new Date;
     let vm = this;
-    document.addEventListener("visibilitychange",vm.visibEvent ,false);
-    let org = JSON.parse(localStorage.getItem('H5_geoLocation'));
-    this.orgX = org.lng;
-    this.orgY = org.lat;
+    
   },
   activated () {
     //从预约列表页面带获取传入的参数值
+    let vm = this;
+    document.addEventListener("visibilitychange",vm.visibEvent ,false);
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
   },

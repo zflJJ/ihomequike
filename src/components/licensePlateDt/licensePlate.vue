@@ -156,8 +156,8 @@ export default {
     //获取车牌号列表
     async getCars(){
       Indicator.open();
-      let userId = localStorage.getItem('userId');
-      // let userId = 30;
+      // let userId = localStorage.getItem('userId');
+      let userId = 30;
       let res = await getMyCars(userId,this.pageNum);
       console.log(res);
       if(res.error_code == 2000){
@@ -301,5 +301,5 @@ export default {
       color #D21C95
     .active
       background-color #D21C95
-      color #FFF
+      color #FFF !important
 </style>

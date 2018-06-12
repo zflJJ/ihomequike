@@ -162,8 +162,6 @@ import { MessageBox } from 'mint-ui'
 import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
-import { clearInterval } from 'timers';
-// import { clearInterval } from 'timers';
 export default {
   name: 'reservationInfo',
   data() {
@@ -450,6 +448,7 @@ export default {
       }
       this.interval = setInterval(() => {
         this.countdown--
+        // console.log(this.countdown);
         if (this.countdown <= 0) {
           clearInterval(this.interval)
         }
@@ -508,17 +507,21 @@ export default {
     },
     hiddenFun() {
       let vm = this
-      if (document.hidden) {
-        clearInterval(vm.Interval)
-        vm.Interval=null
+      if (document.visibilityState == "hidden") {
+        clearInterval(vm.interval)
+        vm.interval=null
         vm.hiddenDate=new Date().getTime()
+        localStorage.setItem('hiddenTime', vm.hiddenDate);
       } else {
         vm.showDate=new Date().getTime()
-        let hiddenTime=parseInt((vm.showDate-vm.hiddenDate)/1000)
-        if(vm.countdown<=hiddenTime){
+        let hiddenTime = parseInt(localStorage.getItem('hiddenTime'));
+        // alert(hiddenTime);
+        // alert(vm.countdown);
+        let secondTime=Math.floor((vm.showDate-hiddenTime)/1000)
+        if(vm.countdown<=secondTime){
           vm.countdown=0
         }else{
-          vm.countdown=vm.countdown-hiddenTime
+          vm.countdown= vm.countdown - secondTime;
         }
         vm.downCounts()
       }
@@ -566,10 +569,6 @@ export default {
     this._initScroll()
     var lastTime = +new Date()
     let vm = this
-    // document.addEventListener('visibilitychange', function() {})
-    let org = JSON.parse(localStorage.getItem('H5_geoLocation'))
-    this.orgX = org.lng
-    this.orgY = org.lat
   },
   activated() {
     //从预约列表页面带获取传入的参数值
@@ -581,7 +580,8 @@ export default {
   },
   deactivated() {
     let _this = this
-    clearInterval(this.Interval)
+    clearInterval(this.interval)
+    localStorage.removeItem('hiddenTime');
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
