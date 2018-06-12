@@ -75,15 +75,12 @@ export default {
 
     //做浏览器兼容，吃力微信支付问题
     let u = window.navigator.userAgent;
-    // alert(JSON.stringify(u));
     let isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
     let isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
-    console.log(isAndroid,isiOS);
     let phoneNum = '';
     if(isiOS === true){
       phoneNum = 'iPhone';
     }else{
-      console.log(u);
       let uArr = u.split(";");
       let len = null;
       for(let i=0;i<uArr.length;i++){
@@ -94,7 +91,6 @@ export default {
       }
       phoneNum = uArr[len].substring(0, uArr[len].indexOf("Build/"));
     }
-    console.log(phoneNum);
     localStorage.setItem('phoneNum',phoneNum);
   },
   computed: {

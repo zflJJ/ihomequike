@@ -192,6 +192,8 @@ export default {
       // 测试
       // this.userId = 30;
       // this.parklotId = 262;
+      this.userId = JSON.parse(localStorage.getItem('userId'));
+      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -213,16 +215,16 @@ export default {
         // 筛选时间
         this.feeList = this.pointedItem.feeList;
         // debugger
-        console.log(this.defaultTime);
+//        console.log(this.defaultTime);
         this.reserveTimeList = this.pointedItem.reserveTimeList;
         if(!this.reserveTimeList.length){
           // 这里有个提示框  并且确认键（跳转到首页）
           this.messInfo();
         }else{
           this.filterTime(this.pointedItem.reserveTimeList);
-          console.log(this.timeList);
+//          console.log(this.timeList);
           this.disposeTime(this.timeList);
-          console.log(this.timeList);
+//          console.log(this.timeList);
           // 对时间段进行拆分
           this.dataChange();
         }
@@ -391,7 +393,7 @@ export default {
     // 赋值 和 拆分 小时数
     convertTime(){
       var pData1 =[],pData2={},pData2arr = [];
-      console.log(this.array);
+//      console.log(this.array);
       for(var i=0;i<this.array.length;i++){
         var arrayone = this.array[i];
         var oldhours = null;
@@ -437,10 +439,10 @@ export default {
           oldhours = time.substr(11,2);
         }
       }
-      console.log(pData1);
+//      console.log(pData1);
       var hoursarray = pData1;
       var miuntearray = this.pData2chang(pData2arr);
-      console.log(hoursarray,miuntearray);
+//      console.log(hoursarray,miuntearray);
       for(var i=0;i<hoursarray.length;i++){
         pData2[hoursarray[i].value] = miuntearray[hoursarray[i].text];
       }
@@ -454,11 +456,11 @@ export default {
       this.pickData2.default.push(hoursarray[0]);
       this.pickData2.default.push(pData2[hoursarray[0].value][0]);
         this.defaultTime = hoursarray[0].text.substring(0,hoursarray[0].text.length-2) +':' +  pData2[hoursarray[0].value][0].text.substring(0,pData2[hoursarray[0].value][0].text.length-2) + "前";
-        console.log(this.defaultTime)
+//        console.log(this.defaultTime)
         this.params.start_time = this.params.startTime;
       // }
       // 通过时间戳差值，获取价格信息
-      console.log(new Date().getTime())
+//      console.log(new Date().getTime())
       // debugger
       this.priceTime = hoursarray[0].time - new Date().getTime();
       // debugger
@@ -508,7 +510,7 @@ export default {
         // debugger
         this.params.shareStartTime = numLeaveTime[0].learve.startTime;
         this.params.shareEndTime = this.params.endTime =   numLeaveTime[0].learve.endTime;
-        console.log(timetap)
+//        console.log(timetap)
         this.params.startTime = timetap;
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
@@ -547,7 +549,7 @@ export default {
       // debugger
       var x = null;
       let miunte = parseInt(priceTime / 60000);
-      console.log(miunte);
+//      console.log(miunte);
       for(var i=0;i<this.feeList.length;i++){
         if(miunte <= this.feeList[i].finishTime){
           x = i;
@@ -562,7 +564,7 @@ export default {
       if(this.feeList[x]){
         this.price = (this.feeList[x].fee*this.pointedItem.integralPermissionsCoefficient).toFixed(2);
       }
-      console.log(this.price);
+//      console.log(this.price);
     },
     // 选择入场时间段
     openPicker() {
@@ -584,7 +586,7 @@ export default {
       e.cancelBubble = true;
       this.params.startTime = e.select2.time;
       this.params.start_time = e.select2.time;
-      console.log(e.select2.time);
+//      console.log(e.select2.time);
       if(this.systemTimeFlag){
         this.priceTime = this.systemTime - new Date().getTime();
       }else {
@@ -624,7 +626,7 @@ export default {
     },
     //立即预约
     async goApoint(){
-      console.log(this.params);
+      //console.log(this.params);
       // 测试
       this.params.user_id = localStorage.getItem('userId');
       this.params.plate_id = this.plateNoId;
@@ -642,7 +644,7 @@ export default {
         this.messInfo();
         return;
       }
-      console.log(this.params);
+//      console.log(this.params);
       this.params.share_startTime = this.params.shareStartTime;
       this.params.share_endTime = this.params.shareEndTime;
       this.params.end_time = this.params.endTime;

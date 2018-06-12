@@ -116,21 +116,7 @@
               </span>
             </div>
           </div>
-          <!-- <div class="p-message" v-if="orderData.reserveTradeNo != null">
-            <div class="time-info">
-              <span class="name-text">支付流水号</span>
-              <span class="ta-info">{{orderData.reserveTradeNo}}</span>
-            </div>
-          </div>
-          <div class="p-message" v-if="orderData.reserveCouponCode !== null">
-            <div class="time-info">
-              <span class="name-text">优惠券编号</span>
-              <span class="ta-info">{{orderData.reserveCouponCode}}</span>
-            </div>
-          </div> -->
         </div>
-
-        <!-- <template v-if="orderData.state === 1302"> -->
         <div class="order-info lastOne">
             停车订单明细
           </div>
@@ -142,31 +128,8 @@
             </div>
           </div>
         </div>
-          <!-- <div class="p-message">
-            <div class="time-info">
-              <span class="name-text">离场时间</span>
-              <span class="ta-info">{{orderData.parkingFee}}</span>
-            </div>
-          </div> -->
-        <!-- </template> -->
       </div>
     </div>
-    <!--1.0 支付预约费 的时候显示约车位和约车场的数据-->
-    <!-- <template v-if="orderData.state === 1301"> -->
-      <!-- <div class="cancel-order p-a t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2">取消预约</div> -->
-     <!--  <div class="cancel-order p-a t-c" v-if="orderData.type === 2">
-        <div class="canle-style" @click="cancelOrder">取消预约</div> -->
-        <!-- <div class="item2-sytle">
-          <div style="width:50%;" @click="lockModel">控制车锁</div>
-        </div> -->
-      <!-- </div> -->
-    <!-- </template> -->
-    <!-- 2.0 已经停车时候的UI显示界面  这个是停车位的数据 -->
-    <!-- <template v-if ="orderData.state === 1302 && orderData.type === 2" > -->
-
-    <!-- <div class="btnbgc"  v-if="orderData.lockId">
-      <div class="cancelOrder p-a t-c" @click="lockModel">控制车锁</div>
-    </div> -->
     <div>
       <div v-if="orderData.lockId" class="cancel p-a t-c">
         <div class="item2-sytle" @click="lockModel">控制车锁</div>
@@ -179,14 +142,7 @@
         <div class="item2-sytle2" @click="goPay">离场支付</div>
       </div>
     </div>
-    <!-- <div v-if="orderData.lockId">
-      <div class="cancel p-a t-c">
-        <div class="canle-style" @click="cancelOrder">取消预约</div>
-        <div class="item2-sytle" @click="lockModel">控制车锁</div>
-      </div>
-    </div> -->
-    <!-- </template> -->
-
+    <!--车锁层-->
     <div class="alert-index" v-show="islockshow" @click="closeModel">
       <div @click="closeCs" class="al-info">
         <div class="al-header">控制车锁</div>
@@ -277,7 +233,7 @@ export default {
     },
     // 获取预约订单详情的
     getOrder(num){
-      var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
+      var data = {order_id:4572,timestamp: new Date().getTime()}//localStorage.getItem('orderId')
       if (this.count == 0) {
         this.count = 1
       } else if(num!=1){
