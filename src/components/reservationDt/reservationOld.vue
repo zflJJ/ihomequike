@@ -187,8 +187,10 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){
-      this.userId = JSON.parse(localStorage.getItem('userId'));
-      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      // this.userId = JSON.parse(localStorage.getItem('userId'));
+      // this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      this.userId = 30;
+      this.parklotId = 16;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -627,8 +629,9 @@ export default {
     //立即预约
     async goApoint(){
       console.log(this.params);
-       this.params.user_id = localStorage.getItem('userId');
-
+      // this.params.user_id = localStorage.getItem('userId');
+      this.params.user_id = 30;
+      this.params.plate_id = 16;
       this.params.plate_id = this.plateNoId;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
@@ -689,6 +692,7 @@ export default {
             this.doPay(orderId);
         }else{
           localStorage.setItem("routerFlag",null);
+          alert(JSON.stringify(orderId));
           this.$router.push({
             name:'payMentDt',
             params:{

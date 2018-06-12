@@ -164,8 +164,14 @@
       async wxPay(){
         let spbillCreateIp = localStorage.getItem("mobileId");
         let channel = 5; // 支付方式
+        alert(JSON.stringify(this.payUrl));
+        alert(JSON.stringify(this.orderId));
+        alert(channel);
+        alert(JSON.stringify(this.couponId));
+        alert(JSON.stringify(spbillCreateIp));
         let res = await pay(this.payUrl,this.orderId,channel ,this.couponId,spbillCreateIp);
         if(res.error_code === 2000){
+          alert(JSON.stringify(res));
           if(res.data.isZero === 1){
             // 做跳转预约详情界面
             Toast({
@@ -216,13 +222,14 @@
             }
           }
         }else{
+          alert(JSON.stringify(res));
           console.log(res,'错误码是'+res.error_code);
         }
       },
       //公总号微信支付
       onBridgeReady(params){
         let vm = this;
-        // alert(JSON.stringify(params));
+        alert(JSON.stringify(params));
         WeixinJSBridge.invoke(
           "getBrandWCPayRequest", {
             "appId":params.appId,     //公众号名称，由商户传入
@@ -233,15 +240,12 @@
             "paySign":params.paySign //微信签名
           },
           function(res){
-            // alert(JSON.stringify(res));
+            alert(JSON.stringify(res));
             if(res.err_msg == "get_brand_wcpay_request:ok" ) {
-              // alert('支付成功了');
-              // 这里要做跳转（跳转到预约详情）
               Toast({
                 message:'支付成功',
                 duration:1500
               })
-              // alert(vm.orderState);
               setTimeout(() => {
                 common.removeStorage('H5_payMent_time');
               common.removeStorage('H5_timeflag');
@@ -345,7 +349,6 @@
       // alert(localStorage.getItem('H5_fees'))
       // alert(this.payFees)
 
-      this.orderId = localStorage.getItem('orderId');  // 订单ID
       var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
       // 支付是停车费还是预约费用
       if(payOrderState === 1303){
@@ -376,6 +379,7 @@
       this.currentIndex = 0;
       // this.timeAdd();
       // 用来做定时器的任务的
+      this.orderId = localStorage.getItem('orderId');  // 订单ID
       let timeStamp = Date.parse(new Date());
       common.setStorage('H5_payMent_time',timeStamp);
       document.addEventListener("visibilitychange", this.documentEvent);
