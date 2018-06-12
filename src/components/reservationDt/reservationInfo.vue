@@ -162,42 +162,43 @@ import { MessageBox } from 'mint-ui'
 import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
+import { clearInterval } from 'timers';
 // import { clearInterval } from 'timers';
 export default {
-  name:'reservationInfo',
-  data () {
+  name: 'reservationInfo',
+  data() {
     return {
-      headerMark:'预约详情',
-      orderId:'',  //根据后台返回的订单号
-      parklotId:'',
-      estateName:'', //车场名
-      startTime:'',  //开始时间
+      headerMark: '预约详情',
+      orderId: '', //根据后台返回的订单号
+      parklotId: '',
+      estateName: '', //车场名
+      startTime: '', //开始时间
       plateNo: '', //车牌号
-      createTime:'', //预约订单创建时间
-      createFmTime:'', //处理后的订单创建时间
-      endTime:'',  //最晚入场时间
-      address:'',  //停车场地址
+      createTime: '', //预约订单创建时间
+      createFmTime: '', //处理后的订单创建时间
+      endTime: '', //最晚入场时间
+      address: '', //停车场地址
       // hour:'00', //倒计时小时
       // minutes:'00', //倒计时分钟数
       // seconds:'00', //倒计时秒数
-      miliSeconds:'00', //倒计时毫秒数
-      interval:'',  //定时计时器
+      miliSeconds: '00', //倒计时毫秒数
+      interval: '', //定时计时器
       //导航
-      orgX:'',  // 定位的坐标
-      orgY:'',  // 定位的坐标
-      desX:'',  // 车场的坐标
-      desY:'',  // 车场的坐标
+      orgX: '', // 定位的坐标
+      orgY: '', // 定位的坐标
+      desX: '', // 车场的坐标
+      desY: '', // 车场的坐标
       // 新增数据
-      orderData:{},
+      orderData: {},
       countdown: null, // 倒计时时间戳
       islockshow: false, // 模态框是否 显示
-      seconds1302: '00',  // 停车秒数
-      minutes1302: '00',// 停车分数
-      hours1302: '00',// 停车小时
+      seconds1302: '00', // 停车秒数
+      minutes1302: '00', // 停车分数
+      hours1302: '00', // 停车小时
       AMAP: null, // 高德地图的实例
-      lockId:null,
-      network:true,
-      count:0,
+      lockId: null,
+      network: true,
+      count: 0
     }
   },
   components: {
@@ -205,19 +206,19 @@ export default {
   },
   methods: {
     //添加页面滚动
-    _initScroll(){
-      this.$nextTick(()=>{
-        if(!this.scroll){
-          this.scroll = new BScroll(this.$refs.appoitInfoBox,{
-            probeType:3,
-            scrollY:true,
-            click:true
-          });
+    _initScroll() {
+      this.$nextTick(() => {
+        if (!this.scroll) {
+          this.scroll = new BScroll(this.$refs.appoitInfoBox, {
+            probeType: 3,
+            scrollY: true,
+            click: true
+          })
           //滚动刷新事件
-        }else{
-          this.scroll.refresh();
+        } else {
+          this.scroll.refresh()
         }
-      });
+      })
     },
     // 获取预约订单详情的
     getOrder() {
@@ -229,16 +230,18 @@ export default {
       } else {
         data.isQuickReserve = 1
       }
-      this.$http.post('http://develop.qhiehome.com/apiread/order/reserve/detail/query',data)
+      this.$http
+        .post(
+          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
+          data
+        )
         .then(res => {
           if (res.body.error_code == 2000) {
-            if (res.body.data.orderId == null && res.body.data.enterCountdownTime) {
-              this.countdown = res.body.data.enterCountdownTime
-              this.downCounts()
-              this.getOrder()
+            if (res.body.data == null) {
+                _this.getOrder()
             } else if (res.body.data.state == 1301) {
               if (res.body.data.parkingState == null) {
-                  this.getOrder()
+                  _this.getOrder()
               } else if (res.body.data.parkingState) {
                 if (res.body.data.parkingState == 1302) {
                   localStorage.setItem('orderId', res.body.data.orderParkingId)
@@ -299,7 +302,7 @@ export default {
         let leaveTime = formatTimeStamp(objDatas.leaveTime)
         objDatas.leaveTime = leaveTime.substr(0, 16)
       }
-      this.countdown = Math.floor(objDatas.enterCountdownTime/1000);
+      this.countdown = Math.floor(objDatas.enterCountdownTime / 1000)
       this.downCounts()
       // 预约超时时间计算
       if (objDatas.overTime !== null) {
@@ -390,7 +393,7 @@ export default {
     closeModel() {
       this.islockshow = false
     },
-    closeCs(event){
+    closeCs(event) {
       // 阻断事件冒泡
       event.cancelBubble = true
     },
@@ -420,8 +423,8 @@ export default {
       }
     },
     // 对车锁进行处理
-    async lockDown(item){
-      let res = await lockChange(this.lockId,item);
+    async lockDown(item) {
+      let res = await lockChange(this.lockId, item)
       // if(res.error_code == 2000){
       //   Toast({
       //     message:'操作成功',
@@ -437,21 +440,20 @@ export default {
       // }
     },
 
-
     //入场时间倒计时
     downCounts() {
-      if(this.interval != null){
-        clearInterval(this.interval);
+      if (this.interval != null) {
+        clearInterval(this.interval)
       }
-      if(this.countdown <=0){
-        return;
+      if (this.countdown <= 0) {
+        return
       }
-      this.interval =  setInterval(()=>{
-        this.countdown--;
-        if(this.countdown<= 0){
-          clearInterval(this.interval);
+      this.interval = setInterval(() => {
+        this.countdown--
+        if (this.countdown <= 0) {
+          clearInterval(this.interval)
         }
-      },1000);
+      }, 1000)
     },
 
     // 取消预约按钮
@@ -507,30 +509,34 @@ export default {
     hiddenFun() {
       let vm = this
       if (document.hidden) {
-        vm.seconds1302 = '00'
-        vm.minutes1302 = '00'
-        vm.hours1302 = '00'
-        vm.hour = '00'
-        vm.minutes = '00'
-        vm.seconds = '00'
+        clearInterval(vm.Interval)
+        vm.Interval=null
+        vm.hiddenDate=new Date().getTime()
       } else {
-        vm.getOrder()
+        vm.showDate=new Date().getTime()
+        let hiddenTime=parseInt((vm.showDate-vm.hiddenDate)/1000)
+        if(vm.countdown<=hiddenTime){
+          vm.countdown=0
+        }else{
+          vm.countdown=vm.countdown-hiddenTime
+        }
+        vm.downCounts()
       }
     }
   },
-  computed:{
-    hour(){
-       let hour = Math.floor(this.countdown / 3600)
-       return hour < 10 ? '0' + hour : hour;
+  computed: {
+    hour() {
+      let hour = Math.floor(this.countdown / 3600)
+      return hour < 10 ? '0' + hour : hour
     },
-    minutes(){
-       let _this = this
-       let miute = Math.floor((_this.countdown % 3600) / 60)
-       return miute < 10 ? '0' + miute : miute
+    minutes() {
+      let _this = this
+      let miute = Math.floor((_this.countdown % 3600) / 60)
+      return miute < 10 ? '0' + miute : miute
     },
-    seconds(){
-       let seconds = this.countdown % 60
-       return seconds < 10 ? '0' + seconds : seconds
+    seconds() {
+      let seconds = this.countdown % 60
+      return seconds < 10 ? '0' + seconds : seconds
     }
   },
   created() {
@@ -568,15 +574,15 @@ export default {
   activated() {
     //从预约列表页面带获取传入的参数值
     let _this = this
-    _this.count = 0;
+    _this.count = 0
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
-    // document.addEventListener('visibilitychange', _this.hiddenFun, false)
+    document.addEventListener('visibilitychange', _this.hiddenFun, false)
   },
   deactivated() {
     let _this = this
-    clearInterval(this.Interval);
-    // document.removeEventListener('visibilitychange', _this.hiddenFun, false)
+    clearInterval(this.Interval)
+    document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
   mounted() {},
   beforeRouteLeave(to, from, next) {
@@ -634,7 +640,7 @@ export default {
         top 15%
         left 5%
         color #fff
-        font-size  0.8125rem
+        font-size 0.8125rem
       .border-text
         padding-bottom 0.375rem
         border-bottom 2px solid #fff
@@ -647,7 +653,6 @@ export default {
         align-items center
         font-size 2.375rem
         color #fff
-
     .plate
       padding 0.9375rem 1rem 1.125rem 0.875rem
       background-color #fff
@@ -737,7 +742,6 @@ export default {
     background-color rgb(245, 245, 245)
     position absolute
     bottom 0rem
-
     .off-order
       position absolute
       width 60%
@@ -752,9 +756,8 @@ export default {
       margin-bottom 0
       margin-left 20%
       border-radius 2rem
-      background url("../../assets/img/Background@3x.png") no-repeat
+      background url('../../assets/img/Background@3x.png') no-repeat
       background-size cover
-
       width 15.7rem
       height 3rem
   .appoit-info-box
