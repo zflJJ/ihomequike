@@ -162,6 +162,7 @@ import { MessageBox } from 'mint-ui'
 import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
+// import { clearInterval } from 'timers';
 export default {
   name:'reservationInfo',
   data () {
@@ -176,9 +177,9 @@ export default {
       createFmTime:'', //处理后的订单创建时间
       endTime:'',  //最晚入场时间
       address:'',  //停车场地址
-      hour:'00', //倒计时小时
-      minutes:'00', //倒计时分钟数
-      seconds:'00', //倒计时秒数
+      // hour:'00', //倒计时小时
+      // minutes:'00', //倒计时分钟数
+      // seconds:'00', //倒计时秒数
       miliSeconds:'00', //倒计时毫秒数
       interval:'',  //定时计时器
       //导航
@@ -298,7 +299,7 @@ export default {
         let leaveTime = formatTimeStamp(objDatas.leaveTime)
         objDatas.leaveTime = leaveTime.substr(0, 16)
       }
-      this.countdown = objDatas.enterCountdownTime
+      this.countdown = Math.floor(objDatas.enterCountdownTime/1000);
       this.downCounts()
       // 预约超时时间计算
       if (objDatas.overTime !== null) {
@@ -421,7 +422,6 @@ export default {
     // 对车锁进行处理
     async lockDown(item){
       let res = await lockChange(this.lockId,item);
-      console.log(res);
       // if(res.error_code == 2000){
       //   Toast({
       //     message:'操作成功',
@@ -437,56 +437,20 @@ export default {
       // }
     },
 
+
     //入场时间倒计时
     downCounts() {
-      let hour = 0
-      let minutes = 0
-      let seconds = 0
-      let miliSeconds = 0
-      hour = parseInt(
-        (this.countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      )
-      minutes = parseInt((this.countdown % (1000 * 60 * 60)) / (1000 * 60))
-      seconds = parseInt((this.countdown % (1000 * 60)) / 1000)
-      console.log(hour, minutes, seconds)
-      if (hour <= 0 && minutes <= 0 && seconds <= 0) {
-        return
-      }
       if(this.interval != null){
         clearInterval(this.interval);
       }
+      if(this.countdown <=0){
+        return;
+      }
       this.interval =  setInterval(()=>{
-        seconds--
-        if(seconds<0){
-          seconds = 59;
-          minutes --;
-        }
-        if(seconds<0){
-          minutes = 59;
-          hour --;
-        }
-        if(hour<0){
-          hour = 0;
-        }
-        if(hour==0 && minutes==0 && seconds==0){
+        this.countdown--;
+        if(this.countdown<= 0){
           clearInterval(this.interval);
-          // this.$router.push('appointment');
         }
-        hour += '';
-        minutes += '';
-        seconds += '';
-        if(minutes.length === 1){
-            minutes = '0' + minutes;
-        }
-        if(seconds.length === 1){
-            seconds = '0' + seconds;
-        }
-        if(hour.length === 1){
-            hour = '0' + hour;
-        }
-        this.hour = hour;
-        this.minutes = minutes;
-        this.seconds = seconds;
       },1000);
     },
 
@@ -554,6 +518,21 @@ export default {
       }
     }
   },
+  computed:{
+    hour(){
+       let hour = Math.floor(this.countdown / 3600)
+       return hour < 10 ? '0' + hour : hour;
+    },
+    minutes(){
+       let _this = this
+       let miute = Math.floor((_this.countdown % 3600) / 60)
+       return miute < 10 ? '0' + miute : miute
+    },
+    seconds(){
+       let seconds = this.countdown % 60
+       return seconds < 10 ? '0' + seconds : seconds
+    }
+  },
   created() {
     window.addEventListener(
       'online',
@@ -581,7 +560,7 @@ export default {
     this._initScroll()
     var lastTime = +new Date()
     let vm = this
-    document.addEventListener('visibilitychange', function() {})
+    // document.addEventListener('visibilitychange', function() {})
     let org = JSON.parse(localStorage.getItem('H5_geoLocation'))
     this.orgX = org.lng
     this.orgY = org.lat
