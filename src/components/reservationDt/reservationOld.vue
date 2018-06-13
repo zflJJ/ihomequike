@@ -41,7 +41,8 @@
         <div class="info plate-number"  @click="chooseCar">
           <div class="text-3">车牌号</div>
           <div class="dis-2">
-              <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly>
+            <span class="plate-info">{{plateNo}}</span>
+              <!-- <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly> -->
               <!-- <div v-if=" carPlate === undefined " class="text-2color">{{pointedItem.plateNo}}</div>
               <div v-if=" carPlate !== undefined " class="text-2color">{{carPlate}}</div>             -->
             &nbsp;&nbsp;
