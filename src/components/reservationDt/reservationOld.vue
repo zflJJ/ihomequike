@@ -42,8 +42,15 @@
           <div class="text-3">车牌号</div>
           
           <div class="dis-2">
+<<<<<<< HEAD
               <span class="plate-info">{{plateNo}}</span>
               <!-- <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly @focus="this.blur()"> -->
+=======
+            <span class="plate-info">{{plateNo}}</span>
+              <!-- <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly> -->
+              <!-- <div v-if=" carPlate === undefined " class="text-2color">{{pointedItem.plateNo}}</div>
+              <div v-if=" carPlate !== undefined " class="text-2color">{{carPlate}}</div>             -->
+>>>>>>> 949c40986f688784fc6807bddbe0bb25913f466b
             &nbsp;&nbsp;
             <div class="ic ic-style"></div>
           </div>

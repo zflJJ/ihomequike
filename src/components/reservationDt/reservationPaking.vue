@@ -206,6 +206,7 @@ export default {
       intervalMy:null,
       count:0,
       visibFlag: true, // 阈值
+      leaveFlag:false
     }
   },
   components: {
@@ -243,6 +244,9 @@ export default {
       }
 
       this.$http.post(requestUrl.requestUrl + "apiread/order/reserve/detail/query",data).then(res => {
+        if(this.leaveFlag){
+          return
+        }
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
@@ -253,9 +257,10 @@ export default {
             localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
             localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
             if(res.body.data.parkingFee == 0 && res.body.data.state == 1303){
+              this.leaveFlag=true
               this.$router.push('payToComplete');
             }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
-
+              this.leaveFlag=true
               this.$router.push('payMentDt');
             }
             return false;
@@ -533,6 +538,7 @@ export default {
     document.addEventListener("visibilitychange",vm.visibEvent ,false);
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
+    this.leaveFlag=falser
   },
   deactivated(){
     clearTimeout(this.intervalMy);
