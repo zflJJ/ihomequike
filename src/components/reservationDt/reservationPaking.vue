@@ -166,6 +166,7 @@ import BScroll from 'better-scroll';
 import subHeader from './header';
 import {Indicator,Toast} from 'mint-ui';
 import {canCelMyAppoint, getOrderInfo,lockChange} from '../../server/getData';
+import requestUrl from '../../server/baseURL';
 import { MessageBox } from 'mint-ui';
 import { asyncAMap } from '../../common/js/H5plugin';
 export default {
@@ -233,13 +234,15 @@ export default {
     },
     // 获取预约订单详情的
     getOrder(num){
-      var data = {order_id:4572,timestamp: new Date().getTime()}//localStorage.getItem('orderId')
+//        alert("orderID"+localStorage.getItem('orderId'))
+      var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
       if (this.count == 0) {
         this.count = 1
       } else if(num!=1){
         data.isQuickReserve = 1
       }
-      this.$http.post("http://develop.qhiehome.com/apiread/order/reserve/detail/query",data).then(res => {
+
+      this.$http.post(requestUrl.requestUrl + "apiread/order/reserve/detail/query",data).then(res => {
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
@@ -252,6 +255,7 @@ export default {
             if(res.body.data.parkingFee == 0 && res.body.data.state == 1303){
               this.$router.push('payToComplete');
             }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
+
               this.$router.push('payMentDt');
             }
             return false;
@@ -521,7 +525,7 @@ export default {
     this._initScroll();
     var lastTime = +new Date;
     let vm = this;
-    
+
   },
   activated () {
     //从预约列表页面带获取传入的参数值

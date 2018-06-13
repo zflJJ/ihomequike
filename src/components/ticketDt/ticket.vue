@@ -68,7 +68,7 @@
         counpNumber:null, // 优惠券编号
         clearX:true,
         orderId: null,  // 订单ID号
-        counpFlag: null, // 表示编号        
+        counpFlag: null, // 表示编号
       }
     },
     components: {
@@ -129,7 +129,7 @@
       displayItems(data){
         let listData = [];
         listData = data.data.coupons;
-        //格式化有效期时间      
+        //格式化有效期时间
         for(let item of listData){
            let fmInvalidDate = item.endTime;
           if(fmInvalidDate == '4100688000000'){
@@ -186,12 +186,13 @@
         // localStorage.setItem('H5_isChoosed',true);
         // localStorage.setItem('H5_cancel_counp_state',false);
         // localStorage.setItem("isTicketFlag",true)
+
         setTimeout(()=>{
           this.$router.push({
             name:'payMentDt',
           })
-        },300)
-      },
+          },300)
+        },
 
       // 订单和优惠券绑定
       async bingCounpId(){
@@ -202,7 +203,7 @@
         }else{
           counpId = JSON.parse(localStorage.getItem('H5_counpinfo')).couponId;
         }
-        console.log(counpId);     
+        console.log(counpId);
         let res = await bindCounp(counpId,this.orderId);
         console.log(res);
         if(res.error_code === 2000){
@@ -277,7 +278,7 @@
       },30000)
     },
     beforeMount(){
-      this.getCounpLists();      
+      this.getCounpLists();
     },
     activated () {
       this.orderId = localStorage.getItem('orderId');

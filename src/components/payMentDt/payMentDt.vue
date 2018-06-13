@@ -395,6 +395,8 @@
       })
       //支付参数获取
       this.payFees = localStorage.getItem('H5_fees');   // 支付金额
+//    alert("paymentorder"+this.orderId)
+//    alert("paymentH5_fees"+this.payFees)
       let H5Repay = JSON.parse(localStorage.getItem('H5_repay'));
       this.getCounpNum();
 

@@ -398,14 +398,15 @@ export default {
         return false;
       }
       let orderId = window.localStorage.getItem("orderId");
+
       this.$router.push({
         name:'payMentDt',
-        params:{
-          fees:localStorage.getItem("H5_fees"),
-          orderId: orderId
-        }
-      });
-    },
+          params:{
+            fees:localStorage.getItem("H5_fees"),
+            orderId: orderId
+          }
+        });
+      },
   },
   created () {
     this._initScroll();

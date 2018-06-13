@@ -1030,6 +1030,7 @@ export default {
         // jpushId	是	黄金芽要求
         this.params.jpushId = "H5";
         // timestamp	是	string	时间戳  时间戳
+//        alert(JSON.stringify(this.params))
         this.params.timestamp = +new Date();
         let res = await saveUserBind(this.params);
         // alert(JSON.stringify(this.params));

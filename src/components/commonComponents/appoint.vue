@@ -350,7 +350,7 @@ export default {
         MessageBox({
           title: '温馨提示',
           message: htmls,
-          showConfirmButton:true,	
+          showConfirmButton:true,
           confirmButtonText:'确认',
           showCancelButton:false,
         }).then(action=>{
@@ -358,7 +358,7 @@ export default {
             this.$router.push('/home');
           }
         }).catch(err=>{
-      
+
         })
       },
     // 筛出无效的时间段
@@ -603,13 +603,13 @@ export default {
       }else{
         var max = numLeaveTime[0].times;
         var len = numLeaveTime.length;
-        let obj = numLeaveTime[0]; 
-        for (var i = 1; i < len; i++){ 
-          if (numLeaveTime[i].times > max) { 
+        let obj = numLeaveTime[0];
+        for (var i = 1; i < len; i++){
+          if (numLeaveTime[i].times > max) {
             max = numLeaveTime[i].times;
             obj =  numLeaveTime[i];
-          } 
-        } 
+          }
+        }
         var leaveTime = formatTimeStamp(obj.learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
         var leaveDay = leaveTime.substr(8,1) != 0 ?  leaveTime.substr(8,2) : leaveTime.substr(9,1);
@@ -748,6 +748,7 @@ export default {
         if(totalFee == 0){   //totalFee
             this.doPay(orderId);
         }else{
+
           this.$router.push({
             name:'payMent',
             params:{

@@ -186,6 +186,7 @@
 
         localStorage.setItem('H5_isChoosed',true);
         localStorage.setItem('H5_cancel_counp_state',false);
+
         setTimeout(()=>{
           this.$router.push({
             name:'payMent',

@@ -30,24 +30,24 @@ export default {
       let parkName = localStorage.getItem('H5_parkName');
       if( this.headerMark == '预约详情'|| this.headerMark == '预约'){
       }else if( this.headerMark == '我的卡券' ){
-        this.$router.push('payMentDt');        
+        this.$router.push('payMentDt');
       }else if( this.headerMark == '支付完成' ){
         let goBackFlag = localStorage.getItem("goBackFlag")
         if(goBackFlag == "reservationPaking"){
-          this.$router.push('reservationOld');        
-        }else {        
-          this.$router.push('reservationInfo');   
-        }     
+          this.$router.push('reservationOld');
+        }else {
+          this.$router.push('reservationInfo');
+        }
       }else if( this.headerMark == '添加车辆' ){
-        this.$router.push('licensePlate');        
+        this.$router.push('licensePlate');
       }else if( this.headerMark == '我的车辆' ){
-        this.$router.push('reservationOld');        
-      }else if( this.headerMark == '支付订单' ){             
+        this.$router.push('reservationOld');
+      }else if( this.headerMark == '支付订单' ){
         let goBackFlag = localStorage.getItem("goBackFlag")
         if(goBackFlag == "reservationPaking"){
-          this.$router.push('reservationPaking');        
+          this.$router.push('reservationPaking');
         }else {
-          this.$router.push('reservationBookingUnpaid'); 
+          this.$router.push('reservationBookingUnpaid');
         }
       }else{
         // console.log(1234);

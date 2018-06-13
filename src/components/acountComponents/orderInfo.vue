@@ -361,7 +361,8 @@ export default {
     },
     goPay(){
       localStorage.setItem('H5_order_state',this.state);
-      this.$router.push('payMent');
+
+       this.$router.push('payMent');
     }
   },
   created () {

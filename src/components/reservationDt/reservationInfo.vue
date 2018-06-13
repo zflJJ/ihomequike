@@ -153,6 +153,7 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin'
+import  requestUrl  from '../../server/baseURL'
 
 import BScroll from 'better-scroll'
 import subHeader from './header'
@@ -220,6 +221,7 @@ export default {
     },
     // 获取预约订单详情的
     getOrder() {
+//        alert(window.localStorage.getItem('orderId'))
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
@@ -228,12 +230,8 @@ export default {
       } else {
         data.isQuickReserve = 1
       }
-      this.$http
-        .post(
-          'http://develop.qhiehome.com/apiread/order/reserve/detail/query',
-          data
-        )
-        .then(res => {
+      this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
+//            alert(JSON.stringify(res));
           if (res.body.error_code == 2000) {
             if (res.body.data == null) {
                 _this.getOrder()

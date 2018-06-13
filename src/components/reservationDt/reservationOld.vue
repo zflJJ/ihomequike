@@ -691,7 +691,7 @@ export default {
             this.doPay(orderId);
         }else{
           localStorage.setItem("routerFlag",null);
-          // alert(JSON.stringify(orderId));
+
           this.$router.push({
             name:'payMentDt',
             params:{
