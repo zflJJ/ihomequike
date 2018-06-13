@@ -1197,6 +1197,7 @@ export default {
   deactivated(){
     // debugger
     this.$destroy(true);
+    window.removeEventListener('resize',_this.handleInput,false)
   },
    beforeRouteLeave(to, from, next){
       // 这里将MessageBox进行关闭的操作
