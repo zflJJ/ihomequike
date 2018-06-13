@@ -249,18 +249,6 @@ export default {
         this.show = false
       }
     },
-<<<<<<< HEAD
-    handleInput(){
-      let _this=this
-     let nowHeight=document.documentElement.clientHeight
-     if(nowHeight<_this.windowHeight){
-       _this.$refs.hiddenBtn.style.display='none'
-       
-       console.log('执行')
-     }else{
-        _this.$refs.hiddenBtn.style.display='block'
-     }
-=======
     handleInput() {
       let _this = this
       let nowHeight = document.documentElement.clientHeight
@@ -270,7 +258,6 @@ export default {
       } else {
         _this.$refs.hiddenBtn.style.display = 'block'
       }
->>>>>>> f2ea3623472096a3f50080310a318472a18b9b44
     },
     getkeyboard(msg) {
       let _this = this
@@ -389,20 +376,6 @@ export default {
       })
     },
     //获取预约接口信息
-<<<<<<< HEAD
-    async getparklot(){
-      //测试
-      let userId = 52;
-      this.parklotId = 1569; 
-      // let userId = null;
-      //只有扫码进入才有parklotId
-      // this.parkLotId = localStorage.getItem('myParklotId');
-      this.reserveTimeList = [];
-
-      let res = await postParklot(userId,this.parkLotId);
-      if(res.error_code === 2000){
-        this.pointedItem = res.data;
-=======
     async getparklot() {
       let userId = null
       //只有扫码进入才有parklotId
@@ -411,7 +384,6 @@ export default {
       let res = await postParklot(userId, this.parkLotId)
       if (res.error_code === 2000) {
         this.pointedItem = res.data
->>>>>>> f2ea3623472096a3f50080310a318472a18b9b44
         // this.params.plate_id = this.pointedItem.plateId;
         this.params.parklotId = this.pointedItem.parklotId
         // this.systemTime = res.data.systemTime;
