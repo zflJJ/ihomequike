@@ -231,14 +231,14 @@ export default {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
-      alert(orderId);
+      // alert(orderId);
       if (this.count == 0) {
         this.count = 1
       } else {
         data.isQuickReserve = 1
       }
       this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
-           alert(JSON.stringify(res.body.data));
+          //  alert(JSON.stringify(res.body.data));
           if (res.body.error_code == 2000) {
             if (res.body.data == null) {
                 _this.getOrder()
