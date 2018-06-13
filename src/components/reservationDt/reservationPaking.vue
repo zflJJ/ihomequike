@@ -538,7 +538,7 @@ export default {
     document.addEventListener("visibilitychange",vm.visibEvent ,false);
     // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
-    this.leaveFlag=falser
+    this.leaveFlag=false
   },
   deactivated(){
     clearTimeout(this.intervalMy);
