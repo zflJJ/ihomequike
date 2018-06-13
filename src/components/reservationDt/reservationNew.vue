@@ -106,7 +106,6 @@
         </div>
         <div @click="goApoint" class="div-style ds-2">立即预约</div>
       </div>
-
     </div>
     <!-- 时间 -->
     <div :class="{alert: isshow}" @click="closeZinde"></div>
@@ -258,6 +257,7 @@ export default {
      let nowHeight=document.documentElement.clientHeight
      if(nowHeight<_this.windowHeight){
        _this.$refs.hiddenBtn.style.display='none'
+       
        console.log('执行')
      }else{
         _this.$refs.hiddenBtn.style.display='block'
@@ -381,10 +381,14 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){
-      let userId = null;
+      //测试
+      let userId = 52;
+      this.parklotId = 1569; 
+      // let userId = null;
       //只有扫码进入才有parklotId
-      this.parkLotId = localStorage.getItem('myParklotId');
+      // this.parkLotId = localStorage.getItem('myParklotId');
       this.reserveTimeList = [];
+
       let res = await postParklot(userId,this.parkLotId);
       if(res.error_code === 2000){
         this.pointedItem = res.data;
