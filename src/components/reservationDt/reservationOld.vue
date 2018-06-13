@@ -40,14 +40,21 @@
         </div> -->
         <div class="info plate-number"  @click="chooseCar">
           <div class="text-3">车牌号</div>
+          
           <div class="dis-2">
+<<<<<<< HEAD
+              <span class="plate-info">{{plateNo}}</span>
+              <!-- <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly @focus="this.blur()"> -->
+=======
             <span class="plate-info">{{plateNo}}</span>
               <!-- <input type="text" class="plate-info" placeholder="去添加" :value="plateNo" readonly> -->
               <!-- <div v-if=" carPlate === undefined " class="text-2color">{{pointedItem.plateNo}}</div>
               <div v-if=" carPlate !== undefined " class="text-2color">{{carPlate}}</div>             -->
+>>>>>>> 949c40986f688784fc6807bddbe0bb25913f466b
             &nbsp;&nbsp;
             <div class="ic ic-style"></div>
           </div>
+
         </div>
         <!--4.0 入场时间-->
         <div class="info einlass plate-number">
@@ -191,10 +198,9 @@ export default {
       this.userId = JSON.parse(localStorage.getItem('userId'));
       this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       // 测试
-      // this.userId = 30;
-      // this.parklotId = 262;
-      this.userId = JSON.parse(localStorage.getItem('userId'));
-      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
+      // this.userId = 52;
+      // this.parklotId = 43;
+      // this.parklotId = 1569;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -631,8 +637,8 @@ export default {
       // 测试
       this.params.user_id = localStorage.getItem('userId');
       this.params.plate_id = this.plateNoId;
-      // this.params.user_id = 30;
-      // this.params.plate_id = 117;
+      // this.params.user_id = 52;
+      // this.params.plate_id = 43;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
           message:'请选择您的车牌号',
