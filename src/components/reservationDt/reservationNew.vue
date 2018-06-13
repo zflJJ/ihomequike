@@ -639,6 +639,7 @@ export default {
         this.randerCodes = ''
       } else if (res.error_code === 2000) {
         this.randerCodes = res.data.code
+        // alert(res.data.code);
         this.iscodeplugin = false
       } else {
         Toast('错误码是' + res.error_message)
@@ -1131,22 +1132,41 @@ export default {
           localStorage.setItem('orderId', orderId)
           localStorage.setItem('userId', res.data.userId)
           localStorage.setItem('H5_fees', res.data.totalFee) //保存的支付金额
-
+          // alert(orderId);
+          // alert(res.data.orderState);
+          // alert(JSON.stringify(res.data));
           if (res.data.orderState && res.data.orderState != null) {
-            if (
-              res.data.orderState == 1300 ||
-              res.data.orderState == 1301 ||
-              res.data.orderState == '1300' ||
-              res.data.orderState == '1301'
-            ) {
-              Toast({
+            if (res.data.orderState == 1301) {
+              let toastNum = Toast({
                 message: '您还有订单未完成',
                 duration: 1500
               })
-              this.$router.push('reservationInfo')
-            } else if (res.data.orderState == 1302) {
-              this.$router.push('reservationPaking')
-            } else {
+              let timeOutId = setTimeout(() => {
+                clearTimeout(timeOutId);
+                toastNum.close();
+                this.$router.push('reservationInfo')
+              }, 1500);
+            } else if (res.data.orderState == 1302 || res.data.orderState == 1303) {
+              let toastNum = Toast({
+                message: '您还有订单未完成',
+                duration: 1500
+              })
+              let timeOutId = setTimeout(() => {
+                clearTimeout(timeOutId);
+                toastNum.close();
+                this.$router.push('reservationPaking')
+              }, 1500);
+            } else if(res.data.orderState == 1300){
+               let toastNum = Toast({
+                message: '您还有订单未完成',
+                duration: 1500
+              })
+              let timeOutId = setTimeout(() => {
+                clearTimeout(timeOutId);
+                toastNum.close();
+                this.$router.push('reservationBookingUnpaid');
+              }, 1500);
+            }else {
               Indicator.close()
               Toast({
                 message: '该车辆已存在预约订单',
@@ -1156,7 +1176,6 @@ export default {
             return
           }
           if (totalFee == 0) {
-            //totalFee
             this.doPay(orderId)
           } else {
             localStorage.setItem('routerFlag', null)

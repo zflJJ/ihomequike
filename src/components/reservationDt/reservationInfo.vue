@@ -91,13 +91,13 @@
               <span class="name-text">支付方式</span>
               <span class="ta-info">
                 <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
+                  支付宝：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  微信：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
@@ -109,7 +109,13 @@
                   优惠券：￥ {{orderData.reserveCouponFee}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 5">
-                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  微信：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 6">
+                  微信：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
@@ -225,13 +231,14 @@ export default {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
+      alert(orderId);
       if (this.count == 0) {
         this.count = 1
       } else {
         data.isQuickReserve = 1
       }
       this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
-//            alert(JSON.stringify(res));
+           alert(JSON.stringify(res.body.data));
           if (res.body.error_code == 2000) {
             if (res.body.data == null) {
                 _this.getOrder()

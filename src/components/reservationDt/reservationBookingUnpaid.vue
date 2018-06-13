@@ -83,7 +83,7 @@ import { MessageBox } from 'mint-ui';
 import { asyncAMap } from '../../common/js/H5plugin';
 import { setInterval } from 'timers';
 export default {
-  name:'appointInfo',
+  name:'reservationBookingUnpaid',
   data () {
     return {
       headerMark:'预约详情',
@@ -378,7 +378,7 @@ export default {
 
     //立即支付
     payGo(){
-      let newTime = +new Date();
+      let newTime = +new Date().getTime();
       if(newTime - this.createTime >= 300000){
           let htmls = `
               <div class="ordermessage-info">
@@ -410,7 +410,6 @@ export default {
   },
   created () {
     this._initScroll();
-    var lastTime = +new Date;
     let vm = this;
     document.addEventListener("visibilitychange", function(){
       if(document.visibilityState=='visible'){

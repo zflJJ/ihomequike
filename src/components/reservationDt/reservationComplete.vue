@@ -99,13 +99,13 @@
               <span class="name-text">支付方式</span>
               <span class="ta-info">
                 <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}&nbsp;
+                  支付宝：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  微信：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
@@ -117,7 +117,13 @@
                   优惠券：￥ {{orderData.reserveCouponFee}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 5">
-                  微信：￥ {{orderData.zpayReserve}}&nbsp;
+                  微信：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 6">
+                  微信：￥ {{orderData.zpayReserve}}
                   <span v-if="orderData.reserveCouponFee !== null">
                     优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
@@ -183,10 +189,34 @@
             <div class="time-info">
               <span class="name-text">支付方式</span>
               <span class="ta-info">
-                <span>
-                  微信：￥ {{orderData.zpayParking}}&nbsp;
-                  <span v-if="orderData.parkingCouponFee !== null">
-                    优惠券：￥ {{orderData.parkingCouponFee}}
+                <span v-if="orderData.payChannelReserve === 1">
+                  支付宝：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 2">
+                  微信：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 3">
+                  现金：￥ {{orderData.reserveFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 4">
+                  优惠券：￥ {{orderData.reserveCouponFee}}
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 5">
+                  微信：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  </span>
+                </span>
+                <span v-else-if="orderData.payChannelReserve === 6">
+                  微信：￥ {{orderData.zpayReserve}}
+                  <span v-if="orderData.reserveCouponFee !== null">
+                    优惠券：￥ {{orderData.reserveCouponFee}}
                   </span>
                 </span>
               </span>
