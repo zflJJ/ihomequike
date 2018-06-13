@@ -242,10 +242,7 @@ export default {
       } else if(num!=1){
         data.isQuickReserve = 1
       }
-      alert(JSON.stringify(data));
       this.$http.post(requestUrl.requestUrl + "apiread/order/reserve/detail/query",data).then(res => {
-        alert(JSON.stringify(res.body.data));
-        alert(this.leaveFlag);
         if(this.leaveFlag){
           return
         }
@@ -261,9 +258,7 @@ export default {
             if(res.body.data.parkingFee == 0 && res.body.data.state == 1303){
               this.leaveFlag=true
               this.$router.push('payToComplete');
-              alert('跳转到了用户预约界面');
             }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
-              alert('跳转到了支付界面');
               this.leaveFlag=true
               this.$router.push('payMentDt');
             }
@@ -298,7 +293,6 @@ export default {
           }
           // this.orderData();
       }else{
-          alert(JSON.stringify(res));
           console.log(res,'错误码是'+res.error_code);
         }
       })
