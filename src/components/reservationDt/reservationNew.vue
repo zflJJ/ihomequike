@@ -98,7 +98,7 @@
         </div>
       </div>
     </div>
-    <div class="to-appoint t-c">
+    <div class="to-appoint t-c" ref='hiddenBtn'>
       <div class="div-flex">
         <div class="div-style ds-1">
           预约费&nbsp;
@@ -252,6 +252,16 @@ export default {
       }else{
         this.show=false
       }
+    },
+    handleInput(){
+      let _this=this
+     let nowHeight=document.documentElement.clientHeight
+     if(nowHeight<_this.windowHeight){
+       _this.$refs.hiddenBtn.style.display='none'
+       console.log('执行')
+     }else{
+        _this.$refs.hiddenBtn.style.display='block'
+     }
     },
     getkeyboard (msg) {
       let _this = this
@@ -1145,12 +1155,6 @@ export default {
     document.removeEventListener("visibilitychange", this.documentEvent);
   },
   activated () {
-    // window.addEventListener("offline", function () {
-    //   Toast({
-    //     message:'当前网络无连接',
-    //     duration:1500
-    //   })
-    // }, true);
     window.addEventListener("online", function () {
       Toast({
         message:'当前网络连接正常',
@@ -1184,6 +1188,10 @@ export default {
     if(localStorage.getItem('Phone_List') !== null){
       this.phoneList = localStorage.getItem('Phone_List').split(',');
     }
+    //安卓手机修改
+    let _this=this
+    _this.windowHeight=document.documentElement.clientHeight
+    window.addEventListener('resize',_this.handleInput,false)
   },
   // 退出组件时， 清空缓存
   deactivated(){
