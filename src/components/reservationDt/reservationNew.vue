@@ -51,7 +51,7 @@
           <div class="car-distance">
             <div class="phone test-input p-r">
               <span class="phone-ic input-ic p-a"></span>
-              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem">
+              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem" @click="scrollPhone" ref="scrollPhone">
               <!--这里需要有一个两倍图 和 3倍图  需要对类名做判断-->
               <template v-if="isclosephone">
                 <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="closephone">
@@ -258,6 +258,15 @@ export default {
       } else {
         _this.$refs.hiddenBtn.style.display = 'block'
       }
+    },
+    scrollPhone(){
+      let el=this.$refs.scrollPhone
+      console.log(el)
+      console.log(this.leftScroll)
+      this.leftScroll.scrollTo(0,-200)
+    },
+    scrollCode(){
+
     },
     getkeyboard(msg) {
       let _this = this
