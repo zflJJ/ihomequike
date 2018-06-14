@@ -90,10 +90,10 @@
           </div>
 
         </div>
-        <div class="order-info">
+        <div class="order-info" v-if="orderData.payChannelReserve">
           预约支付明细
         </div>
-        <div class="plate-card">
+        <div class="plate-card" v-if="orderData.payChannelReserve">
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">支付方式</span>

@@ -1033,6 +1033,10 @@ export default {
       //   若无误，预约费为0时， toast提示：预约成功。进入【支付成功页面】，后台将此车位状态改为被预约。预约费不为0时，进入【支付】页面。后台将此车位状态改为被预约。
 
       //吴正增加车牌号码开始
+      if(this.clickFlag == false){
+        return;
+      }
+      this.clickFlag = false;
       let indentLists = [...this.indentLists]
       let plateLists = [...this.plateLists]
       let strs = indentLists.join('') + plateLists.join('')
@@ -1126,7 +1130,7 @@ export default {
         let res = await saveUserBind(this.params)
         // alert(JSON.stringify(this.params));
         if (res.error_code == 2000) {
-          // debugger
+          this.clickFlag = true
           let orderId = res.data.orderId //订单号
           let totalFee = res.data.totalFee //预约费用
           localStorage.setItem('orderId', orderId)
@@ -1189,9 +1193,11 @@ export default {
           }
         } else if (res.error_code === 2905) {
           //如果金额存在 跳转到支付界面去， 不存在 或者为0 先调起预约支付接口
+          this.clickFlag = true;
           this.messInfo()
           return
         } else if (res.error_code === 2904) {
+           this.clickFlag = true;
           //车牌号被重复预约
           Indicator.close()
           Toast({
@@ -1200,23 +1206,27 @@ export default {
           })
           return
         } else if (res.error_code === 2900) {
+           this.clickFlag = true;
           Indicator.close()
           Toast({
             message: '你还有订单未完成',
             duration: 1500
           })
         } else if (res.error_code == 2906) {
+           this.clickFlag = true;
           Toast({
             message: '您暂无预约资格，请联系物业管理员',
             duration: 1500
           })
         } else if (res.error_code === 2325) {
+          this.clickFlag = true;
           Indicator.close()
           Toast({
             message: '管理员不能预约车位',
             duration: 1500
           })
         } else {
+          this.clickFlag = true;
           Toast({
             message: res.error_message,
             duration: 1500
@@ -1256,6 +1266,7 @@ export default {
     document.removeEventListener('visibilitychange', this.documentEvent)
   },
   activated() {
+    this.clickFlag = true;
     window.addEventListener(
       'online',
       function() {

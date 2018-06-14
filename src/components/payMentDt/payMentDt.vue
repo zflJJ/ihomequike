@@ -104,7 +104,6 @@
           // Toast('获取优惠券信息失败');
         }
       },
-
       //点击确认提交
       async confirmPay(){
         if(this.couponId === -1){
@@ -116,12 +115,12 @@
           this.messInfo();
           return;
         }else{
-            // if(this.orderState === true){  // 停车费支付
-              // this.payUrl = 'apiwrite/parking/pay'
-            // }else{
+            if(this.orderState === true){  // 停车费支付
+              this.payUrl = 'apiwrite/parking/pay'
+            }else{
               // 预约费支付
               this.payUrl = 'apiwrite/reserve/pay'
-            // }
+            }
             this.wxPay();
         }
       },
@@ -143,8 +142,13 @@
             common.removeStorage('H5_payMent_time');
             common.removeStorage('H5_timeflag');
             clearInterval(this.timeInter);
-            // this.$router.go(-1);
-            this.$router.push("reservationOld")
+            alert(this.orderState);
+            if(this.orderState){
+              this.$router.push("reservationPaking")
+            }else{
+              localStorage.removeItem('orderId')
+              this.$router.push("reservationOld")
+            }
           }
         }).catch(err=>{
 
@@ -285,7 +289,7 @@
         this.timeInter = setInterval(()=>{
           this.time++;
           // console.log(this.time);
-          if(this.time >= 300){
+          if(this.time >= 60){
             this.timeflag = true;
             // 表示到达5分钟
             common.setStorage('H5_timeflag',this.timeflag);
@@ -343,17 +347,12 @@
       common.setStorage('H5_payMent_time',timeStamp);
       common.setStorage('H5_timeflag', this.timeflag);
       // 思路： 保存时间戳 开定时器 离开保存 定时器时间， 进来拿当前时间戳，减去保存的时间戳，然后加上保存的时间 > 5 的话，变状态，否则在这个戳的基础上继续加时间
-      this.timeAdd();
-      document.addEventListener("visibilitychange", vm.documentEvent);
+      // this.timeAdd();
+      // document.addEventListener("visibilitychange", vm.documentEvent,false);
       this.payFees = localStorage.getItem('H5_fees');   // 支付金额
       // alert(localStorage.getItem('H5_fees'))
       // alert(this.payFees)
 
-      var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
-      // 支付是停车费还是预约费用
-      if(payOrderState === 1303){
-          this.orderState = true;
-      }
       if(this.discounts === undefined){
         this.discounts = 0;
       }
@@ -376,13 +375,22 @@
 
     },
     activated () {
+      // 这里处理orderState
+      var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
+      alert(payOrderState);
+      // 支付是停车费还是预约费用
+      if(payOrderState == 1303){
+        this.orderState = true;
+      }else{
+        this.orderState = false;
+      }
       this.currentIndex = 0;
-      // this.timeAdd();
+      this.timeAdd();
       // 用来做定时器的任务的
       this.orderId = localStorage.getItem('orderId');  // 订单ID
       let timeStamp = Date.parse(new Date());
       common.setStorage('H5_payMent_time',timeStamp);
-      document.addEventListener("visibilitychange", this.documentEvent);
+      document.addEventListener("visibilitychange", this.documentEvent,false);
       // 传递的数据
       this.$root.eventHub.$on('send-counp-info',e=>{
           this.discounts =  e.amount;
@@ -410,11 +418,11 @@
       // console.log(to.path,from.path);
       // debugger
       // if(to.path === '/appointment'){
-        // document.removeEventListener("visibilitychange", this.documentEvent);
+      // document.removeEventListener("visibilitychange", this.documentEvent);
       //   clearInterval(this.timeInter);
       // }
       // localStorage.removeItem('H5_discounts');
-//      localStorage.removeItem('H5_counpinfo');
+      //  localStorage.removeItem('H5_counpinfo');
       next();
     },
     beforeRouteEnter (to,from,next){
@@ -435,7 +443,7 @@
       this.time = '';
       clearInterval(this.timeInter);
       // common.setStorage('counpFlag',-1);
-      document.removeEventListener("visibilitychange", this.documentEvent);
+      document.removeEventListener("visibilitychange", this.documentEvent,false);
     },
   }
 </script>

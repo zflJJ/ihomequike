@@ -241,7 +241,6 @@ export default {
     },
     // 获取预约订单详情的
     getOrder(num){
-//        alert("orderID"+localStorage.getItem('orderId'))
       var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
       if (this.count == 0) {
         this.count = 1
@@ -252,6 +251,7 @@ export default {
         if(this.leaveFlag){
           return
         }
+        alert(JSON.stringify(res.body.data));
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
@@ -266,6 +266,7 @@ export default {
               this.$router.push('payToComplete');
             }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
               this.leaveFlag=true
+              localStorage.setItem('H5_order_state',res.body.data.state)
               this.$router.push('payMentDt');
             }
             return false;
@@ -297,7 +298,6 @@ export default {
               duration:2000
             });
           }
-          // this.orderData();
       }else{
           console.log(res,'错误码是'+res.error_code);
         }
