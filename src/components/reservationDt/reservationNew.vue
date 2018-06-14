@@ -51,7 +51,7 @@
           <div class="car-distance">
             <div class="phone test-input p-r">
               <span class="phone-ic input-ic p-a"></span>
-              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem" @click="scrollPhone" ref="scrollPhone">
+              <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem" ref="scrollPhone">
               <!--这里需要有一个两倍图 和 3倍图  需要对类名做判断-->
               <template v-if="isclosephone">
                 <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="closephone">
@@ -65,7 +65,7 @@
             </div>
             <div class="code test-input p-r">
               <span class="code-ic input-ic p-a"></span>
-              <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4" style="marging-top:0.9rem">
+              <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4" style="marging-top:0.9rem" ref="scrollCode">
 
               <!--这里需要一个2倍图 和 3 倍图-->
               <template v-if="isclosecode">
@@ -254,16 +254,15 @@ export default {
       let nowHeight = document.documentElement.clientHeight
       if (nowHeight < _this.windowHeight) {
         _this.$refs.hiddenBtn.style.display = 'none'
-        console.log('执行')
+        _this.scrollPhone()
       } else {
         _this.$refs.hiddenBtn.style.display = 'block'
       }
     },
     scrollPhone(){
-      let el=this.$refs.scrollPhone
-      console.log(el)
-      console.log(this.leftScroll)
-      this.leftScroll.scrollTo(0,-200)
+      this.leftScroll.refresh()
+      let el=this.$refs.scrollCode
+      this.leftScroll.scrollToElement(el, 10, -20, 0, easing)
     },
     scrollCode(){
 
