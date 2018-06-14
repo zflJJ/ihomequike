@@ -262,7 +262,7 @@ export default {
     scrollPhone(){
       this.leftScroll.refresh()
       let el=this.$refs.scrollCode
-      this.leftScroll.scrollToElement(el, 10, -20, 0, easing)
+      this.leftScroll.scrollBy(0, -100);
     },
     scrollCode(){
 
@@ -647,7 +647,7 @@ export default {
         this.randerCodes = ''
       } else if (res.error_code === 2000) {
         this.randerCodes = res.data.code
-        // alert(res.data.code);
+        alert(res.data.code);
         this.iscodeplugin = false
       } else {
         Toast('错误码是' + res.error_message)

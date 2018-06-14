@@ -142,7 +142,7 @@
             common.removeStorage('H5_payMent_time');
             common.removeStorage('H5_timeflag');
             clearInterval(this.timeInter);
-            alert(this.orderState);
+            // alert(this.orderState);
             if(this.orderState){
               this.$router.push("reservationPaking")
             }else{
@@ -289,7 +289,7 @@
         this.timeInter = setInterval(()=>{
           this.time++;
           // console.log(this.time);
-          if(this.time >= 60){
+          if(this.time >= 300){
             this.timeflag = true;
             // 表示到达5分钟
             common.setStorage('H5_timeflag',this.timeflag);
@@ -377,7 +377,7 @@
     activated () {
       // 这里处理orderState
       var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
-      alert(payOrderState);
+      // alert(payOrderState);
       // 支付是停车费还是预约费用
       if(payOrderState == 1303){
         this.orderState = true;

@@ -251,7 +251,7 @@ export default {
         if(this.leaveFlag){
           return
         }
-        alert(JSON.stringify(res.body.data));
+        // alert(JSON.stringify(res.body.data));
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
