@@ -28,14 +28,13 @@
                   <span class="yellow-s" v-else-if="orderData.parklotKind === 1">室外</span>
                   <span class="yellow-s" v-else-if="orderData.parklotKind === 2">室内+室外</span>
                 </p>
-                <p calss="red" v-if="orderData.parkingFee">
+                <p calss="red" v-if="orderData.state == 1301">
                     ￥{{orderData.parkingFee}}
                 </p>
-                <p calss="red" v-else-if="orderData.reserveFee">
-                    ￥{{orderData.reserveFee}}
+                <p calss="red" v-else-if="orderData.state != 1301">
+                    ￥{{orderData.totalFee}}
                 </p>
-                <p calss="red" v-else>
-                </p>
+                <p calss="red" v-else></p>
               </div>
             <div class="plate-content">
               {{orderData.address}}
@@ -189,36 +188,28 @@
             <div class="time-info">
               <span class="name-text">支付方式</span>
               <span class="ta-info">
-                <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                 <span v-if="orderData.payChannelParking === 1">
+                    支付宝：￥{{orderData.zpayParking}}
+                    <span v-if="orderData.parkingCouponFee !== null">优惠券：￥{{orderData.parkingCouponFee}}</span>
                   </span>
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  <span v-if="orderData.payChannelParking === 2">
+                    微信：￥{{orderData.zpayParking}}
+                    <span v-if="orderData.parkingCouponFee !== null">优惠券：￥{{orderData.parkingCouponFee}}</span>
                   </span>
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 3">
-                  现金：￥ {{orderData.reserveFee}}
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 4">
-                  优惠券：￥ {{orderData.reserveCouponFee}}
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 5">
-                  微信：￥ {{orderData.zpayReserve}}
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  <span v-if="orderData.payChannelParking === 3">
+                    现金：￥{{orderData.zpayParking}}
                   </span>
-                </span>
-                <span v-else-if="orderData.payChannelReserve === 6">
-                  微信：￥ {{orderData.zpayReserve}}
-                  <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                  <span v-if="orderData.payChannelParking === 4">
+                    优惠券：￥{{orderData.parkingCouponFee}}
                   </span>
-                </span>
+                  <span v-if="orderData.payChannelParking === 5">
+                    微信：￥{{orderData.zpayParking}}
+                    <span v-if="orderData.parkingCouponFee !== null">优惠券：￥{{orderData.parkingCouponFee}}</span>
+                  </span>
+                  <span v-if="orderData.payChannelParking === 6">
+                    微信：￥{{orderData.zpayParking}}
+                    <span v-if="orderData.parkingCouponFee !== null">优惠券：￥{{orderData.parkingCouponFee}}</span>
+                  </span>
               </span>
             </div>
           </div>

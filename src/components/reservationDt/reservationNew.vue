@@ -647,7 +647,6 @@ export default {
         this.randerCodes = ''
       } else if (res.error_code === 2000) {
         this.randerCodes = res.data.code
-        alert(res.data.code);
         this.iscodeplugin = false
       } else {
         Toast('错误码是' + res.error_message)

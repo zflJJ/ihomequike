@@ -301,6 +301,8 @@ export default {
       }else{
           console.log(res,'错误码是'+res.error_code);
         }
+      }).catch(res=>{
+        // alert(res);
       })
     },
     // 预处理 订单详情的数据
