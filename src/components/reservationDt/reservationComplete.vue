@@ -319,7 +319,7 @@ export default {
         zpayParking = objDatas.parkingFee;
       }else{
         let payFee = null;
-        payFee = (objDatas.parkingFee - objDatas.parkingCouponFee).toFixed(2);
+        payFee = (objDatas.totalFee - objDatas.reserveFee - objDatas.parkingCouponFee).toFixed(2);
         zpayParking = payFee <= 0 ? 0 : payFee;
       }
       this.$set(objDatas,'zpayParking',zpayParking);

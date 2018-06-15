@@ -255,7 +255,8 @@ export default {
         if(res.body.error_code === 2000){
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
-            localStorage.setItem('H5_fees',res.body.data.parkingFee);  //保存的支付金额
+            let money = ( res.body.data.totalFee - res.body.data.reserveFee).toFixed(2);
+            localStorage.setItem('H5_fees',res.body.data.totalFee);  //保存的支付金额
             localStorage.setItem('orderId',res.body.data.orderId);  //保存停车订单ID
             this.orderData = res.body.data;
             this.dispoceOrderDat(res.body.data);
