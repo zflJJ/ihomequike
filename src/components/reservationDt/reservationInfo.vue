@@ -240,6 +240,7 @@ export default {
       this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
           //  alert(JSON.stringify(res.body.data));
           if (res.body.error_code == 2000) {
+            console.log(res.body.data)
             if (res.body.data == null) {
                 _this.getOrder()
             } else if (res.body.data.state == 1301) {

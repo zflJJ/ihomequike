@@ -34,21 +34,6 @@
           </div>
         </div>
         <div class="plate-card">
-          <!-- <template v-if="orderData.state === 1301">
-            <div class="p-message">
-              <div class="time-info">
-                <span class="name-text">入场时间</span>
-                <div class="time-add">
-                  <div class="time-style">{{hour}}</div>
-                  <div class="time-text">时</div>
-                  <div class="time-style">{{minutes}}</div>
-                  <div class="time-text">分</div>
-                  <div class="time-style">{{seconds}}</div>
-                </div>
-              </div>
-            </div>
-          </template> -->
-
             <div class="p-message">
               <div class="time-info">
                 <span class="name-text">订单状态</span>
@@ -256,7 +241,7 @@ export default {
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
             let money = ( res.body.data.totalFee - res.body.data.reserveFee).toFixed(2);
-            localStorage.setItem('H5_fees',res.body.data.totalFee);  //保存的支付金额
+            localStorage.setItem('H5_fees',money);  //保存的支付金额
             localStorage.setItem('orderId',res.body.data.orderId);  //保存停车订单ID
             this.orderData = res.body.data;
             this.dispoceOrderDat(res.body.data);
