@@ -11,6 +11,8 @@ import App from './App'
 Vue.use(MintUI)
 import router from './router'
 import store from './store/store'
+import FastClick from 'fastclick'
+FastClick.attach(document.body)
 
 // 导入轮播组件
 // import VueAwesomeSwiper from 'vue-awesome-swiper'

@@ -16,6 +16,7 @@
     "cluster": "^0.7.7",
     "dns": "^0.2.2",
     "express": "^4.16.2",
+    "fastclick": "^1.0.6",
     "less": "^2.7.3",
     "less-loader": "^4.0.5",
     "lib-flexible": "^0.3.2",

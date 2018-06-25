@@ -157,7 +157,7 @@ export default {
     async getCars(){
       Indicator.open();
        let userId = localStorage.getItem('userId');
-    //  let userId = 52;
+    //  let userId = 30;
       let res = await getMyCars(userId,this.pageNum);
       console.log(res);
       if(res.error_code == 2000){

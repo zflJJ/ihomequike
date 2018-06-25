@@ -184,7 +184,7 @@
             })
             setTimeout(() => {
               // 清除缓存 跳转到 订单详情页
-              common.removeStorage('H5_payMent_time');
+            common.removeStorage('H5_payMent_time');
             common.removeStorage('H5_timeflag');
             // 支付成功之后，将订单ID + 订单状态 + 订单金额
             localStorage.removeItem('H5_fees');   // 支付金额

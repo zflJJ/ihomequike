@@ -74,7 +74,7 @@
           预约费&nbsp;
           <span style="color: #f63372">￥<span class="price-style">{{price}}</span></span>
         </div>
-        <div @click="goApoint" class="div-style ds-2">立即预约</div>
+        <div @touchend="goApoint" class="div-style ds-2">立即预约</div>
       </div>
     </div>
     <div :class="{alert: isshow}" @click="closeZinde"></div>
@@ -92,7 +92,6 @@ import {appointCarport,pay, lockChange} from '../../server/getData';
 import {getMyCars} from '../../server/getData';
 import {postParklot} from '../../server/getData';
 import {Toast,Indicator} from 'mint-ui';
-import { setTimeout } from 'timers';
 import { MessageBox } from 'mint-ui'; // 这个是一个消息提示框
 import BScroll from 'better-scroll';
 import VuePickers from "vue-pickers";
@@ -161,6 +160,7 @@ export default {
       },
       systemTime:null,//系统时间
       systemTimeFlag:false,
+      clickFlag: true
     }
   },
   components: {
@@ -193,8 +193,8 @@ export default {
       this.userId = JSON.parse(localStorage.getItem('userId'));
       this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       // 测试
-      // this.userId = 52;
-      // this.parklotId = 43;
+      // this.userId = 30;
+      // this.parklotId = 16;
       // this.parklotId = 1569;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
@@ -257,7 +257,6 @@ export default {
             this.getparklot();
           }, 2000);
         }).catch(err=>{
-
         })
       },
      // 筛出无效的时间段
@@ -613,6 +612,7 @@ export default {
       let channel = 1;
       let res = await pay(url, orderId, channel,couponId, baseURL,spbillCreateIp);
       if(res.error_code == 2000){
+        this.clickFlag = true
         Toast({
           message:'预约成功',
           duration:1500
@@ -620,6 +620,7 @@ export default {
         localStorage.setItem("routerFlag",null);
         this.$router.push('payToComplete');
       }else{
+        this.clickFlag = true
         Toast({
           message:'预约失败,请您重新预约',
           duration:1500
@@ -630,10 +631,16 @@ export default {
     async goApoint(){
       //console.log(this.params);
       // 测试
+      // alert(this.clickFlag)
+      if(!this.clickFlag){
+        return
+      }
+      // this.timerOutId = setTimeout(()=>{
+      //   this.clickFlag = true
+      // },3000)
+      this.clickFlag = false
       this.params.user_id = localStorage.getItem('userId');
       this.params.plate_id = this.plateNoId;
-      // this.params.user_id = 52;
-      // this.params.plate_id = 43;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
           message:'请选择您的车牌号',
@@ -646,37 +653,39 @@ export default {
         this.messInfo();
         return;
       }
-//      console.log(this.params);
       this.params.share_startTime = this.params.shareStartTime;
       this.params.share_endTime = this.params.shareEndTime;
       this.params.end_time = this.params.endTime;
       if(!this.params.start_time || this.params.start_time  == null){
         this.params.start_time = this.params.startTime;
       }
-
       let res = await appointCarport(this.params);
-
       if(res.error_code == 2801){
+        this.clickFlag = true
         Indicator.close();
         Toast({
           message:'入场时间已过，请重新选择。',
           duration:1500
         })
       }else if(res.error_code == 2900){
+        this.clickFlag = true
         Indicator.close();
         Toast({
           message:'您还有订单未完成。',
           duration:1500
         })
       }else if(res.error_code == 2904){
+        this.clickFlag = true
         Indicator.close();
         Toast({
           message:'该车辆已存在预约订单。',
           duration:1500
         })
       }else if(res.error_code == 2905){
+        this.clickFlag = true
         this.messInfo();
       }else if(res.error_code == 2906){
+        this.clickFlag = true
         Toast({
           message:'您暂无预约资格，请联系物业管理员',
           duration:1500
@@ -693,7 +702,7 @@ export default {
             this.doPay(orderId);
         }else{
           localStorage.setItem("routerFlag",null);
-
+          this.clickFlag = true
           this.$router.push({
             name:'payMentDt',
             params:{
@@ -707,8 +716,7 @@ export default {
       else if(res.error_code === 2901){
         this.messInfo();
         return;
-      }
-      else{
+      }else{
         Toast({
           message:res.error_message,
           duration:1500
@@ -731,13 +739,14 @@ export default {
     },
   },
   activated () {
+    this.clickFlag = true
     this.timeToget();
     this.getparklot();
   },
   // 退出组件时， 清空缓存
   deactivated(){
-    // debugger
     this.$destroy(true);
+    clearTimeout(this.timerOutId)
   },
   beforeRouteLeave(to, from, next){
       // 这里将MessageBox进行关闭的操作
