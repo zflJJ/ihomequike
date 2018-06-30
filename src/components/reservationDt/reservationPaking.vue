@@ -34,21 +34,6 @@
           </div>
         </div>
         <div class="plate-card">
-          <!-- <template v-if="orderData.state === 1301">
-            <div class="p-message">
-              <div class="time-info">
-                <span class="name-text">入场时间</span>
-                <div class="time-add">
-                  <div class="time-style">{{hour}}</div>
-                  <div class="time-text">时</div>
-                  <div class="time-style">{{minutes}}</div>
-                  <div class="time-text">分</div>
-                  <div class="time-style">{{seconds}}</div>
-                </div>
-              </div>
-            </div>
-          </template> -->
-
             <div class="p-message">
               <div class="time-info">
                 <span class="name-text">订单状态</span>
