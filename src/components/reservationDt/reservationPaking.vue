@@ -253,7 +253,6 @@ export default {
         }
         // alert(JSON.stringify(res.body.data));
         if(res.body.error_code === 2000){
-          alert(JSON.stringify(res.body.data))
           if(res.body.data.state == 1303){
             this.getOrderFlag  = true;
             let money = ( res.body.data.totalFee - res.body.data.reserveFee).toFixed(2);
@@ -300,8 +299,8 @@ export default {
               duration:2000
             });
           }
-      }else{
-          alert(JSON.stringify(res))
+        }else{
+            alert(JSON.stringify(res))
         }
       }).catch(res=>{
         alert(res);
