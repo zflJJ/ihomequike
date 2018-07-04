@@ -53,23 +53,17 @@
               <span class="phone-ic input-ic p-a"></span>
               <input class="phone" v-model="phoneNumber" type="number" placeholder="请输入手机号码" maxlength="11" @input="getPhoneList" style="marging-top:0.75rem" ref="scrollPhone">
               <!--这里需要有一个两倍图 和 3倍图  需要对类名做判断-->
-              <template v-if="isclosephone">
-                <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="closephone">
+              <template v-if="phoneNumber.length">
+                <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="clearNumber(1)">
               </template>
-
-              <div class="alert-phone">
-                <ul>
-                  <li v-for="(item,index) in phoneArr" :key="index" @click="getItem(item)">{{item}}</li>
-                </ul>
-              </div>
             </div>
             <div class="code test-input p-r">
               <span class="code-ic input-ic p-a"></span>
               <input class="code" type="number" v-model="code" placeholder="请输入验证码" @input="inputCodeEvent" maxlength="4" style="marging-top:0.9rem" ref="scrollCode">
 
               <!--这里需要一个2倍图 和 3 倍图-->
-              <template v-if="isclosecode">
-                <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="closeCode">
+              <template v-if="code.length">
+                <img srcset="../../assets/img/btn_close@2x.png 2x, ../../assets/img/btn_close@3x.png 3x" alt="" class="imgsrc" @click="clearNumber(2)">
               </template>
               &nbsp;
               <span class="get-code-btn p-a t-c" @click="getCode">{{getCodeInfo}}</span>
@@ -120,12 +114,8 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin'
-import { saveUserBind, pay } from '../../server/getData'
-import { getMyCars } from '../../server/getData'
-import { postParklot } from '../../server/getData'
-import { sendCodes, signInUsers, getPhoneCode } from '../../server/getData'
-import { Toast, Indicator } from 'mint-ui'
-import { MessageBox } from 'mint-ui' // 这个是一个消息提示框
+import { saveUserBind, pay,postParklot,getPhoneCode } from '../../server/getData'
+import { Toast, Indicator,MessageBox } from 'mint-ui'
 import BScroll from 'better-scroll'
 import VuePickers from 'vue-pickers'
 import KeyBoard from '../commonComponents/keyboard.vue'
@@ -141,37 +131,20 @@ export default {
       plateShowed: false, //是否显示了车牌选择组件
       proInfo: '粤', //省份
       iniInfo: 'B', //车牌号位
-      cletoast: null, //车牌的提示信息
-      phoneNumber: null, //用户输入的手机号
+
+      phoneNumber: '', //用户输入的手机号
       code: '', //用户输入的验证码
-      codeBack: false, //是否已经成功推送短信验证码
       randerCodes: '', //系统随机生成的六位验证码
-      codeCounts: 0, //点击获取验证码的次数统计,
+
       isGettingCodes: false, //是否正在获取验证码状态
-      getCodeFlag: false, //短信标记用来只获取1次短信
-      phoneList: null, // 是存储在localStorage中的数据
-      phoneArr: null, // 在input框中显示的数据
-      isclosecode: false, // 验证码的关闭小叉
-      isclosephone: false, // 用户名的小叉
-      iscodeplugin: false, // 表示图形验证码是否显示
-      error_code: null, //用来验证是否要启用防刷验证
-      anti: 1, // 更改变量的值
-      /*———图形验证码插件的数据—————*/
-      identifyCodes: '1234567890',
-      identifyCode: '',
       pointedItem: {}, //停车场接口获取信息返回 | enter
-      carPlate: null,
-      startTime: '', //选择开始时间
-      endTime: '', //选择结束时间
-      fmEndTime: '', //最晚规整的结束时间
-      estateId: '', //预约场地的id
-      mytime: '', // 按照当前的系统时间做做最晚时间处理
+      
       /*--新的东西*/
       parkLotId: null, // 表示传递过来的车场的ID
-      allTime: [],
-      pickerVisible: null,
-      reserveTimeList: [],
-      feeList: [],
+
+      reserveTimeList: [],  // 可预约的时段
+      feeList: [], // 预约时段的金额
+
       pickData2: {
         columns: 2, // 两列
         link: true, // 联级必须需要link 参数
@@ -184,12 +157,9 @@ export default {
         pData2: {}
       },
       nowTime: null,
-      timeList: [], // 筛选出来的数据点集合
-      arr: [],
-      array: [],
-      arrayflag: false,
       defaultTime: '00:00', // 默认时间
-      leaveTime: null,
+
+      leaveTime: null,  // 要在页面显示的离开时间
       priceTime: null, // 预约时间 -  当前系统时间 = 时间戳差值
       price: 0, //价格信息
 
@@ -209,10 +179,7 @@ export default {
         timestamp: null, //时间戳
         userId: null // 用户ID
       },
-      counts: '', // 定时器倒计时
-      systemTime: null, //系统时间
-      pagechange: false, // 表示页面是否后台运行过
-      getSecond: null, //表示页面在后台运行的时间
+      counts: 60, // 定时器倒计时
       KeyBoardflag: 0,
       show: 0,
       indentLists: ['粤', 'B'],
@@ -227,7 +194,7 @@ export default {
   },
   computed: {
     getCodeInfo() {
-      return this.isGettingCodes ? this.counts : '获取验证码'
+      return this.isGettingCodes ? this.counts + 's' : '获取验证码'
     },
   },
   components: {
@@ -256,9 +223,6 @@ export default {
       this.leftScroll.refresh()
       let el=this.$refs.scrollCode
       this.leftScroll.scrollBy(0, -100);
-    },
-    scrollCode(){
-
     },
     getkeyboard(msg) {
       let _this = this
@@ -349,10 +313,6 @@ export default {
         _this.KeyBoardflag = 0
       }
     },
-    getItem(item) {
-      this.phoneNumber = item
-      this.phoneArr = null
-    },
     isHideen() {
       this.$root.eventHub.$emit('showK', null)
     },
@@ -379,9 +339,6 @@ export default {
     //获取预约接口信息
     async getparklot() {
       let userId = null
-      //只有扫码进入才有parklotId
-      this.parkLotId = localStorage.getItem('myParklotId')
-      // this.parklotId = 311;
       this.reserveTimeList = []
       let res = await postParklot(userId, this.parkLotId)
       if (res.error_code === 2000) {
@@ -441,28 +398,6 @@ export default {
       if (phoneNumber.length > 11) {
         this.phoneNumber = phoneNumber.substr(0, 11)
       }
-      if (this.phoneNumber !== null && this.phoneNumber !== '') {
-        this.isclosephone = true
-      } else {
-        this.isclosephone = false
-      }
-      var arr = []
-      /*动态生成一个表达式*/
-      var reg = new RegExp('^' + this.phoneNumber)
-      // console.log(this.phoneList);
-      if (this.phoneList === null) {
-        return
-      } else {
-        for (var i = 0; i < this.phoneList.length; i++) {
-          if (
-            this.phoneList[i].match(reg) !== null &&
-            this.phoneList[i].match(reg)[0] !== ''
-          ) {
-            arr.push(this.phoneList[i])
-          }
-        }
-        this.phoneArr = arr
-      }
     },
     // 当输入验证码的时候
     inputCodeEvent() {
@@ -470,22 +405,14 @@ export default {
       if (code.length > 4) {
         this.code = code.substr(0, 4)
       }
-      if (this.code === null || this.code === '') {
-        this.isclosecode = false
-      } else {
-        this.isclosecode = true
+    },
+    // 清空input 输入框
+    clearNumber(num){
+      if(num === 1){
+        this.phoneNumber = ''
+      }else{
+        this.code = ''
       }
-    },
-    // 清空验证码
-    closeCode() {
-      this.code = null // 输入框的内容为空
-      this.isclosecode = false
-    },
-    // 关闭账户框
-    closephone() {
-      this.phoneNumber = null
-      this.phoneArr = null
-      this.isclosephone = false
     },
     //用户获取验证码// 做的两件事 判断电话号码是否正取，然后短信60s倒计时
     getCode(e) {
@@ -498,48 +425,34 @@ export default {
       } else if (this.isGettingCodes) {
         return
       }
-      if (this.getCodeFlag) {
-        return
-      }
+      this.isGettingCodes = true
       // 对账户信息验证完成开始倒计时，并且请求验证码
       this.timeCount()
       this.sendRanderCodes()
     },
     //短信读秒
     timeCount() {
-      let seconds = 60
-      this.getCodeFlag = true
-      document.addEventListener('visibilitychange', this.documentEvent)
+      if(this.timer){
+        clearInterval(this.timer)
+      }
       this.timer = setInterval(() => {
-        this.isGettingCodes = true
-        seconds--
-        if (this.pagechange) {
-          seconds = seconds - this.getSecond
-        }
-        this.counts = seconds + 's'
-        if (seconds <= 0) {
-          seconds = 0
-          console.log(1234)
-          console.log(this.timer)
+        this.counts--
+        if (this.counts <= 0) {
+          this.counts = 60;
           clearInterval(this.timer)
           this.isGettingCodes = false
-          this.getCodeFlag = false
         }
       }, 1000)
     },
 
     // 向用户账户（phoneNumber） 发送验证码
     async sendRanderCodes() {
-      var res = await getPhoneCode(this.phoneNumber, this.anti)
-      if (res.error_code === 2004) {
-        this.error_code = 2004 //
-        this.iscodeplugin = true
-        this.randerCodes = ''
-      } else if (res.error_code === 2000) {
+      var res = await getPhoneCode(this.phoneNumber, 1)
+      this.randerCodes = ''
+      if (res.error_code === 2000) {
         this.randerCodes = res.data.code
-        this.iscodeplugin = false
       } else {
-        Toast('错误码是' + res.error_message)
+        Toast(res.error_message)
       }
     },
     // 添加一个浏览器页面打开的 事件
@@ -547,15 +460,18 @@ export default {
       let vm = this
       if (document.visibilityState == 'visible') {
         let newlogin = Date.parse(new Date())
-        let H5_lslogin_time = common.getStorage('H5_lslogin_time')
-        console.log(newlogin - H5_lslogin_time)
-        let second = newlogin - H5_lslogin_time + ''
-        let getSecond = second.substring(0, second.length - 3)
-        console.log(getSecond)
-        this.getSecond = getSecond
+        let secode = Math.floor((newlogin - this.hiddenTime) / 1000)
+        console.log(secode)
+        if(this.counts - secode <= 0){
+          clearInterval(this.timer)
+          this.isGettingCodes = false
+          this.counts = 60
+        }else {
+          this.counts = this.counts - secode
+          this.timeCount()
+        }
       } else {
-        let second = Date.parse(new Date())
-        common.setStorage('H5_lslogin_time', second)
+        this.hiddenTime =Date.parse(new Date())
       }
     },
     // 默认的离场时间
@@ -577,31 +493,15 @@ export default {
         }
       }
       if (numLeaveTime.length === 1) {
-        // debugger
         this.params.shareStartTime = numLeaveTime[0].learve.startTime
-        this.params.shareEndTime = this.params.endTime =
-          numLeaveTime[0].learve.endTime
+        this.params.shareEndTime = this.params.endTime = numLeaveTime[0].learve.endTime
         this.params.startTime = timetap
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime)
-        var leaveMonth =
-          leaveTime.substr(5, 1) != 0
-            ? leaveTime.substr(5, 2)
-            : leaveTime.substr(6, 1)
-        var leaveDay =
-          leaveTime.substr(8, 1) != 0
-            ? leaveTime.substr(8, 2)
-            : leaveTime.substr(9, 1)
+        var leaveMonth = leaveTime.substr(5, 2)
+        var leaveDay = leaveTime.substr(8, 2)
         var leaveMiunte = leaveTime.substr(14, 2)
         var leaveHours = leaveTime.substr(11, 2)
-        this.leaveTime =
-          leaveMonth +
-          '月' +
-          leaveDay +
-          '日' +
-          leaveHours +
-          ':' +
-          leaveMiunte +
-          ':00'
+        this.leaveTime = this.leaveTime =  leaveMonth +'月' +  leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
       } else {
         var max = numLeaveTime[0].times
         var len = numLeaveTime.length
@@ -613,25 +513,11 @@ export default {
           }
         }
         var leaveTime = formatTimeStamp(obj.learve.endTime)
-        var leaveMonth =
-          leaveTime.substr(5, 1) != 0
-            ? leaveTime.substr(5, 2)
-            : leaveTime.substr(6, 1)
-        var leaveDay =
-          leaveTime.substr(8, 1) != 0
-            ? leaveTime.substr(8, 2)
-            : leaveTime.substr(9, 1)
+        var leaveMonth = leaveTime.substr(5, 2)
+        var leaveDay = leaveTime.substr(8, 2)
         var leaveMiunte = leaveTime.substr(14, 2)
         var leaveHours = leaveTime.substr(11, 2)
-        this.leaveTime =
-          leaveMonth +
-          '月' +
-          leaveDay +
-          '日' +
-          leaveHours +
-          ':' +
-          leaveMiunte +
-          ':00'
+        this.leaveTime =  leaveMonth +'月' +  leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
         this.params.shareStartTime = obj.learve.startTime
         this.params.shareEndTime = this.params.endTime = obj.learve.endTime
         this.params.startTime = timetap
@@ -763,12 +649,7 @@ export default {
           duration: 1500
         })
         this.clickFlag = true
-      } else if (
-        this.code == '' ||
-        this.code == null ||
-        this.code == undefined ||
-        this.code != this.randerCodes
-      ) {
+      } else if (!this.code || this.code != this.randerCodes) {
         Toast({
           message: '请输入正确的验证码。',
           duration: 1500
@@ -779,16 +660,23 @@ export default {
         this.getparklot()
         this.clickFlag = true
       } else {
+        // "startTime":15000000,
+        // "endTime":160000000,
+        // "shareStartTime":120000000,
+        // "shareEndTime":1600000000,
+
         this.params.plateNumber = this.plateNo
         this.params.phone = this.phoneNumber
         this.params.totalFee = this.price
         this.params.parklotId = this.parkLotId
+
         this.params.ip = localStorage.getItem('mobileId')
         this.params.phoneModel = localStorage.getItem('phoneNum')
         this.params.unionId = localStorage.getItem('unionId')
         this.params.openId = localStorage.getItem('openId')
         this.params.jpushId = 'H5'
         this.params.timestamp = +new Date()
+
         let res = await saveUserBind(this.params)
         if (res.error_code == 2000) {
           let orderId = res.data.orderId //订单号
@@ -903,15 +791,10 @@ export default {
       this.nowTime = time
     }
   },
-  deactivated() {
-    // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件
-    clearInterval(this.timer)
-    this.pagechange = false
-    this.getSecond = null
-    common.setStorage('H5_lslogin_time')
-    document.removeEventListener('visibilitychange', this.documentEvent)
-  },
-  activated() {
+   activated() {
+     // 获取车场ID
+    // this.parkLotId = localStorage.getItem('myParklotId')
+    document.addEventListener('visibilitychange', this.documentEvent,false)
     this.clickFlag = true;
     window.addEventListener(
       'online',
@@ -946,19 +829,18 @@ export default {
     //清除获取验证码
     this.code = ''
     this.isGettingCodes = false
-    if (this.timer) {
-      clearInterval(this.timer)
-      this.isGettingCodes = false
-    }
-    this.phoneList = localStorage.getItem('Phone_List')
-    if (localStorage.getItem('Phone_List') !== null) {
-      this.phoneList = localStorage.getItem('Phone_List').split(',')
-    }
     //安卓手机修改
     let _this = this
     _this.windowHeight = document.documentElement.clientHeight
     window.addEventListener('resize', _this.handleInput, false)
   },
+  deactivated() {
+    // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件
+    clearInterval(this.timer)
+    common.setStorage('H5_lslogin_time')
+    document.removeEventListener('visibilitychange', this.documentEvent,false)
+  },
+ 
   // 退出组件时， 清空缓存
   deactivated() {
     // debugger
@@ -971,13 +853,6 @@ export default {
     MessageBox.close(false)
     next()
   },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      if (from.path === '/car') {
-        vm.carPlate = JSON.parse(localStorage.getItem('H5_carplate'))
-      }
-    })
-  }
 }
 </script>
 <style lang="stylus">
