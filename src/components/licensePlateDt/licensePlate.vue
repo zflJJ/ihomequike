@@ -156,7 +156,7 @@ export default {
     //获取车牌号列表
     async getCars(){
       Indicator.open();
-       let userId = localStorage.getItem('userId');
+      let userId = localStorage.getItem('userId');
     //  let userId = 30;
       let res = await getMyCars(userId,this.pageNum);
       console.log(res);

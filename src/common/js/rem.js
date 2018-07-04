@@ -14,18 +14,5 @@
     win.addEventListener('resize', function() {
         refreshRem();
     }, false);
-
-    // win.addEventListener('resize', function() {
-    //     clearTimeout(tid);
-    //     tid = setTimeout(refreshRem, 300);
-    // }, false);
-    // win.addEventListener('pageshow', function(e) {
-    //     if (e.persisted) {
-    //         clearTimeout(tid);
-    //         tid = setTimeout(refreshRem, 300);
-    //     }
-    // }, false);
-
     refreshRem();
-
 })(window);

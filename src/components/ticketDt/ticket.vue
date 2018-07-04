@@ -87,7 +87,6 @@
       },
       async getCounp(){
         let userId = localStorage.getItem("userId");
-        // let userId = 30;
         let res = await getCounpNumber(userId,this.counpNumber);
         console.log(res);
         if(res.error_code == 2000){
@@ -110,8 +109,8 @@
         if(this.pageNum == 0){
           Indicator.open();
         }
-        // let userId = localStorage.getItem('userId');
-        let userId = 30;
+        let userId = localStorage.getItem('userId');
+        // let userId = 30;
         let res = await getMyCounpLists(userId, this.pageNum);
         console.log(res);
         if(res.error_code == '2000'){

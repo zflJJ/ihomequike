@@ -130,12 +130,11 @@ import BScroll from 'better-scroll'
 import VuePickers from 'vue-pickers'
 import KeyBoard from '../commonComponents/keyboard.vue'
 import common from '../../common/js/common'
-import { debug } from 'util'
+import { filterTime,disposeTime,dataChange } from '../../common/js/time'
 export default {
   data() {
     return {
       plateNo: '', //车牌号
-      plateNoId: '', //车牌号ID
       show1: false,
       isshow: false,
       plateNum: '', //填入的车牌号
@@ -194,7 +193,6 @@ export default {
       priceTime: null, // 预约时间 -  当前系统时间 = 时间戳差值
       price: 0, //价格信息
 
-      parkItemObj: {}, //停车车场参数
       params: {
         plateNumber: null, // 车牌号
         phone: null, //手机号
@@ -213,7 +211,6 @@ export default {
       },
       counts: '', // 定时器倒计时
       systemTime: null, //系统时间
-      systemTimeFlag: false,
       pagechange: false, // 表示页面是否后台运行过
       getSecond: null, //表示页面在后台运行的时间
       KeyBoardflag: 0,
@@ -384,29 +381,28 @@ export default {
       let userId = null
       //只有扫码进入才有parklotId
       this.parkLotId = localStorage.getItem('myParklotId')
+      // this.parklotId = 311;
       this.reserveTimeList = []
       let res = await postParklot(userId, this.parkLotId)
       if (res.error_code === 2000) {
         this.pointedItem = res.data
-        this.params.parklotId = this.pointedItem.parklotId
-        let plateObj = JSON.parse(localStorage.getItem('H5_chosen_plate'))
-        if (!plateObj) {
-          this.plateNo = res.data.plateNo
-          this.plateNoId = res.data.plateId
-        } else {
-          this.plateNo = plateObj.plateNo
-          this.plateNoId = plateObj.plateNoId
-          localStorage.removeItem('H5_chosen_plate')
-        }
-        this.parkItemObj.id = res.data.parklotId
+        // 预约费用
         this.feeList = this.pointedItem.feeList
+        // 预约的时间
         this.reserveTimeList = this.pointedItem.reserveTimeList
         if (!this.reserveTimeList.length) {
           this.messInfo()
         } else {
-          this.filterTime(this.pointedItem.reserveTimeList)
-          this.disposeTime(this.timeList)
-          this.dataChange()
+          let timeList = filterTime(this.pointedItem.reserveTimeList,this.nowTime)
+          let distimelist = disposeTime(timeList)
+          let dataTimes = dataChange(distimelist,this.nowTime);
+          this.$set(this.pickData2, 'pData1', dataTimes.pData1)
+          this.$set(this.pickData2, 'pData2', dataTimes.pData2)
+          this.$set(this.pickData2, 'default', dataTimes.default)
+          this.defaultTime = dataTimes.defaultTime
+          // 获取价格  和 默认离场时间
+          this.getPrice(dataTimes.priceTime)
+          this.getDefaultTime( dataTimes.pData1[0].time)
         }
         this._initScroll()
       } else {
@@ -438,89 +434,7 @@ export default {
         })
         .catch(err => {})
     },
-    // 筛出无效的时间段
-    filterTime(timeList) {
-      for (var i = 0; i < timeList.length; i++) {
-        // 间隔15分钟的时间都没有的话，就排除掉
-        if (timeList[i].startTime >= this.nowTime) {
-          if (timeList[i].startTime > timeList[i].endTime - 900000) {
-            continue
-          } else {
-            this.timeList.push({
-              startTime: timeList[i].startTime,
-              endTime: timeList[i].endTime,
-              id: timeList[i].id
-            })
-          }
-        } else if (
-          timeList[i].startTime < this.nowTime &&
-          timeList[i].endTime < this.nowTime
-        ) {
-          continue
-        } else if (
-          timeList[i].startTime < this.nowTime &&
-          this.nowTime < timeList[i].endTime - 900000
-        ) {
-          this.timeList.push({
-            startTime: timeList[i].startTime,
-            endTime: timeList[i].endTime,
-            id: timeList[i].id
-          })
-        }
-      }
-    },
-
-    //对时间段进行去重处理
-    disposeTime(timeList) {
-      for (let i = 0; i < this.timeList.length; i++) {
-        this.timeList[i].endTime -= 900000
-      }
-      let tempTimelist = []
-      let tmObjective = timeList[0]
-      let isUnited = false
-      if (timeList.length <= 1) {
-        this.timeList = [].concat(timeList)
-        return
-      }
-      for (let i = 1; i < timeList.length; i++) {
-        let newItem = {}
-        let item = timeList[i]
-        if (
-          tmObjective.endTime >= item.startTime &&
-          item.endTime >= tmObjective.endTime
-        ) {
-          newItem.startTime = tmObjective.startTime
-          newItem.endTime = item.endTime
-          if (i > 0) {
-            tempTimelist.pop(tempTimelist[tempTimelist.length - 1])
-          }
-          tempTimelist.push(newItem)
-          tmObjective.startTime = newItem.startTime
-          tmObjective.endTime = newItem.endTime
-          isUnited = true
-        } else if (
-          tmObjective.endTime >= item.startTime &&
-          item.endTime < tmObjective.endTime
-        ) {
-          newItem.startTime = tmObjective.startTime
-          newItem.endTime = tmObjective.endTime
-          if (i > 0) {
-            tempTimelist.pop(tempTimelist[tempTimelist.length - 1])
-          }
-          tempTimelist.push(newItem)
-          tmObjective.startTime = newItem.startTime
-          newItem.endTime = tmObjective.endTime
-          isUnited = true
-        } else {
-          tempTimelist.push(item)
-          tmObjective.startTime = item.startTime
-          tmObjective.endTime = item.endTime
-        }
-      }
-      this.timeList = [].concat(tempTimelist)
-      //结束时间减去15分钟预留离场时间
-    },
-
+    
     // 动态遍历 phoneList
     getPhoneList() {
       let phoneNumber = this.phoneNumber.trim()
@@ -603,7 +517,6 @@ export default {
           seconds = seconds - this.getSecond
         }
         this.counts = seconds + 's'
-        // debugger
         if (seconds <= 0) {
           seconds = 0
           console.log(1234)
@@ -641,185 +554,10 @@ export default {
         console.log(getSecond)
         this.getSecond = getSecond
       } else {
-        console.log('关闭了')
         let second = Date.parse(new Date())
         common.setStorage('H5_lslogin_time', second)
       }
     },
-    dataChange() {
-      for (var i = 0; i < this.timeList.length; i++) {
-        let item = this.timeList[i]
-        // debugger
-        this.array = []
-        var n = (item.endTime - item.startTime) / 900000
-        if (this.nowTime > item.endTime) {
-          continue // 比结束时间都还大，直接结束本次循环
-        } else if (
-          item.startTime < this.nowTime &&
-          this.nowTime < item.endTime
-        ) {
-          var x = null
-          var start = item.startTime
-          var arr = []
-          var temp = []
-          this.arrayflag = true
-          for (var j = 0; j <= n; j++) {
-            arr.push(start)
-            start += 900000
-          }
-          for (var y = 0; y < arr.length; y++) {
-            if (this.nowTime < arr[y]) {
-              x = y
-              break
-            }
-          }
-          var arrtrue = []
-          if (x !== null) {
-            arrtrue = arr.slice(x)
-            this.array.push(arrtrue)
-          }
-        } else {
-          // 先转换成数组
-          var arr = []
-          // var start = this.allTime[i].startTime;
-          var start = this.timeList[i].startTime
-          for (var j = 0; j <= n; j++) {
-            arr.push(start)
-            start += 900000
-          }
-          this.array.push(arr)
-        }
-      }
-      // console.log(this.array);
-      this.convertTime()
-    },
-
-    // 赋值 和 拆分 小时数
-    convertTime() {
-      var pData1 = [],
-        pData2 = {},
-        pData2arr = []
-      console.log(this.array)
-      for (var i = 0; i < this.array.length; i++) {
-        var arrayone = this.array[i]
-        var oldhours = null
-        let oldDay = formatTimeStamp(arrayone[0]).substr(8, 2)
-        for (var j = 0; j < arrayone.length; j++) {
-          let time = formatTimeStamp(arrayone[j])
-          let miunte = time.substr(14, 2)
-          let hours = time.substr(11, 2)
-          let day = time.substr(8, 2)
-          if (oldDay < day) {
-            hours = ' 次日 ' + hours + ' 时 '
-            miunte = miunte + ' 分 '
-          } else {
-            hours = hours + ' 时 '
-            miunte = miunte + ' 分 '
-          }
-          // debugger
-          // console.log(pData1);
-          if (pData1.length >= 1) {
-            if (pData1[pData1.length - 1].texts != hours) {
-              pData1.push({
-                text: hours,
-                value: i + j + hours,
-                texts: hours,
-                time: arrayone[j]
-              })
-            }
-          } else {
-            pData1.push({
-              text: hours,
-              value: i + j + hours,
-              texts: hours,
-              time: arrayone[j]
-            })
-          }
-
-          pData2arr.push({
-            text: miunte,
-            value: i + j,
-            texts: hours,
-            time: arrayone[j]
-          })
-          oldhours = time.substr(11, 2)
-        }
-      }
-      console.log(pData1)
-      var hoursarray = pData1
-      // console.log(pData2arr);
-      var miuntearray = this.pData2chang(pData2arr)
-      console.log(hoursarray, miuntearray)
-      for (var i = 0; i < hoursarray.length; i++) {
-        pData2[hoursarray[i].value] = miuntearray[hoursarray[i].text]
-      }
-      this.$set(this.pickData2, 'pData1', hoursarray)
-      // this.pickData2.pData2 = pData2;
-      this.$set(this.pickData2, 'pData2', pData2)
-
-      this.pickData2.default.push(hoursarray[0])
-      this.pickData2.default.push(pData2[hoursarray[0].value][0])
-
-      // 取得默认入场时间-----这里有问题
-      // if(this.systemTimeFlag){
-      //   this.defaultTime = this.getMyDate(this.systemTime);
-      //   this.params.startTime = this.systemTime;
-      //   console.log(this.defaultTime)
-      // }else {
-      this.defaultTime =
-        hoursarray[0].text.substring(0, hoursarray[0].text.length - 2) +
-        ':' +
-        pData2[hoursarray[0].value][0].text.substring(
-          0,
-          pData2[hoursarray[0].value][0].text.length - 2
-        ) +
-        '前'
-      // }
-      // 通过时间戳差值，获取价格信息
-      console.log(new Date().getTime())
-      // debugger
-      this.priceTime = hoursarray[0].time - new Date().getTime()
-      // debugger
-      this.getPrice(this.priceTime)
-      // console.log(this.priceTime);
-      // console.log(this.defaultTime);
-      // console.log(hoursarray[0]);
-      this.getDefaultTime(hoursarray[0].time)
-    },
-    getMyDate(mss) {
-      // console.log("--------------------")
-      // console.log(mss)
-      // var days = parseInt(mss / (1000 * 60 * 60 * 24));
-      // var hours = parseInt((mss % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      // var minutes = parseInt((mss % (1000 * 60 * 60)) / (1000 * 60));
-      // var seconds = (mss % (1000 * 60)) / 1000;
-      var date = new Date(mss)
-      var hours = date.getHours()
-      var minutes = date.getMinutes()
-      console.log(new String(hours))
-      if (new String(hours).length <= 1) {
-        hours = '0' + hours
-      }
-      if (new String(minutes).length <= 1) {
-        minutes = '0' + minutes
-      }
-      return hours + ':' + minutes
-    },
-    // 对分钟数
-    pData2chang(arr) {
-      var data = []
-      for (var i = 0; i < arr.length; i++) {
-        if (!data[arr[i].texts]) {
-          var arrs = []
-          arrs.push(arr[i])
-          data[arr[i].texts] = arrs
-        } else {
-          data[arr[i].texts].push(arr[i])
-        }
-      }
-      return data
-    },
-
     // 默认的离场时间
     getDefaultTime(time) {
       // debugger
@@ -898,18 +636,12 @@ export default {
         this.params.shareEndTime = this.params.endTime = obj.learve.endTime
         this.params.startTime = timetap
       }
-      // share_startTime:null, // 共享开始时间戳
-      //   share_endTime:null,  // 共享结束时间戳
-      //   start_time:null,    // 用户选择的时间戳
     },
 
     // 获取价格信息
     getPrice(priceTime) {
-      // debugger
       var x = null
       let miunte = parseInt(priceTime / 60000)
-      console.log(miunte)
-      // this.feeList[0].finishTime = this.feeList[0].finishTime * 60000;
       for (var i = 0; i < this.feeList.length; i++) {
         if (miunte <= this.feeList[i].finishTime) {
           x = i
@@ -922,12 +654,10 @@ export default {
         x = i - 1
       }
       if (this.feeList[x]) {
-        // this.price = this.feeList[x].fee;
         this.price = (
           this.feeList[x].fee * this.pointedItem.integralPermissionsCoefficient
         ).toFixed(2)
       }
-      console.log(this.price)
     },
     // 选择入场时间段
     openPicker() {
@@ -947,15 +677,7 @@ export default {
     },
     // 选择时间后的确定按钮
     confirmFn(e) {
-      // debugger
-      // e.cancelBubble = true;
-      console.log(e)
-      if (this.systemTimeFlag) {
-        this.priceTime = this.systemTime - new Date().getTime()
-      } else {
-        this.priceTime = e.select2.time - new Date().getTime()
-      }
-      // debugger
+      this.priceTime = e.select2.time - new Date().getTime()
       this.getPrice(this.priceTime)
       this.defaultTime =
         e.select1.text.substring(0, e.select1.text.length - 2) +
@@ -969,7 +691,6 @@ export default {
     close(e) {
       this.show1 = false
       this.isshow = false
-      // e.cancelBubble = true
     },
     async doPay(orderId) {
       let url = 'apiwrite/reserve/pay'
@@ -977,7 +698,6 @@ export default {
       let baseURL = null
       let spbillCreateIp = null
       let channel = 1
-      // url, orderId, channel, couponId, wapUrl, spbillCreateIp
       let res = await pay(
         url,
         orderId,
@@ -1177,22 +897,11 @@ export default {
           }, 1500);
        }
     },
-    //选择车牌号
-    chooseCar() {
-      this.$router.push({
-        name: 'licensePlate',
-        params: {
-          from: 'licensePlate'
-        }
-      })
-    },
     // 对拿到的当前系统时间做处理
     timeToget() {
       var time = Number(new Date().getTime()) + 900000
       this.nowTime = time
     }
-  },
-  created() {
   },
   deactivated() {
     // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件

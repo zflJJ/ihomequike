@@ -32,6 +32,15 @@
             </div>
           </div>
         </div>
+        <!-- 入场车辆 -->
+        <div class="plate-card">
+          <div class="p-message">
+            <div class="time-info">
+              <span class="name-text">入场车辆</span>
+              <span class="ta-info">{{orderData.plateNo}}</span>
+            </div>
+          </div>
+        </div>
         <div class="plate-card">
             <div class="p-message">
               <div class="time-info">
@@ -80,8 +89,6 @@ import {Indicator,Toast} from 'mint-ui';
 import {canCelMyAppoint, getOrderInfo,lockChange} from '../../server/getData';
 // import { setTimeout, clearInterval } from 'timers';
 import { MessageBox } from 'mint-ui';
-import { asyncAMap } from '../../common/js/H5plugin';
-import { setInterval } from 'timers';
 export default {
   name:'reservationBookingUnpaid',
   data () {

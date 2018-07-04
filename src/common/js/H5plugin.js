@@ -1,6 +1,3 @@
-// import Vm from 'vue'
-import baseUrl from '../../server/baseURL.js'
-
 //时间戳转化成YYYY-MM-DD HH:mm:ss模式
 export const formatTimeStamp = function(timeStamp) {
     // "2018-02-02 09:16:21:00"
@@ -22,41 +19,3 @@ export const formatTimeStamp = function(timeStamp) {
     newTime = year + '-' + month + '-' + d + ' ' + hours + ':' + minutes + ':' + seconds + ':' + milliSeconds;
     return newTime;
 };
-//异步加载高德地图
-export const asyncAMap = function(callback) {
-
-    let url = baseUrl.asyncAMapUrl;
-    return createScript(url);
-    createScript(url, callback);
-
-    function createScript(url, callback) {
-        let scriptElement = document.createElement('script')
-        document.body.appendChild(scriptElement)
-        let promise = new Promise((resolve, reject) => {
-            scriptElement.addEventListener('load', e => {
-                // removeScript(scriptElement)
-                if (!callback) {
-                    resolve('success')
-                }
-            }, false)
-            scriptElement.addEventListener('error', e => {
-                removeScript(scriptElement)
-                reject('error')
-            }, false)
-            if (callback) {
-                window.____callback____ = function() {
-                    window.____callback____ = null
-                }
-            }
-        })
-        if (callback) {
-            url += ('&callback =' + callback);
-        }
-        scriptElement.src = url;
-        return promise;
-    }
-    //移除script标签
-    function removeScript(scriptElement) {
-        document.body.removeChild(scriptElement)
-    }
-}

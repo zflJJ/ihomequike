@@ -227,8 +227,8 @@ export const appointCarport = (params) => {
     );
     return data;
 };
-
-export const pay = (url, orderId, channel, couponId, wapUrl, spbillCreateIp) => {
+export const pay = (url, orderId, channel, couponId, wapUrl, spbillCreateIp, openId) => {
+    alert(openId)
     let data = getAxios('post',
         URL + url, {
             order_id: orderId, // 订单ID
@@ -236,6 +236,7 @@ export const pay = (url, orderId, channel, couponId, wapUrl, spbillCreateIp) => 
             coupon_id: couponId, // 优惠券ID
             type: 5, // H5 传5
             wapUrl: wapUrl, //支付回调
+            openId: openId,
             spbillCreateIp: spbillCreateIp, // 微信回调地址
             timestamp: new Date().getTime(),
         }

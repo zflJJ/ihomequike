@@ -2,7 +2,7 @@
   <div id="appoint-info">
     <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="appoit-info-box" ref="appoitInfoBox">
-     
+
       <div sytle="position: relative;" class="appoint-child">
         <div class="showtext" v-show="loadingFlag == 0">下拉刷新</div>
         <div class="showtext" v-show="loadingFlag == 1">释放刷新</div>
@@ -38,6 +38,16 @@
             </div>
           </div>
         </div>
+        <!-- 入场车辆 -->
+        <div class="plate-card">
+          <div class="p-message">
+            <div class="time-info">
+              <span class="name-text">入场车辆</span>
+              <span class="ta-info">{{orderData.plateNo}}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="plate-card">
           <template v-if="orderData.state === 1301">
             <div class="p-message">
@@ -170,7 +180,6 @@ import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData'
 import { MessageBox } from 'mint-ui'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
-import { setTimeout, clearTimeout } from 'timers';
 export default {
   name: 'reservationInfo',
   data() {
@@ -200,6 +209,7 @@ export default {
       loadingFlag: 0,
       getTime: null,
       lockType: null, // 表示车锁类型
+      iscancelorder: true, // 表示可以点击
     }
   },
   components: {
@@ -225,9 +235,7 @@ export default {
           this.scroll.refresh()
         }
         this.scroll.on('pullingDown', (props) => {
-          console.log(2344)
           clearTimeout(this.getTime);
-          this.text = '加载中...';
           this.loadingFlag = 2;
           this.getTime = setTimeout(() => {
             this.getOrder();
@@ -243,9 +251,9 @@ export default {
       this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
         if (res.body.error_code == 2000) {
           this.lockId = null
-          if(res.body.data.chargeType === 1){
+          if (res.body.data.chargeType === 1) {
             this.lockId = res.body.data.lockId
-          }else{
+          } else {
             this.lockId = null;
           }
           this.parklotId = res.body.data.parklotId
@@ -333,12 +341,12 @@ export default {
         var stopTime = objDatas.stopTime
         this.addTime(stopTime)
       }
-       if(this.scroll){
-          this.scroll.refresh();
-          this.scroll.finishPullDown();
-        }else{
-           this._initScroll();
-        }
+      if (this.scroll) {
+        this.scroll.refresh();
+        this.scroll.finishPullDown();
+      } else {
+        this._initScroll();
+      }
     },
 
     // 停车时间累加操作  这个是对数据的处理
@@ -392,15 +400,20 @@ export default {
         return;
       } else {
         let htmls =
-          `车锁降下后开始停车计费，是否确认？`
+          `<div class="lock-down-chargetype">
+                <div class="is-text">
+                  车锁降下后开始停车计费，是否确认？
+                </div>
+         </div>`
         MessageBox.confirm('', {
           title: '提示',
           message: htmls,
-          confirmButtonText: '确定',
+          confirmButtonText: '确认',
           cancelButtonText: '取消',
           closeOnClickModal: false,
         })
           .then(action => {
+            this.iscancelorder = false;
             this.lockEvnet(2)
           })
           .catch(err => {
@@ -447,11 +460,13 @@ export default {
       let res = await lockChange(this.lockId, item)
       console.log(res);
       if (res.error_code == 2000) {
-        let timeoutId = setTimeout(()=>{
+        let timeoutId = setTimeout(() => {
           clearTimeout(timeoutId);
+          this.iscancelorder = true
           this.getOrder();
-        },8000)
+        }, 8000)
       } else {
+        this.iscancelorder = true;
         Toast({
           message: '操作失败',
           position: 'bottom',
@@ -478,6 +493,14 @@ export default {
 
     // 取消预约按钮
     cancelOrder() {
+      if (!this.iscancelorder) {
+        Toast({
+          message: '正在控制车锁，暂不可取消预约。 ',
+          position: 'middle',
+          duration: 2000
+        });
+        return
+      }
       // 这个时间 是动态的
       let freeCancellationTime = this.orderData.freeCancellationTime
       let htmls =
@@ -598,6 +621,7 @@ export default {
   },
   deactivated() {
     let _this = this
+    _this.iscancelorder = true
     clearInterval(this.interval)
     localStorage.removeItem('hiddenTime');
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
@@ -618,6 +642,8 @@ export default {
 <style lang="stylus">
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
+.lock-down-chargetype
+  line-height 2.63rem
 .ordermessage-info
   padding 0 0.5rem
 #appoint-info
@@ -784,7 +810,7 @@ export default {
     top 0rem
     bottom 3.5rem
     .appoint-child
-      min-height:calc(100%+6px)
+      min-height calc(100% + 6px)
     .showtext
       position absolute
       width 100%

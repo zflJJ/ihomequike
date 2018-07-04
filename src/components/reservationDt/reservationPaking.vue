@@ -37,6 +37,15 @@
             </div>
           </div>
         </div>
+        <!-- 入场车辆 -->
+        <div class="plate-card">
+          <div class="p-message">
+            <div class="time-info">
+              <span class="name-text">入场车辆</span>
+              <span class="ta-info">{{orderData.plateNo}}</span>
+            </div>
+          </div>
+        </div>
         <div class="plate-card">
           <div class="p-message">
             <div class="time-info">
@@ -141,7 +150,7 @@
           <div class="p-message" v-if="orderData.overTime !== null">
             <div class="time-info">
               <span class="name-text">超时金额</span>
-              <span class="ta-info">{{orderData.overTimeFee}}</span>
+              <span class="ta-info">{{parseFloat(orderData.overTimeFee).toFixed(2)}}</span>
             </div>
           </div>
         </div>
@@ -151,7 +160,7 @@
     <div>
       <!-- 这个是停车中的 -->
       <template v-if="orderData.state === 1302">
-        <!-- 这个是道闸计费 -->  
+        <!-- 这个是道闸计费 -->
         <div v-if="orderData.chargeType === 0" class="cancel p-a t-c">
           <template v-if="orderData.lockId">
             <div class="item2-sytle" @click="lockModel">控制车锁</div>
@@ -202,7 +211,6 @@ import { Indicator, Toast } from 'mint-ui';
 import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData';
 import requestUrl from '../../server/baseURL';
 import { MessageBox } from 'mint-ui';
-import { asyncAMap } from '../../common/js/H5plugin';
 export default {
   name: 'appointInfo',
   data() {
@@ -302,7 +310,7 @@ export default {
                 this.$router.push('payToComplete');
               }
             } else if (res.body.data.parkingFee != 0) {
-              localStorage.setItem('H5_fees',res.body.data.payFee)
+              localStorage.setItem('H5_fees', res.body.data.payFee)
               localStorage.setItem('H5_order_state', res.body.data.state)
               if (num === 1 || num === 2) {
                 this.$router.push('payMentDt');
@@ -334,11 +342,15 @@ export default {
     },
     endParking() {
       let htmls =
-        `升起车锁后结束本次停车。`
+        `<div class="lock-up-chargetype">
+            <div class="is-text">
+              车锁降下后开始停车计费，是否确认？
+            </div>
+       </div>`
       MessageBox.confirm('', {
         title: '提示',
         message: htmls,
-        confirmButtonText: '确定',
+        confirmButtonText: '确认',
         cancelButtonText: '取消',
         closeOnClickModal: false,
       })
@@ -397,6 +409,9 @@ export default {
         let hours = parseInt(objDatas.overTime / (60 * 60 * 1000));
         let minutes = parseInt((objDatas.overTime % (1000 * 60 * 60)) / (1000 * 60));
         let seconds = parseInt((objDatas.overTime % (1000 * 60)) / 1000);
+        hours = hours < 10 ? '0'+ hours : hours;
+        minutes = minutes < 10 ? '0'+ minutes : minutes;
+        hours = seconds < 10 ? '0'+ seconds : seconds;
         objDatas.overTime = hours + ":" + minutes + ":" + seconds;
       } else {
         objDatas.overTime = null
@@ -456,7 +471,10 @@ export default {
     async lockDown(item) {
       let res = await lockChange(this.lockId, item);
       if (res.error_code === 2000) {
-        this.getOrder();
+        let timeoutId = setTimeout(() => {
+          clearTimeout(timeoutId)
+          this.getOrder();
+        }, 8000);
       }
     },
   },
@@ -500,6 +518,8 @@ export default {
 <style lang="stylus">
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
+.lock-up-chargetype
+  line-height 2.63rem
 .ordermessage-info
   padding 0 0.5rem
 #appoint-info
@@ -510,9 +530,9 @@ export default {
   background-color #F4F4F4
   overflow hidden
   .appoint-parking-info
-    position: absolute 
-    width: 100%
-    min-height:calc(100%+6px)
+    position absolute
+    width 100%
+    min-height calc(100% + 6px)
     .showtext
       position absolute
       width 100%
