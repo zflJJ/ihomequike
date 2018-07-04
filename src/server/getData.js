@@ -228,7 +228,6 @@ export const appointCarport = (params) => {
     return data;
 };
 export const pay = (url, orderId, channel, couponId, wapUrl, spbillCreateIp, openId) => {
-    alert(openId)
     let data = getAxios('post',
         URL + url, {
             order_id: orderId, // 订单ID
@@ -254,7 +253,6 @@ export const getMyAppointInfo = (phone) => {
 };
 //向用户端推送手机短信验证码
 export const sendCodes = async(phone, code) => {
-    // let url = 'http://v.juhe.cn/sms/send?mobile=13600412745&tpl_id=41356&tpl_value=%23code%23%3D654654&key=c718da9eb368b06d145a81f5661e093d';
     let url = 'http://v.juhe.cn/sms/send?tpl_id=41356&key=c718da9eb368b06d145a81f5661e093d' +
         '&mobile=' + phone +
         '&tpl_value=%23code%23%3D' + code;

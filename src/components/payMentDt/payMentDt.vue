@@ -167,8 +167,6 @@ export default {
       // alert(JSON.stringify(spbillCreateIp));
       let openId = localStorage.getItem('openId');
       let wapUrl = null
-      alert(JSON.stringify(openId))
-                        // (url, orderId, channel, couponId, wapUrl, spbillCreateIp, openId)
       let res = await pay(this.payUrl, this.orderId, channel, this.couponId, wapUrl,spbillCreateIp, openId);
       if (res.error_code === 2000) {
         // alert(JSON.stringify(res));
