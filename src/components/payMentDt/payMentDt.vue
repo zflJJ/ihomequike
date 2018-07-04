@@ -51,11 +51,6 @@
         isChoosed:false, //是否选过优惠券
         onlyYuErPay: false, //只能是余额支付
         payWays:[
-          // {
-          //   name:'支付宝',
-          //   info:'数亿用户的选择，安全可托付',
-          //   class:'zhifubao'
-          // },
           {
             name:'微信支付',
             info:'推荐微信5.0以上用户使用',
@@ -64,7 +59,6 @@
         ],  //支付方式
         url: "",
         type: 5,
-        // zfbReturnUrl:''
         payState: false, // 支付状态
         payUrl: '', // 支付的Url
         orderState: null, // 表示是预约费支付 还是 停车费支付
@@ -94,14 +88,12 @@
       },
       //获取优惠券数量
       async getCounpNum(){
-      // alert(2)
         let userId = localStorage.getItem('userId');
         let res = await getMyCounpLists(userId, 0);
         if(res.error_code === 2000 ){
-          //TestData 测试数据
           this.counpNum = res.data.coupons.length;
         }else{
-          // Toast('获取优惠券信息失败');
+          Toast('获取优惠券信息失败');
         }
       },
       //点击确认提交
@@ -151,7 +143,6 @@
             }
           }
         }).catch(err=>{
-
         })
       },
       //选择支付方式
@@ -328,9 +319,6 @@
       },
       // 最终需要支付的金额
       'payAmounts':function(){
-        // alert(this.payFees)
-        // alert(this.discounts)
-
         return ((this.payFees - this.discounts)>=0?(this.payFees - this.discounts):0).toFixed(2);
       },
       //优惠券提示信息
@@ -342,25 +330,12 @@
       this.payFees = localStorage.getItem('H5_fees');   // 支付金额
     },
     created(){
-      let vm = this;
       let timeStamp = Date.parse(new Date());
       common.setStorage('H5_payMent_time',timeStamp);
       common.setStorage('H5_timeflag', this.timeflag);
-      // 思路： 保存时间戳 开定时器 离开保存 定时器时间， 进来拿当前时间戳，减去保存的时间戳，然后加上保存的时间 > 5 的话，变状态，否则在这个戳的基础上继续加时间
-      // this.timeAdd();
-      // document.addEventListener("visibilitychange", vm.documentEvent,false);
-      this.payFees = localStorage.getItem('H5_fees');   // 支付金额
-      // alert(localStorage.getItem('H5_fees'))
-      // alert(this.payFees)
-
       if(this.discounts === undefined){
         this.discounts = 0;
       }
-      // 查询优惠券
-      this.getCounpNum();
-      this._initScroll();
-      // 接受优惠券选择信息
-
       this.$root.eventHub.$on('send-counp-info',e=>{
           this.discounts =  e.amount;
           this.couponId = e.couponId;
@@ -403,33 +378,20 @@
       })
       //支付参数获取
       this.payFees = localStorage.getItem('H5_fees');   // 支付金额
-//    alert("paymentorder"+this.orderId)
-//    alert("paymentH5_fees"+this.payFees)
       let H5Repay = JSON.parse(localStorage.getItem('H5_repay'));
       this.getCounpNum();
+       this._initScroll();
 
       //判断优惠券金额是否大于支付金额的情况 只能使用余额支付
       let payFees = Number(this.payFees); // 支付金额
       console.log(this.discounts);
-//      let discounts = JSON.parse(localStorage.getItem('H5_discounts')); // 优惠券金额
-//      console.log(payFees,discounts);
     },
     beforeRouteLeave(to,from,next){
-      // console.log(to.path,from.path);
-      // debugger
-      // if(to.path === '/appointment'){
-      // document.removeEventListener("visibilitychange", this.documentEvent);
-      //   clearInterval(this.timeInter);
-      // }
-      // localStorage.removeItem('H5_discounts');
-      //  localStorage.removeItem('H5_counpinfo');
       next();
     },
     beforeRouteEnter (to,from,next){
       if(from.path=='/appoint' || from.path=='/appointment' || from.path == '/orderInfo'){
         next(vm =>{
-          // this.discounts = localStorage.getItem('H5_discounts')?0:localStorage.getItem('H5_discounts');
-          // localStorage.getItem('H5_couponId');
           vm.payFees = Number(localStorage.getItem('H5_fees'));
           vm.orderId = localStorage.getItem('orderId');
         })
@@ -442,7 +404,6 @@
       this.couponId = -1;
       this.time = '';
       clearInterval(this.timeInter);
-      // common.setStorage('counpFlag',-1);
       document.removeEventListener("visibilitychange", this.documentEvent,false);
     },
   }

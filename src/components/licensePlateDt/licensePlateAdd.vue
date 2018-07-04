@@ -25,7 +25,6 @@
   </div>
 </template>
 <script>
-import choosePlate from '../commonComponents/choosePlate';
 import {addMyCars} from '../../server/getData';
 import {Toast} from 'mint-ui';
 import KeyBoard from '../commonComponents/keyboard.vue'

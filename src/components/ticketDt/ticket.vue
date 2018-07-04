@@ -110,8 +110,8 @@
         if(this.pageNum == 0){
           Indicator.open();
         }
-        let userId = localStorage.getItem('userId');
-        // let userId = 30;
+        // let userId = localStorage.getItem('userId');
+        let userId = 30;
         let res = await getMyCounpLists(userId, this.pageNum);
         console.log(res);
         if(res.error_code == '2000'){
@@ -181,12 +181,6 @@
           this.$root.eventHub.$emit('send-counp-info',counpObj);
           this.bingCounpId();
         }
-        // 绑定优惠券
-
-        // localStorage.setItem('H5_isChoosed',true);
-        // localStorage.setItem('H5_cancel_counp_state',false);
-        // localStorage.setItem("isTicketFlag",true)
-
         setTimeout(()=>{
           this.$router.push({
             name:'payMentDt',
@@ -242,8 +236,6 @@
               let elParent = el.parentElement;
               let elH = el.offsetHeight;
               let parentH = elParent.offsetHeight;
-              // console.log(scrollY)
-              // console.log(parentH-elH)
               if(scrollY < parentH-elH){
                 _self.timer = setTimeout(()=>{
                   _self.isLoading = true;
@@ -256,26 +248,7 @@
         });
       }
     },
-    // 对跳转进来的路由做判断
-    // beforeRouteEnter (to,from,next){
-    //   if(from.path=='/myAcount'){
-    //     next(vm =>{
-    //       vm.canChoose = false;
-    //       localStorage.setItem('H5_counpFromPay',false);
-    //     })
-    //   }else{
-    //     next(vm=>{
-    //       vm.canChoose = true;
-    //       localStorage.setItem('H5_counpFromPay',true);
-    //     });
-    //   }
-    // },
     created () {
-      this.getCounpLists();
-      var _this = this;
-      setInterval(function () {
-        _this.getCounpLists();
-      },30000)
     },
     beforeMount(){
       this.getCounpLists();
@@ -283,7 +256,6 @@
     activated () {
       this.orderId = localStorage.getItem('orderId');
       let counpFlag = localStorage.getItem('counpFlag');
-      // this.getCounpLists();
       if(counpFlag == -1){
         this.pageNum = 0;
         this.getCounpLists();

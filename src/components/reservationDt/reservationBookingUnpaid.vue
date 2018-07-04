@@ -1,4 +1,4 @@
-<template>
+ <template>
   <div id="appoint-info">
     <div class="appoit-info-box" ref="appoitInfoBox">
       <div sytle="position: relative;">

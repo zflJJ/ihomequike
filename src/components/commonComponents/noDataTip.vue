@@ -58,5 +58,3 @@ export default {
   .no-counp
     bg-img('../../assets/img/nodata/mine_coupon_empty')
 </style>
-
-

@@ -2,7 +2,11 @@
   <div id="appoint-info">
     <!-- <sub-header :headerMark="headerMark"></sub-header> -->
     <div class="appoit-info-box" ref="appoitInfoBox">
-      <div sytle="position: relative;">
+     
+      <div sytle="position: relative;" class="appoint-child">
+        <div class="showtext" v-show="loadingFlag == 0">下拉刷新</div>
+        <div class="showtext" v-show="loadingFlag == 1">释放刷新</div>
+        <div class="showtext" v-show="loadingFlag == 2">刷新中...</div>
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
         <div class="content">
           <div class="guide-show" v-if="orderData.type == 2">
@@ -126,16 +130,16 @@
         </div>
       </div>
     </div>
+
     <!--1.0 支付预约费 的时候显示约车位和约车场的数据-->
-    <!-- <template v-if="orderData.state === 1301"> -->
     <div class="btnbgc">
-      <div v-if="orderData.lockId">
+      <div v-if="orderData.chargeType === 1">
         <div class="cancel p-a t-c">
           <div class="canle-style" @click="cancelOrder">取消预约</div>
-          <div class="item2-sytle" @click="lockModel">控制车锁</div>
+          <div class="item2-sytle" @click="lockModel">开始停车</div>
         </div>
       </div>
-      <div v-else>
+      <div v-else-if="orderData.chargeType == 0">
         <div class="off-order p-a t-c" @click="cancelOrder">取消预约</div>
       </div>
     </div>
@@ -154,21 +158,19 @@
         <div class="al-header" @click="closeModel">关闭</div>
       </div>
     </div>
-    <div style="display:none" id="gdAMp"></div>
   </div>
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin'
-import  requestUrl  from '../../server/baseURL'
-
+import requestUrl from '../../server/baseURL'
 import BScroll from 'better-scroll'
 import subHeader from './header'
 import { Indicator, Toast } from 'mint-ui'
 import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData'
 import { MessageBox } from 'mint-ui'
-import { asyncAMap } from '../../common/js/H5plugin'
 // 引入mapActions，很重要
 import { mapActions } from 'vuex'
+import { setTimeout, clearTimeout } from 'timers';
 export default {
   name: 'reservationInfo',
   data() {
@@ -183,16 +185,8 @@ export default {
       createFmTime: '', //处理后的订单创建时间
       endTime: '', //最晚入场时间
       address: '', //停车场地址
-      // hour:'00', //倒计时小时
-      // minutes:'00', //倒计时分钟数
-      // seconds:'00', //倒计时秒数
       miliSeconds: '00', //倒计时毫秒数
       interval: '', //定时计时器
-      //导航
-      orgX: '', // 定位的坐标
-      orgY: '', // 定位的坐标
-      desX: '', // 车场的坐标
-      desY: '', // 车场的坐标
       // 新增数据
       orderData: {},
       countdown: null, // 倒计时时间戳
@@ -200,10 +194,12 @@ export default {
       seconds1302: '00', // 停车秒数
       minutes1302: '00', // 停车分数
       hours1302: '00', // 停车小时
-      AMAP: null, // 高德地图的实例
-      lockId: null,
       network: true,
-      count: 0
+      lockType: null,  // 表示车锁类型  0 表示网络控制的车锁  1 表示网关控制的车锁
+      lockId: null,   // 车锁ID
+      loadingFlag: 0,
+      getTime: null,
+      lockType: null, // 表示车锁类型
     }
   },
   components: {
@@ -217,60 +213,52 @@ export default {
           this.scroll = new BScroll(this.$refs.appoitInfoBox, {
             probeType: 3,
             scrollY: true,
-            click: true
+            click: true,
+            pullDownRefresh: {
+              threshold: 50,
+              stop: 30
+            },
           })
           //滚动刷新事件
         } else {
+          this.scroll.finishPullDown();
           this.scroll.refresh()
         }
+        this.scroll.on('pullingDown', (props) => {
+          console.log(2344)
+          clearTimeout(this.getTime);
+          this.text = '加载中...';
+          this.loadingFlag = 2;
+          this.getTime = setTimeout(() => {
+            this.getOrder();
+          }, 1000);
+        });
       })
     },
     // 获取预约订单详情的
     getOrder() {
-//        alert(window.localStorage.getItem('orderId'))
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
-      // alert(orderId);
-      if (this.count == 0) {
-        this.count = 1
-      } else {
-        data.isQuickReserve = 1
-      }
       this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
-          //  alert(JSON.stringify(res.body.data));
-          if (res.body.error_code == 2000) {
-            console.log(res.body.data)
-            if (res.body.data == null) {
-                _this.getOrder()
-            } else if (res.body.data.state == 1301) {
-              if (res.body.data.parkingState == null) {
-                  _this.getOrder()
-              } else if (res.body.data.parkingState) {
-                if (res.body.data.parkingState == 1302) {
-                  localStorage.setItem('orderId', res.body.data.orderParkingId)
-                  this.$router.push('reservationPaking')
-                } else if (
-                  res.body.data.parkingState == 1304 ||
-                  res.data.body.parkingState == 1307 ||
-                  res.data.body.parkingState == 1308 ||
-                  res.data.body.parkingState == 1309 ||
-                  res.body.data.parkingState == 1310
-                ) {
-                  this.$router.push('reservationOld')
-                }
-              }
-              this.lockId = null
-              this.desX = res.body.data.lng
-              this.desY = res.body.data.lat
-              this.lockId = res.body.data.lockId
-              this.dispoceOrderDat(res.body.data)
-              this.orderData = res.body.data
-              this.parklotId = res.body.data.parklotId
-              this.scroll.refresh()
-            }
+        if (res.body.error_code == 2000) {
+          this.lockId = null
+          if(res.body.data.chargeType === 1){
+            this.lockId = res.body.data.lockId
+          }else{
+            this.lockId = null;
           }
-        })
+          this.parklotId = res.body.data.parklotId
+          if (res.body.data.parkingState === 1302) {
+            localStorage.setItem('orderId', res.body.data.orderParkingId)
+            this.$router.push('reservationPaking')
+          }
+          this.dispoceOrderDat(res.body.data)
+          this.orderData = res.body.data
+          // 测试数据
+          console.log(res.body.data)
+        }
+      })
         .catch(e => {
           console.log(e)
         })
@@ -345,6 +333,12 @@ export default {
         var stopTime = objDatas.stopTime
         this.addTime(stopTime)
       }
+       if(this.scroll){
+          this.scroll.refresh();
+          this.scroll.finishPullDown();
+        }else{
+           this._initScroll();
+        }
     },
 
     // 停车时间累加操作  这个是对数据的处理
@@ -392,7 +386,28 @@ export default {
     //控制车锁的事件
     lockModel() {
       // 弹框提示
-      this.islockshow = true
+      // 弹框提示用，
+      if (this.lockType === 0) {
+        Toast('仅支持网络控制车锁')
+        return;
+      } else {
+        let htmls =
+          `车锁降下后开始停车计费，是否确认？`
+        MessageBox.confirm('', {
+          title: '提示',
+          message: htmls,
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          closeOnClickModal: false,
+        })
+          .then(action => {
+            this.lockEvnet(2)
+          })
+          .catch(err => {
+            if (err == 'cancel') {
+            }
+          })
+      }
     },
     closeModel() {
       this.islockshow = false
@@ -428,20 +443,21 @@ export default {
     },
     // 对车锁进行处理
     async lockDown(item) {
+      console.log(this.lockId);
       let res = await lockChange(this.lockId, item)
-      // if(res.error_code == 2000){
-      //   Toast({
-      //     message:'操作成功',
-      //     position: 'bottom',
-      //     duration:2000
-      //   });
-      // }else {
-      //   Toast({
-      //     message:'操作失败',
-      //     position: 'bottom',
-      //     duration:2000
-      //   });
-      // }
+      console.log(res);
+      if (res.error_code == 2000) {
+        let timeoutId = setTimeout(()=>{
+          clearTimeout(timeoutId);
+          this.getOrder();
+        },8000)
+      } else {
+        Toast({
+          message: '操作失败',
+          position: 'bottom',
+          duration: 2000
+        });
+      }
     },
 
     //入场时间倒计时
@@ -454,7 +470,6 @@ export default {
       }
       this.interval = setInterval(() => {
         this.countdown--
-        // console.log(this.countdown);
         if (this.countdown <= 0) {
           clearInterval(this.interval)
         }
@@ -515,19 +530,17 @@ export default {
       let vm = this
       if (document.visibilityState == "hidden") {
         clearInterval(vm.interval)
-        vm.interval=null
-        vm.hiddenDate=new Date().getTime()
+        vm.interval = null
+        vm.hiddenDate = new Date().getTime()
         localStorage.setItem('hiddenTime', vm.hiddenDate);
       } else {
-        vm.showDate=new Date().getTime()
+        vm.showDate = new Date().getTime()
         let hiddenTime = parseInt(localStorage.getItem('hiddenTime'));
-        // alert(hiddenTime);
-        // alert(vm.countdown);
-        let secondTime=Math.floor((vm.showDate-hiddenTime)/1000)
-        if(vm.countdown<=secondTime){
-          vm.countdown=0
-        }else{
-          vm.countdown= vm.countdown - secondTime;
+        let secondTime = Math.floor((vm.showDate - hiddenTime) / 1000)
+        if (vm.countdown <= secondTime) {
+          vm.countdown = 0
+        } else {
+          vm.countdown = vm.countdown - secondTime;
         }
         vm.downCounts()
       }
@@ -551,7 +564,7 @@ export default {
   created() {
     window.addEventListener(
       'online',
-      function() {
+      function () {
         this.network = true
         return true
       },
@@ -559,7 +572,7 @@ export default {
     )
     window.addEventListener(
       'offline',
-      function() {
+      function () {
         this.network = false
         Toast({
           message: '当前网络无连接',
@@ -579,7 +592,6 @@ export default {
   activated() {
     //从预约列表页面带获取传入的参数值
     let _this = this
-    _this.count = 0
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
     document.addEventListener('visibilitychange', _this.hiddenFun, false)
@@ -590,7 +602,7 @@ export default {
     localStorage.removeItem('hiddenTime');
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
   },
-  mounted() {},
+  mounted() { },
   beforeRouteLeave(to, from, next) {
     // 将MessageBOx 关闭掉
     MessageBox.close(false)
@@ -771,7 +783,15 @@ export default {
     width 100%
     top 0rem
     bottom 3.5rem
-    // overflow hidden
+    .appoint-child
+      min-height:calc(100%+6px)
+    .showtext
+      position absolute
+      width 100%
+      text-align center
+      line-height 2rem
+      top -2rem
+      left 0
   .item2-sytle
     display inline-block
     color #fff

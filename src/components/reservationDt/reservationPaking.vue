@@ -1,16 +1,20 @@
 <template>
   <div id="appoint-info">
     <div class="appoit-info-box" ref="appoitInfoBox">
-      <div sytle="position: relative;">
+      <div class="appoint-parking-info">
+        <div class="showtext" v-show="loadingFlag == 0">下拉刷新</div>
+        <div class="showtext" v-show="loadingFlag == 1">释放刷新</div>
+        <div class="showtext" v-show="loadingFlag == 2">刷新中...</div>
         <!--1.0 停车场显示车牌 停车位显示车位编号 坐标和地址 不管是预约还是在停车都要显示-->
         <div class="content">
           <div class="guide-show" v-if="orderData.type === 2">
             <div class="imgstyle">
-             <div class="img-car-text">
-               <span v-if="orderData.type === 2">
-                 <span class="border-text">车位</span><span>编号</span>
-               </span>
-             </div>
+              <div class="img-car-text">
+                <span v-if="orderData.type === 2">
+                  <span class="border-text">车位</span>
+                  <span>编号</span>
+                </span>
+              </div>
               <div class="car-ploate">
                 <div v-if="orderData.type === 2 && orderData.parklocNumber !== null">
                   {{orderData.parklocNumber}}
@@ -18,34 +22,34 @@
               </div>
             </div>
           </div>
-
           <div class="plate">
-              <div class="plate-info">
-                <p>
-                  <span  class="name-text">{{orderData.parklotName}}</span>
-                  <span class="yellow-s" v-if="orderData.parklotKind === 0">室内</span>
-                  <span class="yellow-s" v-else-if="orderData.parklotKind === 1">室外</span>
-                  <span class="yellow-s" v-else-if="orderData.parklotKind === 2">室内+室外</span>
-                </p>
-              </div>
+            <div class="plate-info">
+              <p>
+                <span class="name-text">{{orderData.parklotName}}</span>
+                <span class="yellow-s" v-if="orderData.parklotKind === 0">室内</span>
+                <span class="yellow-s" v-else-if="orderData.parklotKind === 1">室外</span>
+                <span class="yellow-s" v-else-if="orderData.parklotKind === 2">室内+室外</span>
+              </p>
+              <span v-if="orderData.state === 1303" class="plate-price-text">￥ {{parseFloat(orderData.totalFee).toFixed(2)}}</span>
+            </div>
             <div class="plate-content">
               {{orderData.address}}
             </div>
           </div>
         </div>
         <div class="plate-card">
-            <div class="p-message">
-              <div class="time-info">
-                <span class="name-text">订单状态</span>
-                <span class="ta-info">{{orderData.dstateInfo}}</span>
-              </div>
+          <div class="p-message">
+            <div class="time-info">
+              <span class="name-text">订单状态</span>
+              <span class="ta-info">{{orderData.dstateInfo}}</span>
             </div>
-            <div class="p-message">
-              <div class="time-info">
-                <span class="name-text">订单编号</span>
-                <span class="ta-info">{{orderData.serialNumber}}</span>
-              </div>
+          </div>
+          <div class="p-message">
+            <div class="time-info">
+              <span class="name-text">订单编号</span>
+              <span class="ta-info">{{orderData.serialNumber}}</span>
             </div>
+          </div>
         </div>
 
         <div class="order-info">
@@ -108,30 +112,69 @@
             </div>
           </div>
         </div>
-        <div class="order-info lastOne">
-            停车订单明细
-          </div>
+        <div class="order-info lastOne">停车订单明细</div>
         <div class="plate-card">
-          <div class="p-message">
+          <div class="p-message" v-if="orderData.state === 1302 || orderData.state === 1303">
             <div class="time-info">
               <span class="name-text">入场时间</span>
               <span class="ta-info">{{orderData.enterTime}}</span>
             </div>
           </div>
+          <div class="p-message" v-if="orderData.state === 1303">
+            <div class="time-info">
+              <span class="name-text">离场时间</span>
+              <span class="ta-info">{{orderData.leaveTime}}</span>
+            </div>
+          </div>
+          <div class="p-message" v-if="orderData.overTime !== null">
+            <div class="time-info">
+              <span class="name-text">超时时长</span>
+              <span class="ta-info">{{orderData.overTime}}</span>
+            </div>
+          </div>
+          <div class="p-message" v-if="orderData.state === 1303">
+            <div class="time-info">
+              <span class="name-text">停车费</span>
+              <span class="ta-info">{{parseFloat(orderData.parkingFee).toFixed(2)}}</span>
+            </div>
+          </div>
+          <div class="p-message" v-if="orderData.overTime !== null">
+            <div class="time-info">
+              <span class="name-text">超时金额</span>
+              <span class="ta-info">{{orderData.overTimeFee}}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <!-- 要进行呢改动 -->
     <div>
-      <div v-if="orderData.lockId" class="cancel p-a t-c">
-        <div class="item2-sytle" @click="lockModel">控制车锁</div>
-        <div class="canle-style" @click="goPay">离场支付</div>
-      </div>
-      <div v-else-if="getOrderFlag" class="cancel p-a t-c">
-        <div class="item2-sytle2" @click="goPay">离场支付</div>
-      </div>
-      <div v-else class="cancel p-a t-c">
-        <div class="item2-sytle2" @click="goPay">离场支付</div>
-      </div>
+      <!-- 这个是停车中的 -->
+      <template v-if="orderData.state === 1302">
+        <!-- 这个是道闸计费 -->  
+        <div v-if="orderData.chargeType === 0" class="cancel p-a t-c">
+          <template v-if="orderData.lockId">
+            <div class="item2-sytle" @click="lockModel">控制车锁</div>
+            <div class="canle-style" @click="goPay(1)">离场支付</div>
+          </template>
+          <template v-else>
+            <div class="cancel p-a t-c">
+              <div class="item2-sytle2" @click="goPay(1)">离场支付</div>
+            </div>
+          </template>
+        </div>
+        <!-- 这个是车锁计费 -->
+        <div v-else class="cancel p-a t-c">
+          <div class="item2-sytle" @click="endParking">结束停车</div>
+          <div class="canle-style" @click="goPay(1)">离场支付</div>
+        </div>
+      </template>
+      <!-- 这个是离场未支付 -->
+      <template v-else-if="orderData.state === 1303">
+        <div class="cancel p-a t-c">
+          <div class="item2-sytle2" @click="goPay(2)">立即支付</div>
+        </div>
+      </template>
     </div>
     <!--车锁层-->
     <div class="alert-index" v-show="islockshow" @click="closeModel">
@@ -155,49 +198,48 @@
 import { formatTimeStamp } from '../../common/js/H5plugin';
 import BScroll from 'better-scroll';
 import subHeader from './header';
-import {Indicator,Toast} from 'mint-ui';
-import {canCelMyAppoint, getOrderInfo,lockChange} from '../../server/getData';
+import { Indicator, Toast } from 'mint-ui';
+import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData';
 import requestUrl from '../../server/baseURL';
 import { MessageBox } from 'mint-ui';
 import { asyncAMap } from '../../common/js/H5plugin';
 export default {
-  name:'appointInfo',
-  data () {
+  name: 'appointInfo',
+  data() {
     return {
-      orderId:'',  //根据后台返回的订单号
-      estateName:'', //车场名
-      startTime:'',  //开始时间
+      orderId: '',  //根据后台返回的订单号
+      estateName: '', //车场名
+      startTime: '',  //开始时间
       plateNo: '', //车牌号
-      createTime:'', //预约订单创建时间
-      createFmTime:'', //处理后的订单创建时间
-      endTime:'',  //最晚入场时间
-      address:'',  //停车场地址
-      hour:'00', //倒计时小时
-      minutes:'00', //倒计时分钟数
-      seconds:'00', //倒计时秒数
-      miliSeconds:'00', //倒计时毫秒数
-      interval:'',  //定时计时器
+      createTime: '', //预约订单创建时间
+      createFmTime: '', //处理后的订单创建时间
+      endTime: '',  //最晚入场时间
+      address: '',  //停车场地址
+      hour: '00', //倒计时小时
+      minutes: '00', //倒计时分钟数
+      seconds: '00', //倒计时秒数
+      miliSeconds: '00', //倒计时毫秒数
+      interval: '',  //定时计时器
       //导航
-      orgX:'',  // 定位的坐标
-      orgY:'',  // 定位的坐标
-      desX:'',  // 车场的坐标
-      desY:'',  // 车场的坐标
+      orgX: '',  // 定位的坐标
+      orgY: '',  // 定位的坐标
+      desX: '',  // 车场的坐标
+      desY: '',  // 车场的坐标
       // 新增数据
-      orderData:{},
+      orderData: {},
       countdown: null, // 倒计时时间戳
       islockshow: false, // 模态框是否 显示
       seconds1302: '00',  // 停车秒数
       minutes1302: '00',// 停车分数
       hours1302: '00',// 停车小时
       AMAP: null, // 高德地图的实例
-      lockId:null,
-      getOrderFlag:false,//离场支付的标记
-      network:true,
-      goPayFlag:true,//是否执行
-      intervalMy:null,
-      count:0,
+      lockId: null,
+      network: true,
+      goPayFlag: true,//是否执行
+      intervalMy: null,
       visibFlag: true, // 阈值
-      leaveFlag:false
+      leaveFlag: false,
+      loadingFlag: 0
     }
   },
   components: {
@@ -206,315 +248,229 @@ export default {
   computed: {
   },
   methods: {
-    goPay(){
-      this.getOrder(1);
+    // 离场支付（1） 或者 立即支付（2）
+    goPay(item) {
+      this.getOrder(item);
     },
     //添加页面滚动
-    _initScroll(){
-      this.$nextTick(()=>{
-        if(!this.scroll){
-          this.scroll = new BScroll(this.$refs.appoitInfoBox,{
-            probeType:3,
-            scrollY:true,
-            click:true
+    _initScroll() {
+      this.$nextTick(() => {
+        if (!this.scroll) {
+          this.scroll = new BScroll(this.$refs.appoitInfoBox, {
+            probeType: 3,
+            scrollY: true,
+            click: true,
+            pullDownRefresh: {
+              threshold: 50,
+              stop: 30
+            },
           });
           //滚动刷新事件
-        }else{
-          this.scroll.refresh();
+        } else {
+          this.scroll.finishPullDown();
+          this.scroll.refresh()
         }
+        this.scroll.on('pullingDown', (props) => {
+          clearTimeout(this.getTime);
+          this.text = '加载中...';
+          this.loadingFlag = 2;
+          this.getTime = setTimeout(() => {
+            this.getOrder();
+          }, 1000);
+        });
       });
     },
     // 获取预约订单详情的
-    getOrder(num){
-      var data = {order_id:localStorage.getItem('orderId'),timestamp: new Date().getTime()}//localStorage.getItem('orderId')
-      if (this.count == 0) {
-        this.count = 1
-      } else if(num!=1){
-        data.isQuickReserve = 1
-      }
-      this.$http.post(requestUrl.requestUrl + "apiread/order/reserve/detail/query",data).then(res => {
-        if(this.leaveFlag){
+    getOrder(num) {
+      let data = { order_id: localStorage.getItem('orderId'), timestamp: new Date().getTime() }//localStorage.getItem('orderId')
+      this.$http.post(requestUrl.requestUrl + "apiread/order/reserve/detail/query", data).then(res => {
+        if (this.leaveFlag) {
           return
         }
-        // alert(JSON.stringify(res.body.data));
-        if(res.body.error_code === 2000){
-          if(res.body.data.state == 1303){
-            this.getOrderFlag  = true;
-            let money = ( res.body.data.totalFee - res.body.data.reserveFee).toFixed(2);
-            localStorage.setItem('H5_fees', money);  //保存的支付金额
-            localStorage.setItem('orderId',res.body.data.orderId);  //保存停车订单ID
-            this.orderData = res.body.data;
-            this.dispoceOrderDat(res.body.data);
-            localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
-            localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
-            if(res.body.data.parkingFee == 0 && res.body.data.state == 1303){
-              this.leaveFlag=true
-              this.$router.push('payToComplete');
-            }else if(res.body.data.parkingFee != 0 && res.body.data.state == 1303){
-              this.leaveFlag=true
-              localStorage.setItem('H5_order_state',res.body.data.state)
-              this.$router.push('payMentDt');
+        this.leaveFlag = true
+        if (res.body.error_code === 2000) {
+          this.leaveFlag = false
+          this.loadingFlag = null;
+          console.log(this.loadingFlag)
+          localStorage.setItem('routerFlag', "reservationPaking");//保存跳转来源页,在支付完成调用
+          localStorage.setItem('goBackFlag', "reservationPaking");//保存跳转来源页,在返回调用
+          if (res.body.data.state == 1303) {   //   1302 || 1303 的状态   
+            localStorage.setItem('orderId', res.body.data.orderId);  //保存停车订单ID
+            if (res.body.data.parkingFee == 0) {
+              if (num === 1 || num === 2) {
+                localStorage.setItem('H5_fees', res.body.data.payFee);  //保存的支付金额
+                this.$router.push('payToComplete');
+              }
+            } else if (res.body.data.parkingFee != 0) {
+              localStorage.setItem('H5_fees',res.body.data.payFee)
+              localStorage.setItem('H5_order_state', res.body.data.state)
+              if (num === 1 || num === 2) {
+                this.$router.push('payMentDt');
+              }
             }
-            return false;
-          }else if(res.body.data.state == 1304 || res.body.data.state == 1307 || res.body.data.state == 1308 || res.body.data.state == 1309 || res.body.data.state == 1310){
-            localStorage.setItem('routerFlag',"reservationPaking");//保存跳转来源页,在支付完成调用
-            localStorage.setItem('goBackFlag',"reservationPaking");//保存跳转来源页,在返回调用
+          } else if (res.body.data.state == 1302) {
+            if (num === 1 || num === 2) {
+              Indicator.close();
+              Toast({
+                message: '请先离场再支付',
+                position: 'bottom',
+                duration: 2000
+              });
+            }
+          } else {
             this.$router.push('payToComplete');
-          }else if(res.body.data.state == 1302 && this.visibFlag){
-            if(this.intervalMy){
-              clearTimeout(this.intervalMy);
-            }
-            this.intervalMy = null;
-            this.intervalMy = setTimeout(() => {
-                this.getOrder();
-            }, 10000);
           }
-          this.getOrderFlag = false;
           this.lockId = null;
-          this.desX = res.body.data.lng;
-          this.desY = res.body.data.lat;
           this.lockId = res.body.data.lockId;
           this.dispoceOrderDat(res.body.data);
           this.orderData = res.body.data;
-          if(num == 1){
-            Indicator.close();
-            Toast({
-              message:'请先离场再支付',
-              position: 'bottom',
-              duration:2000
-            });
-          }
-        }else{
-            alert(JSON.stringify(res))
+        } else {
+          this.leaveFlag = false
         }
-      }).catch(res=>{
-        alert(res);
+      }).catch(res => {
+        this.leaveFlag = false;
+        this.loadingFlag = 0
       })
     },
+    endParking() {
+      let htmls =
+        `升起车锁后结束本次停车。`
+      MessageBox.confirm('', {
+        title: '提示',
+        message: htmls,
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        closeOnClickModal: false,
+      })
+        .then(action => {
+          this.lockEvnet(1)
+        })
+        .catch(err => {
+          if (err == 'cancel') {
+          }
+        })
+    },
     // 预处理 订单详情的数据
-    dispoceOrderDat(objDatas){
+    dispoceOrderDat(objDatas) {
       // 计算预约支付的费用
+      console.log('处理数据')
       let zpayReserve = 0;
-      if(objDatas.reserveCouponFee === null){
+      if (objDatas.reserveCouponFee === null) {
         zpayReserve = objDatas.reserveFee;
-      }else{
+      } else {
         let payFee = null;
         payFee = (objDatas.reserveFee - objDatas.reserveCouponFee).toFixed(2);
         zpayReserve = payFee <= 0 ? 0 : payFee;
       }
-      this.$set(objDatas,'zpayReserve',zpayReserve);
+      this.$set(objDatas, 'zpayReserve', zpayReserve);
+
       // 预约时间
       let dstartTime = formatTimeStamp(objDatas.startTime);
       let dendTime = formatTimeStamp(objDatas.endTime);
-      objDatas.dHandler = dstartTime.substr(5,11) + ' 至 ' + dendTime.substr(5,11);
+      objDatas.dHandler = dstartTime.substr(5, 11) + ' 至 ' + dendTime.substr(5, 11);
 
+      let zpayParking = 0;
+      if (objDatas.parkingCouponFee === null) {
+        zpayParking = objDatas.parkingFee;
+      } else {
+        let payFee = null;
+        payFee = (objDatas.totalFee - objDatas.reserveFee - objDatas.parkingCouponFee).toFixed(2);
+        zpayParking = payFee <= 0 ? 0 : payFee;
+      }
+      this.$set(objDatas, "zpayParking", zpayParking);
       // 实际 入场时间 和 离场时间
-      if(objDatas.enterTime === null){
+      if (objDatas.enterTime === null) {
         objDatas.enterTime = '————';
-      }else{
+      } else {
         let enterTime = formatTimeStamp(objDatas.enterTime);
-        objDatas.enterTime = enterTime.substr(5,11);
+        objDatas.enterTime = enterTime.substr(5, 11);
       }
-      if(objDatas.leaveTime === null){
+      if (objDatas.leaveTime === null) {
         objDatas.leaveTime = '————';
-      }else{
+      } else {
         let leaveTime = formatTimeStamp(objDatas.leaveTime);
-        objDatas.leaveTime = leaveTime.substr(5,11);
+        objDatas.leaveTime = leaveTime.substr(5, 11);
       }
-      this.countdown = objDatas.enterCountdownTime;
-      // this.downCounts();
-      // 预约超时时间计算
-      if(objDatas.overTime !== null){
-        let hours = parseInt((objDatas.overTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        let minutes = parseInt((objDatas.overTime % (1000 * 60 * 60)) / (1000 * 60));
-        let seconds = (objDatas.overTime % (1000 * 60)) / 1000;
-        objDatas.overTime = hours + ':' + minutes + ':' + seconds;
-      }
-       // 订单状态
-      if(objDatas.state === 1300){
-        objDatas.dstateInfo = '未支付'
-      }else if(objDatas.state === 1301){
-        objDatas.dstateInfo = '已预约'
-      }else if(objDatas.state === 1302){
-        objDatas.dstateInfo = '停车中'
-      }else if(objDatas.state === 1303){
-        objDatas.dstateInfo = '离场未支付'
-      }else if(objDatas.state === 1304){
-        objDatas.dstateInfo = '已支付'
-      }else if(objDatas.state === 1309){
-        objDatas.dstateInfo = '已取消'
-      }else if(objDatas.state === 1308 || item.state === 1307 || item.state === 1310){
-        objDatas.dstateInfo = '超时已取消'
-      }
-      // 如果是1302 状态 对停车时间进行累加操作
-      if(objDatas.state === 1302){
-        // Test 测试数据 stopTime = 1200000 20分钟
-        var stopTime = objDatas.stopTime;
-        this.addTime(stopTime);
-      }
-    },
 
-    // 停车时间累加操作  这个是对数据的处理
-    addTime(stopTime){
-      console.log(stopTime);
-      let hours1302 = parseInt(stopTime  /(60 * 60 * 1000));
-      let minutes1302 = parseInt( (stopTime % (1000 * 60 * 60)) / (1000 * 60));
-      let seconds1302 = parseInt((stopTime % (1000 * 60)) / 1000);
-      console.log(hours1302,minutes1302,seconds1302);
-      clearInterval(timer1302);
-      var timer1302 = setInterval(()=>{
-          seconds1302++;
-          if(seconds1302 === 59){
-              seconds1302 = 0;
-              minutes1302++;
-          }
-          if(minutes1302 === 59){
-              hours1302++;
-              minutes1302 = 0;
-          }
-          seconds1302 += '';
-          minutes1302 += '';
-          hours1302 += '';
-          if(seconds1302.length === 1){
-              seconds1302 = '0' + seconds1302;
-          }
-          if(minutes1302.length === 1){
-              minutes1302 = '0' + minutes1302;
-          }
-          if(hours1302.length === 1){
-            hours1302 = '0' + hours1302;
-          }
-          this.seconds1302 = seconds1302;
-          this.minutes1302 = minutes1302;
-          this.hours1302 = hours1302;
-          if(this.seconds1302 == '00' && this.minutes1302 == '00' && this.hours1302 == '00'){
-            clearInterval(timer1302);
-          }
-      },1000);
+      // 超时时间
+      if (objDatas.overTime !== null && objDatas.overTime > 0) {
+        let hours = parseInt(objDatas.overTime / (60 * 60 * 1000));
+        let minutes = parseInt((objDatas.overTime % (1000 * 60 * 60)) / (1000 * 60));
+        let seconds = parseInt((objDatas.overTime % (1000 * 60)) / 1000);
+        objDatas.overTime = hours + ":" + minutes + ":" + seconds;
+      } else {
+        objDatas.overTime = null
+      }
+      // 订单状态
+      if (objDatas.state === 1302) {
+        objDatas.dstateInfo = '停车中'
+      } else if (objDatas.state === 1303) {
+        objDatas.dstateInfo = '离场未支付'
+      }
+      if (this.scroll) {
+        this.scroll.refresh();
+        this.scroll.finishPullDown();
+      } else {
+        this._initScroll();
+      }
     },
     //控制车锁的事件
-    lockModel(){
+    lockModel() {
       // 弹框提示
       this.islockshow = true;
     },
-    closeModel(){
+    closeModel() {
       this.islockshow = false;
     },
-    closeCs(event){
+    closeCs(event) {
       // 阻断事件冒泡
       event.cancelBubble = true
     },
-    lockEvnet(item){
-      if(!this.network || !window.navigator.onLine){
+    lockEvnet(item) {
+      if (!this.network || !window.navigator.onLine) {
         Toast({
-          message:'当前网络无连接',
+          message: '当前网络无连接',
           position: 'bottom',
-          duration:2000
+          duration: 2000
         });
         return false;
-      }else {
+      } else {
         this.lockDown(item);
-        if(item == 1){
+        if (item == 1) {
           Toast({
-            message:'车锁正在升起',
+            message: '车锁正在升起',
             position: 'bottom',
-            duration:2000
+            duration: 2000
           });
-        }else if(item ==2){
+        } else if (item == 2) {
           Toast({
-            message:'车锁正在下降',
+            message: '车锁正在下降',
             position: 'bottom',
-            duration:2000
+            duration: 2000
           });
         }
       }
 
     },
     // 对车锁进行处理
-    async lockDown(item){
-      let res = await lockChange(this.lockId,item);
-    },
-
-    //入场时间倒计时
-    /* downCounts(){
-      let hour = 0;
-      let minutes = 0;
-      let seconds = 0;
-      let miliSeconds = 0;
-      console.log(this.countdown);
-      hour = parseInt((this.countdown % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60) );
-      minutes = parseInt((this.countdown % (1000 * 60 * 60)) / (1000 * 60));
-      seconds = parseInt((this.countdown % (1000 * 60)) / 1000);
-      console.log(hour,minutes,seconds);
-      if(hour <= 0 && minutes <= 0 && seconds<= 0){
-          return;
-      }
-      if(this.interval != null){
-        clearInterval(this.interval);
-      }
-      this.interval =  setInterval(()=>{
-        seconds--
-        if(seconds<0){
-          seconds = 59;
-          minutes --;
-        }
-        if(seconds<0){
-          minutes = 59;
-          hour --;
-        }
-        if(hour<0){
-          hour = 0;
-        }
-        if(hour==0 && minutes==0 && seconds==0){
-          clearInterval(this.interval);
-          // this.$router.push('appointment');
-        }
-        hour += '';
-        minutes += '';
-        seconds += '';
-        if(minutes.length === 1){
-            minutes = '0' + minutes;
-        }
-        if(seconds.length === 1){
-            seconds = '0' + seconds;
-        }
-        if(hour.length === 1){
-            hour = '0' + hour;
-        }
-        this.hour = hour;
-        this.minutes = minutes;
-        this.seconds = seconds;
-      },1000);
-    }, */
-    visibEvent(){
-      if(document.visibilityState=='hidden'){
-        console.log('执行了');
-        clearTimeout(this.intervalMy);
-        this.visibFlag = false
-      }else{
-        this.visibFlag = true;
-        this.seconds1302 = '00';
-        this.minutes1302 = '00';
-        this.hours1302 = '00';
-        this.hour = "00";
-        this.minutes = "00";
-        this.seconds = "00";
-        clearTimeout(this.intervalMy);
+    async lockDown(item) {
+      let res = await lockChange(this.lockId, item);
+      if (res.error_code === 2000) {
         this.getOrder();
       }
     },
   },
-  created () {
-    window.addEventListener("online", function() {
-    vm.network = true;
+  created() {
+    window.addEventListener("online", function () {
+      vm.network = true;
       return true;
     }, true);
-    window.addEventListener("offline", function() {
+    window.addEventListener("offline", function () {
       vm.network = false;
       Toast({
-        message:'当前网络无连接',
+        message: '当前网络无连接',
         position: 'bottom',
-        duration:2000
+        duration: 2000
       })
       Indicator.close();
       return false;
@@ -525,29 +481,18 @@ export default {
     let vm = this;
 
   },
-  activated () {
+  activated() {
     //从预约列表页面带获取传入的参数值
-    let vm = this;
-    document.addEventListener("visibilitychange",vm.visibEvent ,false);
-    // this.orderId = JSON.parse(localStorage.getItem('orderId'));
     this.getOrder();
-    this.leaveFlag=false
+    this.leaveFlag = false
   },
-  deactivated(){
-    clearTimeout(this.intervalMy);
-    document.removeEventListener('visibilitychange',this.visibEvent,false);
-  },
-  // 开始加载地图
-  mounted () {
-    // this.loadAMap();
-  },
-  beforeRouteLeave(to, from, next){
+  beforeRouteLeave(to, from, next) {
     MessageBox.close(false)
     next();
   },
-  watch:{
-    '$route' (to, from) {
-       MessageBox.close(false);
+  watch: {
+    '$route'(to, from) {
+      MessageBox.close(false);
     }
   }
 }
@@ -556,7 +501,7 @@ export default {
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
 .ordermessage-info
-  padding: 0 .5rem;
+  padding 0 0.5rem
 #appoint-info
   position absolute
   width 100%
@@ -564,6 +509,17 @@ export default {
   bottom 0
   background-color #F4F4F4
   overflow hidden
+  .appoint-parking-info
+    position: absolute 
+    width: 100%
+    min-height:calc(100%+6px)
+    .showtext
+      position absolute
+      width 100%
+      text-align center
+      line-height 2rem
+      top -2rem
+      left 0
   .name-text
     font-size 0.9375rem
     color #000
@@ -585,7 +541,7 @@ export default {
         top 15%
         left 5%
         color #fff
-        font-size  0.8125rem
+        font-size 0.8125rem
       .border-text
         padding-bottom 0.375rem
         border-bottom 2px solid #fff
@@ -606,7 +562,9 @@ export default {
       .plate-info
         display flex
         justify-content space-between
-        font-size  0.9375rem
+        font-size 0.9375rem
+        .plate-price-text
+          color #d01d95
       .yellow-s
         font-size 0.625rem
         color #fff
@@ -624,7 +582,7 @@ export default {
         color #656565
   .order-info
     padding 1rem 0 0.4375rem 0.875rem
-    font-size  0.8125rem
+    font-size 0.8125rem
     color #656565
   .lastOne
     bottom 3.375rem
@@ -658,14 +616,8 @@ export default {
       padding-right 0.3125rem
       padding-left 0.3125rem
     .ta-info
-      font-size  0.8125rem
+      font-size 0.8125rem
       color #656565
-  // .btnbgc
-  //   height 4rem
-  //   width 100%
-  //   background-color rgb(245,245,245)
-  //   position absolute
-  //   bottom 0rem
   .cancel
     position fixed
     width 100%
@@ -689,14 +641,13 @@ export default {
       margin-bottom 0
       margin-left 20%
       border-radius 2rem
-      background url("../../assets/img/Background@3x.png") no-repeat
+      background url('../../assets/img/Background@3x.png') no-repeat
       background-size cover
   .appoit-info-box
     position absolute
     width 100%
     top 0
     bottom 3.375rem
-    // overflow hidden
   .item2-sytle
     // display flex
     display inline-block
@@ -727,7 +678,7 @@ export default {
     top 0
     left 0
     // z-index 5
-    background-color rgba(0,0,0,.4)
+    background-color rgba(0, 0, 0, 0.4)
     width 100%
     height 100%
     display flex

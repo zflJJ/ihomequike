@@ -106,12 +106,6 @@ export default {
       }else {
         this.transitionName = 'slide-right';
       }
-      //缓存清除处理
-      // if(to.path == '/appointInfo'){
-      //
-      //   this.$store.state.exclude = ['appointInfo'];
-      // }
-      // console.log(this.$store.state.exclude)
     }
   },
 }

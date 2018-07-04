@@ -232,10 +232,6 @@ export default {
     getCodeInfo() {
       return this.isGettingCodes ? this.counts : '获取验证码'
     },
-    //是否跳转到安全验证页面
-    savetyConfirmShowed() {
-      return false
-    }
   },
   components: {
     VuePickers,
@@ -392,9 +388,7 @@ export default {
       let res = await postParklot(userId, this.parkLotId)
       if (res.error_code === 2000) {
         this.pointedItem = res.data
-        // this.params.plate_id = this.pointedItem.plateId;
         this.params.parklotId = this.pointedItem.parklotId
-        // this.systemTime = res.data.systemTime;
         let plateObj = JSON.parse(localStorage.getItem('H5_chosen_plate'))
         if (!plateObj) {
           this.plateNo = res.data.plateNo
@@ -404,26 +398,16 @@ export default {
           this.plateNoId = plateObj.plateNoId
           localStorage.removeItem('H5_chosen_plate')
         }
-        //车场详情参数获取
         this.parkItemObj.id = res.data.parklotId
-        // 筛选时间
         this.feeList = this.pointedItem.feeList
-        // debugger
-        // console.log(this.defaultTime);
         this.reserveTimeList = this.pointedItem.reserveTimeList
-
         if (!this.reserveTimeList.length) {
-          // 这里有个提示框  并且确认键（跳转到首页）
           this.messInfo()
         } else {
           this.filterTime(this.pointedItem.reserveTimeList)
-          // console.log(this.timeList);
           this.disposeTime(this.timeList)
-          // console.log(this.timeList);
-          // 对时间段进行拆分
           this.dataChange()
         }
-
         this._initScroll()
       } else {
         Toast({
@@ -450,7 +434,7 @@ export default {
           setTimeout(() => {
             Indicator.close()
             this.getparklot()
-          }, 2000)
+          }, 10000)
         })
         .catch(err => {})
     },
@@ -488,7 +472,6 @@ export default {
 
     //对时间段进行去重处理
     disposeTime(timeList) {
-      // debugger
       for (let i = 0; i < this.timeList.length; i++) {
         this.timeList[i].endTime -= 900000
       }
@@ -509,7 +492,7 @@ export default {
           newItem.startTime = tmObjective.startTime
           newItem.endTime = item.endTime
           if (i > 0) {
-            tempTimelist.pop(tempTimelist[length - 1])
+            tempTimelist.pop(tempTimelist[tempTimelist.length - 1])
           }
           tempTimelist.push(newItem)
           tmObjective.startTime = newItem.startTime
@@ -522,7 +505,7 @@ export default {
           newItem.startTime = tmObjective.startTime
           newItem.endTime = tmObjective.endTime
           if (i > 0) {
-            tempTimelist.pop(tempTimelist[length - 1])
+            tempTimelist.pop(tempTimelist[tempTimelist.length - 1])
           }
           tempTimelist.push(newItem)
           tmObjective.startTime = newItem.startTime
@@ -538,12 +521,8 @@ export default {
       //结束时间减去15分钟预留离场时间
     },
 
-    //车牌
-    // 输入框获取焦点事件，并激活模拟键盘 测试提交信息
-
     // 动态遍历 phoneList
     getPhoneList() {
-      // console.log(this.phoneNumber);
       let phoneNumber = this.phoneNumber.trim()
       if (phoneNumber.length > 11) {
         this.phoneNumber = phoneNumber.substr(0, 11)
@@ -561,8 +540,6 @@ export default {
         return
       } else {
         for (var i = 0; i < this.phoneList.length; i++) {
-          //如果字符串中不包含目标字符会返回-1
-          // console.log(this.phoneList[i].match(reg));
           if (
             this.phoneList[i].match(reg) !== null &&
             this.phoneList[i].match(reg)[0] !== ''
@@ -1010,13 +987,11 @@ export default {
         spbillCreateIp
       )
       if (res.error_code == 2000) {
-        //this.$router.push('appointInfo');
         Toast({
           message: '预约成功',
           duration: 1500
         })
         setTimeout(() => {
-          localStorage.setItem('routerFlag', null)
           this.clickFlag = true
           this.$router.push('payToComplete')
         }, 1500)
@@ -1030,18 +1005,6 @@ export default {
     },
     //立即预约
     async goApoint() {
-      // 点击立即预约的时候要做的事情是：
-      // 1. 若入场车牌号填写不合法，toast提示：请输入正确的入场车牌号。
-      //   若手机号码填写不合法，toast提示：请输入正确的手机号码。
-      //   若手机号码已经绑定了微信用户ID，toast提示：手机号码已被占用。（后台来做）
-      //   若验证码未填或填写错误，toast提示：请输入正确的验证码。
-      //   若该账户有未完成订单，toast提示：您还有订单未完成。跳转到订单详情页。(后台在做)
-      //   若该车牌存在未完成的订单，toast提示：该车辆已存在预约订单。 （后台）
-      //   若入场时间小于当前时间，toast提示：入场时间已过，请重新选择。 （不用管）
-      //   若没有空泊位，toast提示：车位已经被约满了。  （后台的）
-      //   若无误，预约费为0时， toast提示：预约成功。进入【支付成功页面】，后台将此车位状态改为被预约。预约费不为0时，进入【支付】页面。后台将此车位状态改为被预约。
-
-      //吴正增加车牌号码开始
       if(!this.clickFlag){
         return;
       }
@@ -1066,8 +1029,6 @@ export default {
         this.clickFlag = true
         return
       }
-      // 开始验证
-      // let plateNoReg =  /^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/;
       let plateNoReg = /([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF])|([DF]([A-HJ-NP-Z0-9])[0-9]{4})))|([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1})|^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/
       let phoneReg = /^1(3|4|5|7|8)\d{9}$/
       if (!plateNoReg.test(this.plateNo)) {
@@ -1098,54 +1059,26 @@ export default {
         this.getparklot()
         this.clickFlag = true
       } else {
-        // console.log(1244);
-        // 开始对数据进行整理
-        // 参数名	必选	类型	说明
-        // plateNumber	是	string	车牌号
         this.params.plateNumber = this.plateNo
-        // console.log(this.params.plateNumber);
-        // phone	是	string	手机号码
         this.params.phone = this.phoneNumber
-        // console.log(this.params.phone);
-        // startTime	是	long	实际预约的开始时间
-        // console.log(this.params.startTime);
-        // endTime	是	long	实际预约的结束时间
-        // console.log(this.params.endTime);
-        // shareStartTime	是	long	车位共享开始时间
-        // console.log(this.params.shareStartTime);
-        // shareEndTime	是	long	车位共享结束时间
-        // console.log(this.params.shareEndTime);
-        // totalFee	是	double	预约费  (参数变了要改一下)
-        // console.log(this.price);
         this.params.totalFee = this.price
-        // parklotId	是	int
         this.params.parklotId = this.parkLotId
-        // ip	是	string	IP地址
-        // console.log(localStorage.getItem('mobileId'));
         this.params.ip = localStorage.getItem('mobileId')
-        // phoneModel	是	string	手机型号(注意动态的去拿，拿得到在拿，拿不到传)
         this.params.phoneModel = localStorage.getItem('phoneNum')
-        // unionId	是	string	微信unionId（动态的去拿的）
         this.params.unionId = localStorage.getItem('unionId')
-        // openId	是	string	微信openId （动态的去拿的）
         this.params.openId = localStorage.getItem('openId')
-        // jpushId	是	黄金芽要求
         this.params.jpushId = 'H5'
-        // timestamp	是	string	时间戳  时间戳
-        //        alert(JSON.stringify(this.params))
         this.params.timestamp = +new Date()
         let res = await saveUserBind(this.params)
-        // alert(JSON.stringify(this.params));
         if (res.error_code == 2000) {
           let orderId = res.data.orderId //订单号
           let totalFee = res.data.totalFee //预约费用
-          localStorage.setItem('orderId', orderId)
-          localStorage.setItem('userId', res.data.userId)
+          localStorage.setItem('orderId', orderId)   // 订单号
+          localStorage.setItem('userId', res.data.userId)  //userId
           localStorage.setItem('H5_fees', res.data.totalFee) //保存的支付金额
-          // alert(orderId);
-          // alert(res.data.orderState);
-          // alert(JSON.stringify(res.data));
-          if (res.data.orderState && res.data.orderState != null) {
+          localStorage.setItem('routerFlag', null)
+          this.routerPage()
+          if (res.data.orderState) {
             if (res.data.orderState == 1301) {
               let toastNum = Toast({
                 message: '您还有订单未完成',
@@ -1189,18 +1122,11 @@ export default {
             }
             return
           }
-          if (totalFee == 0) {
-            this.doPay(orderId)
+          if (res.data.totalFee == 0) {
+            this.doPay(res.data.orderId)
           } else {
             this.clickFlag = true
-            localStorage.setItem('routerFlag', null)
-            this.$router.push({
-              name: 'payMentDt',
-              params: {
-                fees: totalFee,
-                orderId: orderId
-              }
-            })
+            this.$router.push('payMentDt')
           }
         } else if (res.error_code === 2905) {
           //如果金额存在 跳转到支付界面去， 不存在 或者为0 先调起预约支付接口
@@ -1237,6 +1163,20 @@ export default {
         }
       }
     },
+    routerPage(orderState){
+       this.clickFlag = true
+       let title = null;
+       switch(orderState){
+         case 1301:
+          let toastNum = Toast({message: '您还有订单未完成', duration: 1500})
+          let timeOutId = setTimeout(() => {
+              clearTimeout(timeOutId);
+              toastNum.close();
+              this.clickFlag = true
+              this.$router.push('reservationInfo')
+          }, 1500);
+       }
+    },
     //选择车牌号
     chooseCar() {
       this.$router.push({
@@ -1253,12 +1193,6 @@ export default {
     }
   },
   created() {
-    // debugger
-    this.parkLotId = Number(JSON.parse(localStorage.getItem('myParklotId')))
-    //安全验证隐藏
-    this.$root.eventHub.$on('hide-savety-confirm', () => {
-      this.savetyConfirmShowed = false
-    })
   },
   deactivated() {
     // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件

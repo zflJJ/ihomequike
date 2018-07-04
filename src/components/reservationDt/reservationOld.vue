@@ -138,17 +138,7 @@ export default {
       leaveTime:null,
       priceTime: null, // 预约时间 -  当前系统时间 = 时间戳差值
       price:0, //价格信息
-
       parkItemObj:{},  //停车车场参数
-
-      // params:{
-      //   user_id: null, // 用户ID
-      //   share_id:null,  // 共享时段ID
-      //   parklot_id:null, //停车场ID
-      //   plate_id:null,  // 车牌ID
-      //   start_time:null, // 开始时间戳
-      //   end_time:null,  // 结束时间戳
-      // }
       params:{
         user_id: null,  // 用户ID
         parklot_id:null, // 车场ID
@@ -194,8 +184,7 @@ export default {
       this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       // 测试
       // this.userId = 30;
-      // this.parklotId = 16;
-      // this.parklotId = 1569;
+      // this.parklotId = 311;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
@@ -341,7 +330,6 @@ export default {
       this.timeList = [].concat(tempTimelist);
       //结束时间减去15分钟预留离场时间
     },
-
     dataChange() {
       for (var i = 0; i < this.timeList.length; i++) {
         let item = this.timeList[i];
@@ -389,12 +377,9 @@ export default {
       // console.log(this.array);
       this.convertTime();
     },
-
-
     // 赋值 和 拆分 小时数
     convertTime(){
       var pData1 =[],pData2={},pData2arr = [];
-//      console.log(this.array);
       for(var i=0;i<this.array.length;i++){
         var arrayone = this.array[i];
         var oldhours = null;
@@ -440,31 +425,18 @@ export default {
           oldhours = time.substr(11,2);
         }
       }
-//      console.log(pData1);
       var hoursarray = pData1;
       var miuntearray = this.pData2chang(pData2arr);
-//      console.log(hoursarray,miuntearray);
       for(var i=0;i<hoursarray.length;i++){
         pData2[hoursarray[i].value] = miuntearray[hoursarray[i].text];
       }
-
-      // this.pickData2.pData1 = hoursarray;
-      // debugger
       this.$set(this.pickData2,'pData1',hoursarray);
-      // this.pickData2.pData2 = pData2;
       this.$set(this.pickData2,'pData2',pData2);
-
       this.pickData2.default.push(hoursarray[0]);
       this.pickData2.default.push(pData2[hoursarray[0].value][0]);
-        this.defaultTime = hoursarray[0].text.substring(0,hoursarray[0].text.length-2) +':' +  pData2[hoursarray[0].value][0].text.substring(0,pData2[hoursarray[0].value][0].text.length-2) + "前";
-//        console.log(this.defaultTime)
-        this.params.start_time = this.params.startTime;
-      // }
-      // 通过时间戳差值，获取价格信息
-//      console.log(new Date().getTime())
-      // debugger
+      this.defaultTime = hoursarray[0].text.substring(0,hoursarray[0].text.length-2) +':' +  pData2[hoursarray[0].value][0].text.substring(0,pData2[hoursarray[0].value][0].text.length-2) + "前";
+      this.params.start_time = this.params.startTime;
       this.priceTime = hoursarray[0].time - new Date().getTime();
-      // debugger
       this.getPrice(this.priceTime);
       this.getDefaultTime(hoursarray[0].time);
     },
@@ -497,7 +469,6 @@ export default {
 
     // 默认的离场时间
     getDefaultTime(time){
-      // debugger
       var timetap = time;
       var x = null;
       let numLeaveTime = [];
@@ -508,10 +479,8 @@ export default {
         }
       }
       if(numLeaveTime.length === 1){
-        // debugger
         this.params.shareStartTime = numLeaveTime[0].learve.startTime;
         this.params.shareEndTime = this.params.endTime =   numLeaveTime[0].learve.endTime;
-//        console.log(timetap)
         this.params.startTime = timetap;
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime);
         var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
@@ -539,18 +508,11 @@ export default {
         this.params.shareEndTime =  this.params.endTime =  obj.learve.endTime;
         this.params.startTime = timetap;
       }
-      // share_startTime:null, // 共享开始时间戳
-      //   share_endTime:null,  // 共享结束时间戳
-      //   start_time:null,    // 用户选择的时间戳
     },
-
-
     // 获取价格信息
     getPrice(priceTime){
-      // debugger
       var x = null;
       let miunte = parseInt(priceTime / 60000);
-//      console.log(miunte);
       for(var i=0;i<this.feeList.length;i++){
         if(miunte <= this.feeList[i].finishTime){
           x = i;
@@ -565,7 +527,6 @@ export default {
       if(this.feeList[x]){
         this.price = (this.feeList[x].fee*this.pointedItem.integralPermissionsCoefficient).toFixed(2);
       }
-//      console.log(this.price);
     },
     // 选择入场时间段
     openPicker() {
@@ -587,7 +548,6 @@ export default {
       e.cancelBubble = true;
       this.params.startTime = e.select2.time;
       this.params.start_time = e.select2.time;
-//      console.log(e.select2.time);
       if(this.systemTimeFlag){
         this.priceTime = this.systemTime - new Date().getTime();
       }else {
@@ -629,18 +589,16 @@ export default {
     },
     //立即预约
     async goApoint(){
-      //console.log(this.params);
       // 测试
-      // alert(this.clickFlag)
       if(!this.clickFlag){
         return
       }
-      // this.timerOutId = setTimeout(()=>{
-      //   this.clickFlag = true
-      // },3000)
       this.clickFlag = false
       this.params.user_id = localStorage.getItem('userId');
       this.params.plate_id = this.plateNoId;
+      // 测试数据
+      // this.params.user_id = 30;
+      // this.params.plate_id = 311;
       if(!this.plateNo || (this.plateNo == '')){
         Toast({
           message:'请选择您的车牌号',
@@ -749,7 +707,6 @@ export default {
     clearTimeout(this.timerOutId)
   },
   beforeRouteLeave(to, from, next){
-      // 这里将MessageBox进行关闭的操作
       this.plateNo = '';
       MessageBox.close(false);
       next();

@@ -4,6 +4,7 @@
   tap-highlight-color:none
   box-sizing: border-box
   font-family :"微软雅黑",PingFangSC-Regular, sans-serif
+  touch-action: pan-y
 body,html
   background-color:#FFF
 li
