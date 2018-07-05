@@ -229,6 +229,7 @@ export default {
           showConfirmButton:true,
           confirmButtonText:'确认',
           showCancelButton:false,
+          closeOnClickModal: false,
         }).then(action=>{
           Indicator.open();
           setTimeout(() => {

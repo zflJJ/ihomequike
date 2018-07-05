@@ -241,12 +241,10 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin';
-
 import BScroll from 'better-scroll';
 import subHeader from './header';
 import {Indicator,Toast} from 'mint-ui';
 import {canCelMyAppoint, getOrderInfo,lockChange} from '../../server/getData';
-import { MessageBox } from 'mint-ui';
 export default {
   name:'reservationInfo',
   data () {
@@ -395,8 +393,6 @@ export default {
 <style lang="stylus">
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
-.ordermessage-info
-  padding: 0 .5rem;
 #appoint-info
   position absolute
   width 100%

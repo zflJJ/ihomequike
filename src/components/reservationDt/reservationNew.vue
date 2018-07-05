@@ -628,13 +628,6 @@ export default {
         this.clickFlag = true
         return
       }
-      //无车位的情况
-      if (!this.timeList.length) {
-        this.messInfo()
-        this.getparklot()
-        this.clickFlag = true
-        return
-      }
       let plateNoReg = /([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}(([0-9]{5}[DF])|([DF]([A-HJ-NP-Z0-9])[0-9]{4})))|([京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-HJ-NP-Z0-9]{4}[A-HJ-NP-Z0-9挂学警港澳]{1})|^[京津沪渝冀豫云辽黑湘皖鲁新苏浙赣鄂桂甘晋蒙陕吉闽贵粤青藏川宁琼使领A-Z]{1}[A-Z]{1}[A-Z0-9]{4}[A-Z0-9挂学警港澳]{1}$/
       let phoneReg = /^1(3|4|5|7|8)\d{9}$/
       if (!plateNoReg.test(this.plateNo)) {
@@ -655,11 +648,8 @@ export default {
           duration: 1500
         })
         this.clickFlag = true
-      } else if (this.pointedItem.reservableAmount == 0) {
-        this.messInfo()
-        this.getparklot()
-        this.clickFlag = true
       } else {
+        // 测试一下
         // "startTime":15000000,
         // "endTime":160000000,
         // "shareStartTime":120000000,

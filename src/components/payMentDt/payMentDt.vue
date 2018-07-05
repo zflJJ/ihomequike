@@ -66,8 +66,7 @@ export default {
       payState: false, // 支付状态
       payUrl: '', // 支付的Url
       orderState: null, // 表示是预约费支付 还是 停车费支付
-      timeInter: null, // 时间ID
-      time: 0,  // 表示过的分钟数
+      clickFlag: false,  // 表示按钮不可点击
     }
   },
   components: {
@@ -105,11 +104,15 @@ export default {
       if (this.couponId === -1) {
         this.couponId = null;
       }
+      if(this.clickFlag){
+        return;
+      }
       if (this.orderState === true) {  // 停车费支付
         this.payUrl = 'apiwrite/parking/pay'
       } else {  // 预约费支付
         this.payUrl = 'apiwrite/reserve/pay'
       }
+      this.clickFlag = true;
       this.wxPay();
     },
 
@@ -133,9 +136,10 @@ export default {
         showConfirmButton: true,
         confirmButtonText: '确认',
         showCancelButton: false,
+        closeOnClickModal: false,
       }).then(action => {
         if (action == 'confirm') {
-          clearInterval(this.timeInter);
+          this.clickFlag = false
           if (this.orderState) {
             this.$router.push("reservationPaking")
           } else {
@@ -144,6 +148,7 @@ export default {
           }
         }
       }).catch(err => {
+        this.clickFlag = false;
       })
     },
     //选择支付方式
@@ -181,8 +186,8 @@ export default {
             // 支付成功之后，将订单ID + 订单状态 + 订单金额
             localStorage.removeItem('H5_fees');   // 支付金额
             localStorage.removeItem('H5_order_state'); // 支付的订单状态
-            clearInterval(this.timeInter);
             // alert(this.orderState);
+            this.clickFlag = false
             if (this.orderState) {
               //停车费跳转到支付成功页面
               this.$router.push({ name: 'payToComplete', params: { flag: 1 } });
@@ -242,9 +247,9 @@ export default {
             })
             setTimeout(() => {
               // 支付成功之后， + 订单状态 + 订单金额
+              this.clickFlag = false;
               localStorage.removeItem('H5_fees');   // 支付金额
               localStorage.removeItem('H5_order_state'); // 支付的订单状态
-              clearInterval(this.timeInter);
               if (vm.orderState) {
                 //停车费跳转到支付成功页面
                 // alert('要跳转到支付完')
@@ -254,6 +259,7 @@ export default {
               }
             }, 1500);
           } else {
+            this.clickFlag = false;
             Toast('调起微信支付接口失败')
           }
         }
@@ -337,8 +343,6 @@ export default {
   deactivated() {
     this.discounts = 0;
     this.couponId = -1;
-    this.time = '';
-    clearInterval(this.timeInter);
   },
 }
 </script>

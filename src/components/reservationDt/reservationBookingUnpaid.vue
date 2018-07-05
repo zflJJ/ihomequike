@@ -352,7 +352,7 @@ export default {
     cancelOrder(){  // 这个时间 是动态的
       let freeCancellationTime = this.orderData.freeCancellationTime;
       let htmls = `
-              <div class="ordermessage-info">
+              <div class="ordermessage-info-booking">
                 <div class="is-text">
                   是否取消预约？
                 </div>
@@ -463,6 +463,8 @@ export default {
 @import '../../common/css/mixin.stylus'
 .ordermessage-info
   padding: 0 .5rem;
+.ordermessage-info-booking
+  line-height 2.63rem
 #appoint-info
   position absolute
   width 100%
