@@ -76,9 +76,9 @@
         </div>
       </div>
     </div>
-    <div class="cancel p-a t-c">
-      <div class="cancel-order p-a t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2">取消预约</div>
-      <div class="item2-sytle" @click="payGo">立即支付</div>
+    <div class="cancel t-c">
+      <button class="cancel-order t-c" @click="cancelOrder" v-if="orderData.type === 1 || orderData.type === 2" :disabled="cancelOrderFlag">取消预约</button>
+      <button class="item2-sytle" @click="payGo" :disabled="paygoFlag">立即支付</button>
     </div>
   </div>
 </template>
@@ -97,6 +97,8 @@ export default {
       orderId: '',  //根据后台返回的订单号
       orderData: {},
       createTime: null,//订单创建时间
+      cancelOrderFlag: false,  // 表示可以取消
+      paygoFlag:false, // 表示可以支付
     }
   },
   methods: {
@@ -120,6 +122,8 @@ export default {
       let orderId = window.localStorage.getItem("orderId");
       let res = await getOrderInfo(orderId);
       console.log(res);
+      this.cancelOrderFlag = false;
+      this.paygoFlag = false
       if (res.error_code === 2000) {
         if (res.data.state === 1300) {
           this.dispoceOrderDat(res.data);
@@ -159,7 +163,7 @@ export default {
         }
         // 1300表示已预留（未支付预约费），1301表示已预约，1302表示已停车，1303表示已离开未支付，1304表示已支付
       } else {
-        Tosat(res.error_message)
+        Toast(res.error_message)
       }
     },
     // 预处理 订单详情的数据
@@ -172,6 +176,7 @@ export default {
 
     // 取消预约按钮
     cancelOrder() {  // 这个时间 是动态的
+      this.cancelOrderFlag = true
       let newTime = +new Date().getTime();
       if (newTime - this.createTime >= 300000) {
         Toast({
@@ -199,32 +204,29 @@ export default {
           this.cancelAppoint();
         }).catch(err => {
           if (err == 'cancel') {
+            this.cancelOrderFlag = false
           }
         });
       }
     },
 
-    //取消预约请求(成功的话，表示还没有入场；不成功的话，表示已经入场，那么跳转到预约列表，重新得到订单);
     async cancelAppoint() {
-      // 若订单未超时，则弹框提示：是否取消预约？并提供“保留预约”和“取消预约”两个选项。选择“保留预约”后关闭弹框。
-      // 选择“取消预约”后跳转到【老用户预约页面】。
-      // 若订单已经变为已预约、停车中、离场未支付等状态，toast提示：页面超时，正在为您获取最新数据。然后刷新页面，显示订单的
-      // 最新状态。
-      // 若订单已经变为已取消、已完成等状态，则弹框提示：则弹框提示：订单已经结束。提供“我知道了”选项，点击后回到【老用户预
-      // 约】页面。
-
       let res = await canCelMyAppoint(this.orderId);
       if (res.error_code === 2000) {
+        this.cancelOrderFlag = false;
         this.$router.push('reservationOld');
       } else {
+        this.cancelOrderFlag = false;
         Toast(res.error_message)
       }
     },
 
     //立即支付
     payGo() {
+      this.paygoFlag = true
       let newTime = +new Date().getTime();
       if (newTime - this.createTime >= 300000) {
+        this.paygoFlag = false
         let htmls = `
               <div class="ordermessage-info-1300">
                 <div class="is-text">
@@ -270,6 +272,11 @@ export default {
 <style lang="stylus">
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
+button 
+  margin 0;
+  padding 0
+  border 1px solid transparent  //自定义边框
+  outline none    //消除默认点击蓝色边框效果
 .ordermessage-info
   padding 0 0.5rem
 .ordermessage-info-booking
@@ -386,16 +393,17 @@ export default {
     width 100%
     height 3.375rem
     line-height 3.375rem
-    background-color #D01D95
     font-size 1rem
     bottom 0
     margin-bottom 0
     z-index 1000
     color #FFF
+    display flex
   .appoit-info-box
     position absolute
     width 100%
-    top 3.9375rem
+    top 0
+    // top 3.9375rem
     bottom 3.5rem
   .cancel-order
     /* display inline-block */
@@ -405,10 +413,9 @@ export default {
     float left
     height 100%
   .item2-sytle
-    display inline-block
+    flex 1
     color #fff
-    float right
-    width 50%
+    background-color #D01D95
     height 100%
     text-align center
   .canle-style

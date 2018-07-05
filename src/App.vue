@@ -56,9 +56,11 @@ export default {
       }
     }
 
+    localStorage.setItem('userId',30);
     if(this.GetUrlParam("userId")){
       localStorage.setItem('userId',this.GetUrlParam("userId"));
     }
+      localStorage.setItem('myParklotId',302);
     if(this.GetUrlParam("parklotId")){
       localStorage.setItem('myParklotId',this.GetUrlParam("parklotId"));
     }

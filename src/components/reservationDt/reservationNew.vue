@@ -784,6 +784,7 @@ export default {
    activated() {
      // 获取车场ID
     this.parkLotId = localStorage.getItem('myParklotId')
+    // this.parkLotId = 302
     document.addEventListener('visibilitychange', this.documentEvent,false)
     this.clickFlag = true;
     window.addEventListener(

@@ -304,12 +304,12 @@ export default {
           localStorage.setItem('goBackFlag', "reservationPaking");//保存跳转来源页,在返回调用
           if (res.body.data.state == 1303) {   //   1302 || 1303 的状态   
             localStorage.setItem('orderId', res.body.data.orderId);  //保存停车订单ID
-            if (res.body.data.parkingFee == 0) {
+            if (res.body.data.payFee == 0) {
               if (num === 1 || num === 2) {
                 localStorage.setItem('H5_fees', res.body.data.payFee);  //保存的支付金额
                 this.$router.push('payToComplete');
               }
-            } else if (res.body.data.parkingFee != 0) {
+            } else if (res.body.data.payFee != 0) {
               localStorage.setItem('H5_fees', res.body.data.payFee)
               localStorage.setItem('H5_order_state', res.body.data.state)
               if (num === 1 || num === 2) {
@@ -411,7 +411,7 @@ export default {
         let seconds = parseInt((objDatas.overTime % (1000 * 60)) / 1000);
         hours = hours < 10 ? '0'+ hours : hours;
         minutes = minutes < 10 ? '0'+ minutes : minutes;
-        hours = seconds < 10 ? '0'+ seconds : seconds;
+        seconds = seconds < 10 ? '0'+ seconds : seconds;
         objDatas.overTime = hours + ":" + minutes + ":" + seconds;
       } else {
         objDatas.overTime = null
