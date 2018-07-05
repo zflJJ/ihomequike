@@ -259,7 +259,7 @@ export default {
               }
             }, 1500);
           } else {
-            this.clickFlag = false;
+            vm.clickFlag = false;
             Toast('调起微信支付接口失败')
           }
         }

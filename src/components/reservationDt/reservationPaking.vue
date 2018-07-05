@@ -344,7 +344,7 @@ export default {
       let htmls =
         `<div class="lock-up-chargetype">
             <div class="is-text">
-              车锁降下后开始停车计费，是否确认？
+              升起车锁后结束本次停车。
             </div>
        </div>`
       MessageBox.confirm('', {

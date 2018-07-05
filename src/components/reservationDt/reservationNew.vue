@@ -783,7 +783,7 @@ export default {
   },
    activated() {
      // 获取车场ID
-    // this.parkLotId = localStorage.getItem('myParklotId')
+    this.parkLotId = localStorage.getItem('myParklotId')
     document.addEventListener('visibilitychange', this.documentEvent,false)
     this.clickFlag = true;
     window.addEventListener(
@@ -829,13 +829,8 @@ export default {
     clearInterval(this.timer)
     common.setStorage('H5_lslogin_time')
     document.removeEventListener('visibilitychange', this.documentEvent,false)
-  },
- 
-  // 退出组件时， 清空缓存
-  deactivated() {
-    // debugger
+    window.removeEventListener('resize', this.handleInput, false)
     this.$destroy(true)
-    window.removeEventListener('resize', _this.handleInput, false)
   },
   beforeRouteLeave(to, from, next) {
     // 这里将MessageBox进行关闭的操作

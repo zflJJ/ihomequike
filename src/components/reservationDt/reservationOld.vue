@@ -136,7 +136,6 @@ export default {
         end_time:null,      // 用户选择的结束时间戳
       },
       systemTime:null,//系统时间
-      systemTimeFlag:false,
       clickFlag: true
     }
   },
@@ -167,26 +166,20 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){
-      this.userId = JSON.parse(localStorage.getItem('userId'));
-      this.parklotId = JSON.parse(localStorage.getItem('myParklotId'));
       // 测试
-      // this.userId = 30;
-      // this.parklotId = 14;
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
         console.log(res);
         this.pointedItem = res.data;
-        this.params.plate_id = this.pointedItem.plateId;
-        this.params.parklot_id = this.pointedItem.parklotId;
         let plateObj = JSON.parse(localStorage.getItem('H5_chosen_plate'));
         console.log(plateObj);
         if(!plateObj){
           this.plateNo = res.data.plateNo;
-          this.plateNoId = res.data.plateId;
+          this.params.plate_id = res.data.plateId;
         }else{
           this.plateNo = plateObj.plateNo;
-          this.plateNoId = plateObj.plateNoId;
+          this.params.plate_id = plateObj.plateNoId;
           localStorage.removeItem('H5_chosen_plate');
         }
         //车场详情参数获取
@@ -255,11 +248,11 @@ export default {
         this.params.shareEndTime = this.params.endTime =   numLeaveTime[0].learve.endTime;
         this.params.startTime = timetap;
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime);
-        var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
-        var leaveDay = leaveTime.substr(8,1) != 0 ?  leaveTime.substr(8,2) : leaveTime.substr(9,1);
+        var leaveMonth = leaveTime.substr(5,2)
+        var leaveDay = leaveTime.substr(8,2);
         var leaveMiunte = leaveTime.substr(14,2);
         var leaveHours =  leaveTime.substr(11,2);
-        this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+':'+leaveMiunte+':00';
+        this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+'时'+leaveMiunte+'分';
       }else{
         var max = numLeaveTime[0].times;
         var len = numLeaveTime.length;
@@ -271,11 +264,11 @@ export default {
           }
         }
         var leaveTime = formatTimeStamp(obj.learve.endTime);
-        var leaveMonth = leaveTime.substr(5,1) != 0 ?  leaveTime.substr(5,2) : leaveTime.substr(6,1);
-        var leaveDay = leaveTime.substr(8,1) != 0 ?  leaveTime.substr(8,2) : leaveTime.substr(9,1);
+        var leaveMonth = leaveTime.substr(5,2)
+        var leaveDay =  leaveTime.substr(8,2)
         var leaveMiunte = leaveTime.substr(14,2);
         var leaveHours =  leaveTime.substr(11,2);
-        this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+':'+leaveMiunte+':00';
+        this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+'时'+leaveMiunte+'分';
         this.params.shareStartTime = obj.learve.startTime;
         this.params.shareEndTime =  this.params.endTime =  obj.learve.endTime;
         this.params.startTime = timetap;
@@ -320,11 +313,7 @@ export default {
       e.cancelBubble = true;
       this.params.startTime = e.select2.time;
       this.params.start_time = e.select2.time;
-      if(this.systemTimeFlag){
-        this.priceTime = this.systemTime - new Date().getTime();
-      }else {
-        this.priceTime = e.select2.time - new Date().getTime();
-      }
+      this.priceTime = e.select2.time - new Date().getTime();
       this.getPrice(this.priceTime);
       this.defaultTime = e.select1.text.substring(0,e.select1.text.length-2) +':'+ e.select2.text.substring(0,e.select2.text.length-2) + "前";
       this.getDefaultTime(e.select2.time);
@@ -366,11 +355,9 @@ export default {
         return
       }
       this.clickFlag = false
-      this.params.user_id = localStorage.getItem('userId');
-      this.params.plate_id = this.plateNoId;
       // 测试数据
       // this.params.user_id = 30;
-      if(!this.plateNo || (this.plateNo == '')){
+      if(!this.params.plate_id){
         Toast({
           message:'请选择您的车牌号',
           duration:1500
@@ -464,6 +451,9 @@ export default {
   },
   activated () {
     this.clickFlag = true
+    // 用户
+    this.userId = this.params.user_id = JSON.parse(localStorage.getItem('userId'));
+    this.parklotId = this.params.parklot_id = JSON.parse(localStorage.getItem('myParklotId'));
     this.timeToget();
     this.getparklot();
   },

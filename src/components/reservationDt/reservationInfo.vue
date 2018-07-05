@@ -91,7 +91,7 @@
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">预约费</span>
-              <span class="ta-info">￥ {{orderData.reserveFee}}</span>
+              <span class="ta-info">￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}</span>
             </div>
           </div>
 
