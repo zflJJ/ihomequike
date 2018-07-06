@@ -143,7 +143,8 @@
           </div>
           <div class="p-message" v-if="orderData.state === 1303">
             <div class="time-info">
-              <span class="name-text">停车费</span>
+              <span class="name-text" v-if="orderData.chargeType === 0">停车费</span>
+              <span class="name-text" v-if="orderData.chargeType === 1">服务费</span>
               <span class="ta-info">￥ {{parseFloat(orderData.parkingFee).toFixed(2)}}</span>
             </div>
           </div>

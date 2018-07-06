@@ -177,7 +177,8 @@
           </div>
           <div class="p-message" v-if="orderData.parkingFee !== null">
             <div class="time-info">
-              <span class="name-text">停车费</span>
+              <span class="name-text" v-if="orderData.chargeType === 0">停车费</span>
+              <span class="name-text" v-if="orderData.chargeType === 1">服务费</span>
               <span class="ta-info">￥{{orderData.parkingFee}}</span>
             </div>
           </div>
