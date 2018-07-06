@@ -60,7 +60,7 @@
           预约费&nbsp;
           <span style="color: #f63372">￥<span class="price-style">{{price}}</span></span>
         </div>
-        <button @touchend="goApoint" class="div-style ds-2">立即预约</button>
+        <button @click="goApoint" class="div-style ds-2">立即预约</button>
       </div>
     </div>
     <div :class="{alert: isshow}" @click="closeZinde"></div>
@@ -91,19 +91,12 @@ export default {
       isshow: false,
       headerMark:'预约',
       pointedItem:{},   //停车场接口获取信息返回 | enter
-      carPlate:null,
-      startTime:'',  //选择开始时间
-      endTime:'',  //选择结束时间
-      fmEndTime:'', //最晚规整的结束时间
-      estateId:'',   //预约场地的id
-      mytime: '',    // 按照当前的系统时间做做最晚时间处理
-      /*--新的东西*/
+
       parklotId: null, // 表示传递过来的车场的ID
       userId:null,//表示传递过来的用户的ID
-      allTime:[],
-      pickerVisible:null,
       reserveTimeList:[],
       feeList:[],
+
       pickData2: {
         columns: 2, // 两列
         link: true, // 联级必须需要link 参数
@@ -116,27 +109,29 @@ export default {
         pData2: {
         },
       },
+
       nowTime: null,
-      timeList:[],  // 筛选出来的数据点集合
-      arr: [],
-      array:[],
-      arrayflag: false,
       defaultTime: '00:00', // 默认时间
+
       leaveTime:null,
       priceTime: null, // 预约时间 -  当前系统时间 = 时间戳差值
+
       price:0, //价格信息
-      parkItemObj:{},  //停车车场参数
       params:{
         user_id: null,  // 用户ID
         parklot_id:null, // 车场ID
         plate_id:null, // 车牌ID
+
         share_startTime:null, // 共享开始时间戳
         share_endTime:null,  // 共享结束时间戳
         start_time:null,    // 用户选择的时间戳
         end_time:null,      // 用户选择的结束时间戳
       },
-      systemTime:null,//系统时间
       clickFlag: true
+    // "share_startTime":123123111,
+    // "share_endTime":123123111,
+    // "start_time":123123111,
+    // "end_time":1232131231,
     }
   },
   components: {
@@ -166,14 +161,11 @@ export default {
     },
     //获取预约接口信息
     async getparklot(){
-      // 测试
       this.reserveTimeList = [];
       let res = await postParklot(this.userId,this.parklotId);
       if(res.error_code === 2000){
-        console.log(res);
         this.pointedItem = res.data;
         let plateObj = JSON.parse(localStorage.getItem('H5_chosen_plate'));
-        console.log(plateObj);
         if(!plateObj){
           this.plateNo = res.data.plateNo;
           this.params.plate_id = res.data.plateId;
@@ -182,8 +174,6 @@ export default {
           this.params.plate_id = plateObj.plateNoId;
           localStorage.removeItem('H5_chosen_plate');
         }
-        //车场详情参数获取
-        this.parkItemObj.id = res.data.parklotId;
         // 筛选时间
         this.feeList = this.pointedItem.feeList;
         this.reserveTimeList = this.pointedItem.reserveTimeList;
@@ -244,9 +234,9 @@ export default {
         }
       }
       if(numLeaveTime.length === 1){
-        this.params.shareStartTime = numLeaveTime[0].learve.startTime;
-        this.params.shareEndTime = this.params.endTime =   numLeaveTime[0].learve.endTime;
-        this.params.startTime = timetap;
+        this.params.share_startTime = numLeaveTime[0].learve.startTime;
+        this.params.share_endTime = this.params.end_time =   numLeaveTime[0].learve.endTime;
+        this.params.start_time = timetap;
         var leaveTime = formatTimeStamp(numLeaveTime[0].learve.endTime);
         var leaveMonth = leaveTime.substr(5,2)
         var leaveDay = leaveTime.substr(8,2);
@@ -269,9 +259,9 @@ export default {
         var leaveMiunte = leaveTime.substr(14,2);
         var leaveHours =  leaveTime.substr(11,2);
         this.leaveTime = leaveMonth+'月'+leaveDay+'日'+leaveHours+'时'+leaveMiunte+'分';
-        this.params.shareStartTime = obj.learve.startTime;
-        this.params.shareEndTime =  this.params.endTime =  obj.learve.endTime;
-        this.params.startTime = timetap;
+        this.params.share_startTime = obj.learve.startTime;
+        this.params.share_endTime =  this.params.end_time =  obj.learve.endTime;
+        this.params.start_time = timetap;
       }
     },
     // 获取价格信息
@@ -311,7 +301,6 @@ export default {
     // 选择时间后的确定按钮
     confirmFn(e){
       e.cancelBubble = true;
-      this.params.startTime = e.select2.time;
       this.params.start_time = e.select2.time;
       this.priceTime = e.select2.time - new Date().getTime();
       this.getPrice(this.priceTime);
@@ -364,12 +353,12 @@ export default {
         })
         return;
       }
-      this.params.share_startTime = this.params.shareStartTime;
-      this.params.share_endTime = this.params.shareEndTime;
-      this.params.end_time = this.params.endTime;
-      if(!this.params.start_time || this.params.start_time  == null){
-        this.params.start_time = this.params.startTime;
-      }
+      // this.params.share_startTime = this.params.shareStartTime;
+      // this.params.share_endTime = this.params.shareEndTime;
+      // this.params.end_time = this.params.endTime;
+      // if(!this.params.start_time || this.params.start_time  == null){
+      //   this.params.start_time = this.params.startTime;
+      // }
       let res = await appointCarport(this.params);
       if(res.error_code == 2801){
         this.clickFlag = true
@@ -459,20 +448,8 @@ export default {
   },
   // 退出组件时， 清空缓存
   deactivated(){
+    localStorage.removeItem('H5_chosen_plate')
     this.$destroy(true);
-    clearTimeout(this.timerOutId)
-  },
-  beforeRouteLeave(to, from, next){
-      this.plateNo = '';
-      MessageBox.close(false);
-      next();
-   },
-  beforeRouteEnter (to, from, next){
-    next(vm=>{
-      if(from.path === '/car'){
-        vm.carPlate = JSON.parse(localStorage.getItem('H5_carplate'));
-      }
-    })
   },
 }
 </script>

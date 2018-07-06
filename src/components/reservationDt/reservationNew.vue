@@ -380,7 +380,8 @@ export default {
         message: htmls,
         showConfirmButton: true,
         confirmButtonText: '确认',
-        showCancelButton: false
+        showCancelButton: false,
+        closeOnClickModal: false,
       })
         .then(action => {
           Indicator.open()

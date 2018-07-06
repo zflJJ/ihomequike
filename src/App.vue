@@ -56,11 +56,13 @@ export default {
       }
     }
 
-    localStorage.setItem('userId',30);
+    // localStorage.setItem('userId',9561);
+    localStorage.removeItem('H5_order_state')
+    localStorage.setItem('H5_order_state',this.GetUrlParam("orderState"))
     if(this.GetUrlParam("userId")){
       localStorage.setItem('userId',this.GetUrlParam("userId"));
     }
-      localStorage.setItem('myParklotId',302);
+    // localStorage.setItem('myParklotId',11);
     if(this.GetUrlParam("parklotId")){
       localStorage.setItem('myParklotId',this.GetUrlParam("parklotId"));
     }

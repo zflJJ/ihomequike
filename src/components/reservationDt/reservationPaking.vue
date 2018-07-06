@@ -74,7 +74,7 @@
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">预约费</span>
-              <span class="ta-info">￥ {{orderData.reserveFee}}</span>
+              <span class="ta-info">￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}</span>
             </div>
           </div>
 
@@ -88,33 +88,33 @@
               <span class="name-text">支付方式</span>
               <span class="ta-info">
                 <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}
+                  支付宝：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 3">
-                  现金：￥ {{orderData.reserveFee}}
+                  现金：￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 4">
-                  优惠券：￥ {{orderData.reserveCouponFee}}
+                  优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 5">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixe(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 6">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
               </span>
@@ -144,13 +144,13 @@
           <div class="p-message" v-if="orderData.state === 1303">
             <div class="time-info">
               <span class="name-text">停车费</span>
-              <span class="ta-info">{{parseFloat(orderData.parkingFee).toFixed(2)}}</span>
+              <span class="ta-info">￥ {{parseFloat(orderData.parkingFee).toFixed(2)}}</span>
             </div>
           </div>
           <div class="p-message" v-if="orderData.overTime !== null">
             <div class="time-info">
               <span class="name-text">超时金额</span>
-              <span class="ta-info">{{parseFloat(orderData.overTimeFee).toFixed(2)}}</span>
+              <span class="ta-info">￥ {{parseFloat(orderData.overTimeFee).toFixed(2)}}</span>
             </div>
           </div>
         </div>
@@ -158,26 +158,22 @@
     </div>
     <!-- 要进行呢改动 -->
     <div>
-      <!-- 这个是停车中的 -->
+     
       <template v-if="orderData.state === 1302">
         <!-- 这个是道闸计费 -->
-        <div v-if="orderData.chargeType === 0" class="cancel p-a t-c">
-          <template v-if="orderData.lockId">
-            <div class="item2-sytle" @click="lockModel">控制车锁</div>
-            <div class="canle-style" @click="goPay(1)">离场支付</div>
-          </template>
-          <template v-else>
-            <div class="cancel p-a t-c">
-              <div class="item2-sytle2" @click="goPay(1)">离场支付</div>
-            </div>
-          </template>
-        </div>
-        <!-- 这个是车锁计费 -->
-        <div v-else class="cancel p-a t-c">
-          <div class="item2-sytle" @click="endParking">结束停车</div>
-          <div class="canle-style" @click="goPay(1)">离场支付</div>
-        </div>
+        <template v-if="orderData.chargeType === 0">
+          <div class="cancel p-a t-c" v-if="orderData.lockId">
+            <div class="item2-sytle2" @click="lockModel">控制车锁</div>
+          </div>
+        </template>
+         <!-- 这个是车锁计费 -->
+        <template v-else>
+          <div class="cancel p-a t-c">
+            <div class="item2-sytle2" @click="endParking">结束停车</div>
+          </div>
+        </template>
       </template>
+
       <!-- 这个是离场未支付 -->
       <template v-else-if="orderData.state === 1303">
         <div class="cancel p-a t-c">
@@ -247,7 +243,8 @@ export default {
       intervalMy: null,
       visibFlag: true, // 阈值
       leaveFlag: false,
-      loadingFlag: 0
+      loadingFlag: 0,
+      orderState: null,   // 短轮询的定时器
     }
   },
   components: {
@@ -256,6 +253,7 @@ export default {
   computed: {
   },
   methods: {
+    
     // 离场支付（1） 或者 立即支付（2）
     goPay(item) {
       this.getOrder(item);
@@ -299,7 +297,6 @@ export default {
         if (res.body.error_code === 2000) {
           this.leaveFlag = false
           this.loadingFlag = null;
-          console.log(this.loadingFlag)
           localStorage.setItem('routerFlag', "reservationPaking");//保存跳转来源页,在支付完成调用
           localStorage.setItem('goBackFlag', "reservationPaking");//保存跳转来源页,在返回调用
           if (res.body.data.state == 1303) {   //   1302 || 1303 的状态   
@@ -321,7 +318,7 @@ export default {
               Indicator.close();
               Toast({
                 message: '请先离场再支付',
-                position: 'bottom',
+                position: 'middle',
                 duration: 2000
               });
             }
@@ -338,6 +335,7 @@ export default {
       }).catch(res => {
         this.leaveFlag = false;
         this.loadingFlag = 0
+        Toast('查询订单失败')
       })
     },
     endParking() {
@@ -409,9 +407,9 @@ export default {
         let hours = parseInt(objDatas.overTime / (60 * 60 * 1000));
         let minutes = parseInt((objDatas.overTime % (1000 * 60 * 60)) / (1000 * 60));
         let seconds = parseInt((objDatas.overTime % (1000 * 60)) / 1000);
-        hours = hours < 10 ? '0'+ hours : hours;
-        minutes = minutes < 10 ? '0'+ minutes : minutes;
-        seconds = seconds < 10 ? '0'+ seconds : seconds;
+        hours = hours < 10 ? '0' + hours : hours;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
         objDatas.overTime = hours + ":" + minutes + ":" + seconds;
       } else {
         objDatas.overTime = null
@@ -432,6 +430,7 @@ export default {
     //控制车锁的事件
     lockModel() {
       // 弹框提示
+      // this.getOrder(str)
       this.islockshow = true;
     },
     closeModel() {
@@ -471,12 +470,17 @@ export default {
     async lockDown(item) {
       let res = await lockChange(this.lockId, item);
       if (res.error_code === 2000) {
-        let timeoutId = setTimeout(() => {
-          clearTimeout(timeoutId)
-          this.getOrder();
-        }, 8000);
+      }else{
+        Toast('车锁控制失败')
       }
     },
+    // 前端短轮训查询数据
+    getOrderState(){
+      clearInterval(this.orderState)
+      this.orderState = setInterval(()=>{
+        this.getOrder()
+      },5000)
+    }
   },
   created() {
     window.addEventListener("online", function () {
@@ -503,6 +507,11 @@ export default {
     //从预约列表页面带获取传入的参数值
     this.getOrder();
     this.leaveFlag = false
+    this.getOrderState()
+  },
+  deactivated() {
+    clearInterval(this.orderState)
+    clearTimeout(this.getTime)
   },
   beforeRouteLeave(to, from, next) {
     MessageBox.close(false)
@@ -670,7 +679,7 @@ export default {
     bottom 3.375rem
   .item2-sytle
     // display flex
-    display inline-block
+    // display inline-block
     color #fff
     width 50%
     float right
@@ -692,7 +701,6 @@ export default {
     background-color #fff
     color #d01d95
     display inline-block
-    float left
   .alert-index
     position absolute
     top 0

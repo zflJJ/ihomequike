@@ -21,7 +21,7 @@
             <div class="choose-ic p-a" v-show="currentIndex == index"></div>
           </div>
         </div>
-        <div class="comfirm t-c" @click="confirmPay">
+        <div class="comfirm t-c" @touchend="confirmPay">
           <span class="t-c">确认支付：{{payAmounts}}元</span>
         </div>
       </div>
@@ -37,7 +37,6 @@ import baseURL from '../../server/baseURL';
 import { escape } from 'querystring';
 import common from '../../common/js/common.js';
 import { MessageBox } from 'mint-ui';
-
 export default {
   name: 'payMent',
   data() {
@@ -67,6 +66,7 @@ export default {
       payUrl: '', // 支付的Url
       orderState: null, // 表示是预约费支付 还是 停车费支付
       clickFlag: false,  // 表示按钮不可点击
+      clickDeta: null, // 点击过后的停留时间
     }
   },
   components: {
@@ -104,7 +104,7 @@ export default {
       if (this.couponId === -1) {
         this.couponId = null;
       }
-      if(this.clickFlag){
+      if (this.clickFlag) {
         return;
       }
       if (this.orderState === true) {  // 停车费支付
@@ -165,36 +165,31 @@ export default {
     async wxPay() {
       let spbillCreateIp = localStorage.getItem("mobileId");
       let channel = 5; // 支付方式
-      // alert(JSON.stringify(this.payUrl));
-      // alert(JSON.stringify(this.orderId));
-      // alert(channel);
-      // alert(JSON.stringify(this.couponId));
-      // alert(JSON.stringify(spbillCreateIp));
       let openId = localStorage.getItem('openId');
       let wapUrl = null
-      let res = await pay(this.payUrl, this.orderId, channel, this.couponId, wapUrl,spbillCreateIp, openId);
+      let res = await pay(this.payUrl, this.orderId, channel, this.couponId, wapUrl, spbillCreateIp, openId);
       if (res.error_code === 2000) {
         // alert(JSON.stringify(res));
         if (res.data.isZero === 1) {
-          // 做跳转预约详情界面
           Toast({
             message: '支付成功',
-            duration: 1500
-          })
-          setTimeout(() => {
-            // 清除缓存 跳转到 订单详情页
-            // 支付成功之后，将订单ID + 订单状态 + 订单金额
-            localStorage.removeItem('H5_fees');   // 支付金额
-            localStorage.removeItem('H5_order_state'); // 支付的订单状态
-            // alert(this.orderState);
-            this.clickFlag = false
-            if (this.orderState) {
-              //停车费跳转到支付成功页面
-              this.$router.push({ name: 'payToComplete', params: { flag: 1 } });
-            } else {
-              this.$router.push('payToComplete');
-            }
-          }, 1500);
+            duration: 1000
+          });
+          // 做跳转预约详情界面
+          localStorage.removeItem('H5_fees');   // 支付金额
+          localStorage.removeItem('H5_order_state'); // 支付的订单状态
+          this.clickFlag = false
+          if (this.orderState) {
+            //停车费跳转到支付成功页面
+            this.$router.push({ name: 'payToComplete', params: { flag: 1 } });
+          } else {
+            this.$router.push('payToComplete');
+          }
+          // setTimeout(() => {
+          //   // 清除缓存 跳转到 订单详情页
+          //   // 支付成功之后，将订单ID + 订单状态 + 订单金额
+
+          // }, 1500);
         } else {
           let params = {};
           // 公众号id	appId	是	String(16)	wx8888888888888888	商户注册具有支付权限的公众号成功后即可获得
@@ -247,7 +242,7 @@ export default {
             })
             setTimeout(() => {
               // 支付成功之后， + 订单状态 + 订单金额
-              this.clickFlag = false;
+              vm.clickFlag = false;
               localStorage.removeItem('H5_fees');   // 支付金额
               localStorage.removeItem('H5_order_state'); // 支付的订单状态
               if (vm.orderState) {
@@ -311,6 +306,8 @@ export default {
 
   },
   activated() {
+    this.clickDeta = null;
+    this.clickFlag = false
     var payOrderState = localStorage.getItem('H5_order_state'); // 支付的订单状态
     // 支付是停车费还是预约费用
     if (payOrderState == 1303) {

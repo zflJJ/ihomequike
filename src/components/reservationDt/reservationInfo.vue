@@ -143,17 +143,21 @@
 
     <!--1.0 支付预约费 的时候显示约车位和约车场的数据-->
     <div class="btnbgc">
-      <div v-if="orderData.chargeType === 1">
+      <!-- 车锁计费 -->
+      <template v-if="orderData.chargeType === 1">
         <div class="cancel p-a t-c">
           <div class="canle-style" @click="cancelOrder">取消预约</div>
-          <div class="item2-sytle" @click="lockModel">开始停车</div>
+          <button class="item2-sytle" @click="lockModel">开始停车</button>
         </div>
-      </div>
-      <div v-else-if="orderData.chargeType == 0">
-        <div class="off-order p-a t-c" @click="cancelOrder">取消预约</div>
-      </div>
+      </template>
+      <!-- 道闸计费 -->
+      <template v-else-if="orderData.chargeType === 0">
+        <div class="charget-type0">
+          <div @click="cancelOrder">取消预约</div>
+        </div>
+      </template>
     </div>
-
+    <!-- /* 
     <div class="alert-index" v-show="islockshow" @click="closeModel">
       <div @click="closeCs" class="al-info">
         <div class="al-header">控制车锁</div>
@@ -167,7 +171,7 @@
         </div>
         <div class="al-header" @click="closeModel">关闭</div>
       </div>
-    </div>
+    </div> */ -->
   </div>
 </template>
 <script>
@@ -178,8 +182,6 @@ import subHeader from './header'
 import { Indicator, Toast } from 'mint-ui'
 import { canCelMyAppoint, getOrderInfo, lockChange } from '../../server/getData'
 import { MessageBox } from 'mint-ui'
-// 引入mapActions，很重要
-import { mapActions } from 'vuex'
 export default {
   name: 'reservationInfo',
   data() {
@@ -199,17 +201,15 @@ export default {
       // 新增数据
       orderData: {},
       countdown: null, // 倒计时时间戳
-      islockshow: false, // 模态框是否 显示
-      seconds1302: '00', // 停车秒数
-      minutes1302: '00', // 停车分数
-      hours1302: '00', // 停车小时
       network: true,
       lockType: null,  // 表示车锁类型  0 表示网络控制的车锁  1 表示网关控制的车锁
       lockId: null,   // 车锁ID
       loadingFlag: 0,
       getTime: null,
       lockType: null, // 表示车锁类型
-      iscancelorder: true, // 表示可以点击
+      orderTimeInter: null, // 定时请求后台订单状态的接口 的timeId
+      disTimeID: null, // 表示禁止点击取消预约
+      disabledFlag: false, // 按钮默认是可以点击的
     }
   },
   components: {
@@ -248,27 +248,29 @@ export default {
       let _this = this
       let orderId = window.localStorage.getItem('orderId')
       var data = { order_id: orderId, timestamp: new Date().getTime() }
-      this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data).then(res => {
-        if (res.body.error_code == 2000) {
-          this.lockId = null
-          if (res.body.data.chargeType === 1) {
-            this.lockId = res.body.data.lockId
-          } else {
-            this.lockId = null;
+      this.$http.post(requestUrl.requestUrl + 'apiread/order/reserve/detail/query', data)
+        .then(res => {
+          if (res.body.error_code == 2000) {
+            this.lockId = null
+            this.lockType === res.body.data.lockType
+            if (res.body.data.chargeType === 1) {
+              this.lockId = res.body.data.lockId
+            } else {
+              this.lockId = null;
+            }
+            this.parklotId = res.body.data.parklotId
+            if (res.body.data.parkingState === 1302) {
+              localStorage.setItem('orderId', res.body.data.orderParkingId)
+              this.$router.push('reservationPaking')
+            }
+            this.dispoceOrderDat(res.body.data)
+            this.orderData = res.body.data
+            // 测试数据
+            console.log(res.body.data)
           }
-          this.parklotId = res.body.data.parklotId
-          if (res.body.data.parkingState === 1302) {
-            localStorage.setItem('orderId', res.body.data.orderParkingId)
-            this.$router.push('reservationPaking')
-          }
-          this.dispoceOrderDat(res.body.data)
-          this.orderData = res.body.data
-          // 测试数据
-          console.log(res.body.data)
-        }
-      })
+        })
         .catch(e => {
-          console.log(e)
+          Toast('查询订单失败')
         })
     },
     // 预处理 订单详情的数据
@@ -335,12 +337,6 @@ export default {
       ) {
         objDatas.dstateInfo = '超时已取消'
       }
-      // 如果是1302 状态 对停车时间进行累加操作
-      if (objDatas.state === 1302) {
-        // Test 测试数据 stopTime = 1200000 20分钟
-        var stopTime = objDatas.stopTime
-        this.addTime(stopTime)
-      }
       if (this.scroll) {
         this.scroll.refresh();
         this.scroll.finishPullDown();
@@ -349,48 +345,6 @@ export default {
       }
     },
 
-    // 停车时间累加操作  这个是对数据的处理
-    addTime(stopTime) {
-      console.log(stopTime)
-      let hours1302 = parseInt(stopTime / (60 * 60 * 1000))
-      let minutes1302 = parseInt((stopTime % (1000 * 60 * 60)) / (1000 * 60))
-      let seconds1302 = parseInt((stopTime % (1000 * 60)) / 1000)
-      console.log(hours1302, minutes1302, seconds1302)
-      clearInterval(timer1302)
-      var timer1302 = setInterval(() => {
-        seconds1302++
-        if (seconds1302 === 59) {
-          seconds1302 = 0
-          minutes1302++
-        }
-        if (minutes1302 === 59) {
-          hours1302++
-          minutes1302 = 0
-        }
-        seconds1302 += ''
-        minutes1302 += ''
-        hours1302 += ''
-        if (seconds1302.length === 1) {
-          seconds1302 = '0' + seconds1302
-        }
-        if (minutes1302.length === 1) {
-          minutes1302 = '0' + minutes1302
-        }
-        if (hours1302.length === 1) {
-          hours1302 = '0' + hours1302
-        }
-        this.seconds1302 = seconds1302
-        this.minutes1302 = minutes1302
-        this.hours1302 = hours1302
-        if (
-          this.seconds1302 == '00' &&
-          this.minutes1302 == '00' &&
-          this.hours1302 == '00'
-        ) {
-          clearInterval(timer1302)
-        }
-      }, 1000)
-    },
     //控制车锁的事件
     lockModel() {
       // 弹框提示
@@ -413,7 +367,6 @@ export default {
           closeOnClickModal: false,
         })
           .then(action => {
-            this.iscancelorder = false;
             this.lockEvnet(2)
           })
           .catch(err => {
@@ -422,18 +375,11 @@ export default {
           })
       }
     },
-    closeModel() {
-      this.islockshow = false
-    },
-    closeCs(event) {
-      // 阻断事件冒泡
-      event.cancelBubble = true
-    },
     lockEvnet(item) {
       if (!this.network || !window.navigator.onLine) {
         Toast({
           message: '当前网络无连接',
-          position: 'bottom',
+          position: 'middle',
           duration: 2000
         })
         return false
@@ -442,34 +388,41 @@ export default {
         if (item == 1) {
           Toast({
             message: '车锁正在升起',
-            position: 'bottom',
+            position: 'middle',
             duration: 2000
           })
         } else if (item == 2) {
           Toast({
             message: '车锁正在下降',
-            position: 'bottom',
+            position: 'middle',
             duration: 2000
           })
         }
       }
     },
+    // 开始停车，重新请求一次数据
+    sigNoEvent() {
+      this.getOrder()
+    },
     // 对车锁进行处理
     async lockDown(item) {
-      console.log(this.lockId);
       let res = await lockChange(this.lockId, item)
-      console.log(res);
       if (res.error_code == 2000) {
-        let timeoutId = setTimeout(() => {
-          clearTimeout(timeoutId);
-          this.iscancelorder = true
-          this.getOrder();
-        }, 8000)
+        this.disabledFlag = true
+        this.disTimeID = setTimeout(()=>{
+          clearTimeout(this.disTimeID)
+          this.disabledFlag = false;
+        },10000)
+        Toast({
+          message: '车锁下降成功',
+          position: 'middle',
+          duration: 2000
+        })
       } else {
-        this.iscancelorder = true;
+        this.disabledFlag = false
         Toast({
           message: '操作失败',
-          position: 'bottom',
+          position: 'middle',
           duration: 2000
         });
       }
@@ -493,9 +446,9 @@ export default {
 
     // 取消预约按钮
     cancelOrder() {
-      if (!this.iscancelorder) {
+      if (this.disabledFlag) {
         Toast({
-          message: '正在控制车锁，暂不可取消预约。 ',
+          message: '当前订单已经发生变化，不能取消预约了 ',
           position: 'middle',
           duration: 2000
         });
@@ -567,6 +520,13 @@ export default {
         }
         vm.downCounts()
       }
+    },
+    // 5秒中定时请求数据
+    getOrderState() {
+      clearInterval(this.orderTimeInter)
+      this.orderTimeInter = setInterval(() => {
+        this.getOrder()
+      }, 5000);
     }
   },
   computed: {
@@ -618,13 +578,16 @@ export default {
     this.orderId = JSON.parse(localStorage.getItem('orderId'))
     this.getOrder()
     document.addEventListener('visibilitychange', _this.hiddenFun, false)
+    this.getOrderState()
   },
   deactivated() {
     let _this = this
-    _this.iscancelorder = true
     clearInterval(this.interval)
-    localStorage.removeItem('hiddenTime');
+    localStorage.removeItem('hiddenTime')
     document.removeEventListener('visibilitychange', _this.hiddenFun, false)
+    clearInterval(this.orderTimeInter)
+    clearTimeout(this.disTimeID)
+    this.disabledFlag = false;
   },
   mounted() { },
   beforeRouteLeave(to, from, next) {
@@ -642,6 +605,11 @@ export default {
 <style lang="stylus">
 @import '../../common/css/base.stylus'
 @import '../../common/css/mixin.stylus'
+button
+  margin 0
+  padding 0
+  border 1px solid transparent  //自定义边框s
+  outline none    //消除默认点击蓝色边框效果
 .lock-down-chargetype
   line-height 2.63rem
 .ordermessage-info
@@ -769,6 +737,18 @@ export default {
     .ta-info
       font-size 0.8125rem
       color #656565
+  .charget-type0
+    position fixed
+    width 100%
+    height 3.375rem
+    line-height 3.375rem
+    background-color #D01D95
+    font-size 1rem
+    bottom 0
+    margin-bottom 0
+    z-index 1000
+    color #FFF
+    text-align center
   .cancel
     position fixed
     width 100%
@@ -780,30 +760,7 @@ export default {
     margin-bottom 0
     z-index 1000
     color #FFF
-  .btnbgc
-    height 4rem
-    width 100%
-    background-color rgb(245, 245, 245)
-    position absolute
-    bottom 0rem
-    .off-order
-      position absolute
-      width 60%
-      height 3rem
-      line-height 3rem
-      color #FFF
-      background-color #D01D95
-      font-size 1.2rem
-      margin-bottom 0
-      z-index 1000
-      bottom 0.5rem
-      margin-bottom 0
-      margin-left 20%
-      border-radius 2rem
-      background url('../../assets/img/Background@3x.png') no-repeat
-      background-size cover
-      width 15.7rem
-      height 3rem
+    text-align center
   .appoit-info-box
     position absolute
     width 100%
@@ -824,6 +781,7 @@ export default {
     width 50%
     float right
     height 100%
+    background-color #D01D95
   .canle-style
     height 100%
     width 50%
