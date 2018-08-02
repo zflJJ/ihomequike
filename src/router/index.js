@@ -1,88 +1,81 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// 预约状态 停车中 已预约 预约未支付 已完成
-import reservationPaking from '../components/reservationDt/reservationPaking'
-import reservationinfo from '../components/reservationDt/reservationinfo'
-import reservationBookingUnpaid from '../components/reservationDt/reservationBookingUnpaid'
-import reservationComplete from '../components/reservationDt/reservationComplete'
-
-// 老用户预约
-import reservationOld from '../components/reservationDt/reservationOld'
-// 新用户预约
-import reservationNew from '../components/reservationDt/reservationNew'
-//添加车牌
-import licensePlateAdd from '../components/licensePlateDt/licensePlateAdd'
-//我的车牌
-import licensePlate from '../components/licensePlateDt/licensePlate'
-//我的卡券
-import ticket from '../components/ticketDt/ticket'
-//支付
-import payMentDt from '../components/payMentDt/payMentDt'
-//支付完成
-import payToComplete from '../components/payMentDt/payToComplete'
-
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/reservationOld'
+      redirect: '/reservationOld',
+      component: resolve =>
+        require(['@/components/reservationDt/reservationOld'], resolve)
     },
     {
       path: '/reservationPaking',
       name: 'reservationPaking',
-      component: reservationPaking
+      component: resolve =>
+        require(['@/components/reservationDt/reservationPaking'], resolve)
     },
     {
       path: '/reservationinfo',
       name: 'reservationinfo',
-      component: reservationinfo
+      component: resolve =>
+        require(['@/components/reservationDt/reservationinfo'], resolve)
     },
     {
       path: '/reservationBookingUnpaid',
       name: 'reservationBookingUnpaid',
-      component: reservationBookingUnpaid
+      component: resolve =>
+        require([
+          '@/components/reservationDt/reservationBookingUnpaid'
+        ], resolve)
     },
     {
       path: '/reservationOld',
       name: 'reservationOld',
-      component: reservationOld
+      component: resolve =>
+        require(['@/components/reservationDt/reservationOld'], resolve)
     },
     {
       path: '/reservationNew',
       name: 'reservationNew',
-      component: reservationNew
+      component: resolve =>
+        require(['@/components/reservationDt/reservationNew'], resolve)
     },
     {
       path: '/licensePlateAdd',
       name: 'licensePlateAdd',
-      component: licensePlateAdd
+      component: resolve =>
+        require(['@/components/licensePlateDt/licensePlateAdd'], resolve)
     },
     {
       path: '/licensePlate',
       name: 'licensePlate',
-      component: licensePlate
+      component: resolve =>
+        require(['@/components/licensePlateDt/licensePlate'], resolve)
     },
     {
       path: '/ticket',
       name: 'ticket',
-      component: ticket
+      component: resolve => require(['@/components/ticketDt/ticket'], resolve)
     },
     {
       path: '/payMentDt',
       name: 'payMentDt',
-      component: payMentDt
+      component: resolve =>
+        require(['@/components/payMentDt/payMentDt'], resolve)
     },
     {
       path: '/payToComplete',
       name: 'payToComplete',
-      component: payToComplete
+      component: resolve =>
+        require(['@/components/payMentDt/payToComplete'], resolve)
     },
     {
       path: '/reservationComplete',
       name: 'reservationComplete',
-      component: reservationComplete
+      component: resolve =>
+        require(['@/components/reservationDt/reservationComplete'], resolve)
     }
   ]
 })

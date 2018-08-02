@@ -70,7 +70,7 @@
           <div class="p-message">
             <div class="time-info">
               <span class="name-text">预约费</span>
-              <span class="ta-info">￥ {{orderData.reserveFee}}</span>
+              <span class="ta-info">￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}</span>
             </div>
           </div>
         </div>
@@ -134,7 +134,7 @@ export default {
           if (num === 1) {
             this.$router.push('payMentDt')
           }
-        } else if (res.data.state === 1301) {
+        } else if (res.data.state === 1301) {    
           this.$router.push('reservationInfo')
         } else if (res.data.state === 1302 || res.data.state === 1303) {
           localStorage.setItem('orderId', res.data.orderParkingId)

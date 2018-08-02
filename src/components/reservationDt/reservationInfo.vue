@@ -94,8 +94,8 @@
               <span class="ta-info">￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}</span>
             </div>
           </div>
-
         </div>
+
         <div class="order-info" v-if="orderData.payChannelReserve != 0">
           预约支付明细
         </div>
@@ -105,33 +105,33 @@
               <span class="name-text">支付方式</span>
               <span class="ta-info">
                 <span v-if="orderData.payChannelReserve === 1">
-                  支付宝：￥ {{orderData.zpayReserve}}
+                  支付宝：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 2">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 3">
-                  现金：￥ {{orderData.reserveFee}}
+                  现金：￥ {{parseFloat(orderData.reserveFee).toFixed(2)}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 4">
-                  优惠券：￥ {{orderData.reserveCouponFee}}
+                  优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 5">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
                 <span v-else-if="orderData.payChannelReserve === 6">
-                  微信：￥ {{orderData.zpayReserve}}
+                  微信：￥ {{parseFloat(orderData.zpayReserve).toFixed(2)}}
                   <span v-if="orderData.reserveCouponFee !== null">
-                    优惠券：￥ {{orderData.reserveCouponFee}}
+                    优惠券：￥ {{parseFloat(orderData.reserveCouponFee).toFixed(2)}}
                   </span>
                 </span>
               </span>
@@ -157,21 +157,6 @@
         </div>
       </template>
     </div>
-    <!-- /* 
-    <div class="alert-index" v-show="islockshow" @click="closeModel">
-      <div @click="closeCs" class="al-info">
-        <div class="al-header">控制车锁</div>
-        <div class="al-conter">
-          <div class="lock-img">
-            <div class="lock-up lock-wh" @click="lockEvnet(1)"></div>
-          </div>
-          <div class="lock-img">
-            <div class="lock-down lock-wh" @click="lockEvnet(2)"></div>
-          </div>
-        </div>
-        <div class="al-header" @click="closeModel">关闭</div>
-      </div>
-    </div> */ -->
   </div>
 </template>
 <script>
@@ -252,7 +237,7 @@ export default {
         .then(res => {
           if (res.body.error_code == 2000) {
             this.lockId = null
-            this.lockType === res.body.data.lockType
+            this.lockType = res.body.data.lockType
             if (res.body.data.chargeType === 1) {
               this.lockId = res.body.data.lockId
             } else {
@@ -262,6 +247,10 @@ export default {
             if (res.body.data.parkingState === 1302) {
               localStorage.setItem('orderId', res.body.data.orderParkingId)
               this.$router.push('reservationPaking')
+              // 1307表示系统取消，1308表示超时取消，1309表示用户取消，1310表示客服取消
+            } else if (res.body.data.state === 1307 || res.body.data.state === 1308 || res.body.data.state === 1309 || res.body.data.state === 1310) {
+              console.log(1234)
+              this.$router.push('reservationOld');
             }
             this.dispoceOrderDat(res.body.data)
             this.orderData = res.body.data
@@ -270,7 +259,7 @@ export default {
           }
         })
         .catch(e => {
-          Toast('查询订单失败')
+          // Toast('查询订单失败')
         })
     },
     // 预处理 订单详情的数据
@@ -349,7 +338,7 @@ export default {
     lockModel() {
       // 弹框提示
       // 弹框提示用，
-      if (this.lockType === 0) {
+      if (this.lockType === 1) {
         Toast('仅支持网络控制车锁')
         return;
       } else {
@@ -409,10 +398,10 @@ export default {
       let res = await lockChange(this.lockId, item)
       if (res.error_code == 2000) {
         this.disabledFlag = true
-        this.disTimeID = setTimeout(()=>{
+        this.disTimeID = setTimeout(() => {
           clearTimeout(this.disTimeID)
           this.disabledFlag = false;
-        },10000)
+        }, 10000)
         Toast({
           message: '车锁下降成功',
           position: 'middle',
@@ -448,7 +437,7 @@ export default {
     cancelOrder() {
       if (this.disabledFlag) {
         Toast({
-          message: '当前订单已经发生变化，不能取消预约了 ',
+          message: '正在控制车锁',
           position: 'middle',
           duration: 2000
         });
@@ -488,6 +477,7 @@ export default {
       let res = await canCelMyAppoint(this.orderId)
       if (res.error_code === 2000) {
         localStorage.setItem('myParklotId', this.parklotId)
+        Toast('已取消预约')
         this.$router.push({
           name: 'reservationOld',
           query: { parklotId: this.parklotId }
@@ -496,9 +486,10 @@ export default {
         this.$router.push('reservationPaking')
       } else {
         Toast({
-          message: '页面超时，正在为您获取最新数据',
+          message: res.error_code + res.error_message,
           duration: 1500
         })
+
         this.getOrder()
       }
     },
@@ -608,8 +599,8 @@ export default {
 button
   margin 0
   padding 0
-  border 1px solid transparent  //自定义边框s
-  outline none    //消除默认点击蓝色边框效果
+  border 1px solid transparent // 自定义边框s
+  outline none // 消除默认点击蓝色边框效果
 .lock-down-chargetype
   line-height 2.63rem
 .ordermessage-info

@@ -1,7 +1,7 @@
 import { formatTimeStamp } from './H5plugin'
-export const filterTime = (timeList, nowTime)=>{
-  let times = [];
-  for (var i = 0,len = timeList.length; i < len; i++) {
+export const filterTime = (timeList, nowTime) => {
+  let times = []
+  for (var i = 0, len = timeList.length; i < len; i++) {
     // 间隔15分钟的时间都没有的话，就排除掉
     if (timeList[i].startTime >= nowTime) {
       if (timeList[i].startTime > timeList[i].endTime - 900000) {
@@ -29,10 +29,10 @@ export const filterTime = (timeList, nowTime)=>{
       })
     }
   }
-  return times;
+  return times
 }
 
-export const disposeTime = (timeList) =>{
+export const disposeTime = timeList => {
   let getDatas = []
   for (let i = 0; i < timeList.length; i++) {
     timeList[i].endTime -= 900000
@@ -80,18 +80,15 @@ export const disposeTime = (timeList) =>{
   return getDatas
 }
 
-export const dataChange = (timeList, nowTime)=>{
+export const dataChange = (timeList, nowTime) => {
   let arrayHoursMiunt = []
-  console.log(timeList)
+  console.log(timeList, nowTime)
   for (var i = 0; i < timeList.length; i++) {
     let item = timeList[i]
     var n = (item.endTime - item.startTime) / 900000
     if (nowTime > item.endTime) {
       continue // 比结束时间都还大，直接结束本次循环
-    } else if (
-      item.startTime < nowTime &&
-      nowTime < item.endTime
-    ) {
+    } else if (item.startTime < nowTime && nowTime < item.endTime) {
       var x = null
       var start = item.startTime
       var arr = []
@@ -121,21 +118,23 @@ export const dataChange = (timeList, nowTime)=>{
       arrayHoursMiunt.push(arr)
     }
   }
+  console.log(arrayHoursMiunt)
   return convertTime(arrayHoursMiunt)
 }
 
 // 赋值 和 拆分 小时数
-export const convertTime = (array)=>{
-  var pData1 = [],pData2 = {}, pData2arr = []
+export const convertTime = array => {
+  var pData1 = [],
+    pData2 = {},
+    pData2arr = []
   for (var i = 0; i < array.length; i++) {
     var arrayone = array[i]
-    // 2018-12-12 12:12:12:00
     let oldDay = formatTimeStamp(arrayone[0]).substr(8, 2)
     for (var j = 0; j < arrayone.length; j++) {
       let time = formatTimeStamp(arrayone[j])
       let miunte = time.substr(14, 2)
       let hours = time.substr(11, 2)
-      let day = time.substr(8, 2)  
+      let day = time.substr(8, 2)
       if (oldDay < day) {
         hours = ' 次日 ' + hours + ' 时 '
         miunte = miunte + ' 分 '
@@ -170,35 +169,47 @@ export const convertTime = (array)=>{
     }
   }
   var hoursarray = pData1
-  var miuntearray = pData2chang (pData2arr)
-  console.log(pData1)
+  console.log(pData2arr)
+  var miuntearray = pData2chang(pData2arr)
+  hoursarray.unshift({
+    text: '立即入场',
+    value: '立即入场',
+    time: pData1[0].time
+  })
   for (var i = 0; i < hoursarray.length; i++) {
     pData2[hoursarray[i].value] = miuntearray[hoursarray[i].text]
   }
-  console.log(pData2);
-  // this.$set(this.pickData2, 'pData1', hoursarray)
-  // this.$set(this.pickData2, 'pData2', pData2)
-
-  // this.pickData2.default.push(hoursarray[0])
-  // this.pickData2.default.push(pData2[hoursarray[0].value][0])
-  let defaultTime = hoursarray[0].text.substring(0, hoursarray[0].text.length - 2) + ':' + pData2[hoursarray[0].value][0].text.substring(0,pData2[hoursarray[0].value][0].text.length - 2) +'前'
+  console.log(pData1,pData2)
+  // let defaultTime =
+  //   hoursarray[0].text.substring(0, hoursarray[0].text.length - 2) +
+  //   ':' +
+  //   pData2[hoursarray[0].value][0].text.substring(
+  //     0,
+  //     pData2[hoursarray[0].value][0].text.length - 2
+  //   ) +
+  //   '前'
+  let defaultTime = '立即入场'
   // 通过时间戳差值，获取价格信息
-  console.log(new Date().getTime())
-  let priceTime = hoursarray[0].time - new Date().getTime()
-  // this.getPrice(this.priceTime)
-  // this.getDefaultTime(hoursarray[0].time)
-  return { pData1: hoursarray, pData2: pData2, default: [hoursarray[0], pData2[hoursarray[0].value][0]], defaultTime: defaultTime, priceTime: priceTime }
+  let priceTime = hoursarray[1].time - new Date().getTime()
+  return {
+    pData1: hoursarray,
+    pData2: pData2,
+    default: [hoursarray[0], pData2[hoursarray[0].value][0]],
+    defaultTime: defaultTime,
+    priceTime: priceTime
+  }
 }
-export const pData2chang = (arr) =>{
-    var data = []
-    for (var i = 0; i < arr.length; i++) {
-      if (!data[arr[i].texts]) {
-        var arrs = []
-        arrs.push(arr[i])
-        data[arr[i].texts] = arrs
-      } else {
-        data[arr[i].texts].push(arr[i])
-      }
+export const pData2chang = arr => {
+  var data = []
+  for (var i = 0; i < arr.length; i++) {
+    if (!data[arr[i].texts]) {
+      var arrs = []
+      arrs.push(arr[i])
+      data[arr[i].texts] = arrs
+    } else {
+      data[arr[i].texts].push(arr[i])
     }
-    return data
+  }
+  data['立即入场'] = []
+  return data
 }

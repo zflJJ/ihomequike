@@ -21,7 +21,7 @@
             <div class="choose-ic p-a" v-show="currentIndex == index"></div>
           </div>
         </div>
-        <div class="comfirm t-c" @touchend="confirmPay">
+        <div class="comfirm t-c" @click="confirmPay">
           <span class="t-c">确认支付：{{payAmounts}}元</span>
         </div>
       </div>
@@ -178,7 +178,7 @@ export default {
           // 做跳转预约详情界面
           localStorage.removeItem('H5_fees');   // 支付金额
           localStorage.removeItem('H5_order_state'); // 支付的订单状态
-          this.clickFlag = false
+          // this.clickFlag = false
           if (this.orderState) {
             //停车费跳转到支付成功页面
             this.$router.push({ name: 'payToComplete', params: { flag: 1 } });
@@ -263,7 +263,7 @@ export default {
     //跳转到优惠券选择页面
     goCounp() {
       localStorage.setItem('H5_isChoosed', true);
-      localStorage.setItem('counpFlag', this.couponId);
+      localStorage.setItem('counpFlag', this.counpFlag);
       this.$router.push({
         name: 'ticket'
       })
@@ -325,14 +325,16 @@ export default {
     this._initScroll();
   },
   beforeRouteLeave(to, from, next) {
-    next();
-  },
-  beforeRouteEnter(to, from, next) {
-    if (from.path == '/appoint' || from.path == '/appointment' || from.path == '/orderInfo') {
-      next(vm => {
-        vm.payFees = Number(localStorage.getItem('H5_fees'));
-        vm.orderId = localStorage.getItem('orderId');
-      })
+    // alert(to.path)
+    if (to.path !== '/ticket') {
+      localStorage.setItem('counpFlag', -1);
+    } else {
+      if (this.couponId === -1 || !this.couponId) {
+        localStorage.setItem('counpFlag', -1);
+      } else {
+        // alert(this.couponId)
+        localStorage.setItem('counpFlag',this.couponId)
+      }
     }
     next();
   },

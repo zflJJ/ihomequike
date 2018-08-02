@@ -159,7 +159,7 @@
     </div>
     <!-- 要进行呢改动 -->
     <div>
-     
+
       <template v-if="orderData.state === 1302">
         <!-- 这个是道闸计费 -->
         <template v-if="orderData.chargeType === 0">
@@ -167,7 +167,7 @@
             <div class="item2-sytle2" @click="lockModel">控制车锁</div>
           </div>
         </template>
-         <!-- 这个是车锁计费 -->
+        <!-- 这个是车锁计费 -->
         <template v-else>
           <div class="cancel p-a t-c">
             <div class="item2-sytle2" @click="endParking">结束停车</div>
@@ -246,6 +246,7 @@ export default {
       leaveFlag: false,
       loadingFlag: 0,
       orderState: null,   // 短轮询的定时器
+      lockType: null,   // 车锁的状态
     }
   },
   components: {
@@ -254,7 +255,7 @@ export default {
   computed: {
   },
   methods: {
-    
+
     // 离场支付（1） 或者 立即支付（2）
     goPay(item) {
       this.getOrder(item);
@@ -298,6 +299,7 @@ export default {
         if (res.body.error_code === 2000) {
           this.leaveFlag = false
           this.loadingFlag = null;
+          this.lockType = res.body.data.lockType
           localStorage.setItem('routerFlag', "reservationPaking");//保存跳转来源页,在支付完成调用
           localStorage.setItem('goBackFlag', "reservationPaking");//保存跳转来源页,在返回调用
           if (res.body.data.state == 1303) {   //   1302 || 1303 的状态   
@@ -336,7 +338,7 @@ export default {
       }).catch(res => {
         this.leaveFlag = false;
         this.loadingFlag = 0
-        Toast('查询订单失败')
+        // Toast('查询订单失败')
       })
     },
     endParking() {
@@ -449,6 +451,12 @@ export default {
           duration: 2000
         });
         return false;
+      } else if (this.lockType === null || this.lockType === 1) {
+        Toast({
+          message: '仅支持网络控制车锁',
+          position: 'bottom',
+          duration: 2000
+        });
       } else {
         this.lockDown(item);
         if (item == 1) {
@@ -471,16 +479,16 @@ export default {
     async lockDown(item) {
       let res = await lockChange(this.lockId, item);
       if (res.error_code === 2000) {
-      }else{
+      } else {
         Toast('车锁控制失败')
       }
     },
     // 前端短轮训查询数据
-    getOrderState(){
+    getOrderState() {
       clearInterval(this.orderState)
-      this.orderState = setInterval(()=>{
+      this.orderState = setInterval(() => {
         this.getOrder()
-      },5000)
+      }, 5000)
     }
   },
   created() {
@@ -507,6 +515,7 @@ export default {
   activated() {
     //从预约列表页面带获取传入的参数值
     this.getOrder();
+    this.lockType = null
     this.leaveFlag = false
     this.getOrderState()
   },

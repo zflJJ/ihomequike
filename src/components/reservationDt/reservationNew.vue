@@ -6,19 +6,18 @@
         <div class="info car-info">
           <div class="car-style">
             <div>
-              <div class="ic ic-font1"></div>
               <span class="text">{{pointedItem.parklotName}}</span>
               <span v-if="pointedItem.parklotKind === 0" class="cars-color">室内</span>
               <span v-else-if="pointedItem.parklotKind === 1" class="cars-color">室外</span>
               <span v-else-if="pointedItem.parklotKind === 2" class="cars-color">室内+室外</span>
             </div>
             <div class="dis-2">
-
               <span class="redNumber">{{pointedItem.reservableAmount}}</span>
             </div>
           </div>
-          <div class="car-distance">
-            <div class="dis-inline">
+          <div class="car-distance distance-dis">
+            <div class="ic ic-font1"></div>
+            <div class="dis-inline dis-margin">
               <span class="text-distance">{{pointedItem.address}}</span>
             </div>
             <div class="dis-inline">
@@ -114,13 +113,13 @@
 </template>
 <script>
 import { formatTimeStamp } from '../../common/js/H5plugin'
-import { saveUserBind, pay,postParklot,getPhoneCode } from '../../server/getData'
-import { Toast, Indicator,MessageBox } from 'mint-ui'
+import { saveUserBind, pay, postParklot, getPhoneCode } from '../../server/getData'
+import { Toast, Indicator, MessageBox } from 'mint-ui'
 import BScroll from 'better-scroll'
 import VuePickers from 'vue-pickers'
 import KeyBoard from '../commonComponents/keyboard.vue'
 import common from '../../common/js/common'
-import { filterTime,disposeTime,dataChange } from '../../common/js/time'
+import { filterTime, disposeTime, dataChange } from '../../common/js/time'
 export default {
   data() {
     return {
@@ -138,7 +137,7 @@ export default {
 
       isGettingCodes: false, //是否正在获取验证码状态
       pointedItem: {}, //停车场接口获取信息返回 | enter
-      
+
       /*--新的东西*/
       parkLotId: null, // 表示传递过来的车场的ID
 
@@ -219,9 +218,9 @@ export default {
         _this.$refs.hiddenBtn.style.display = 'block'
       }
     },
-    scrollPhone(){
+    scrollPhone() {
       this.leftScroll.refresh()
-      let el=this.$refs.scrollCode
+      let el = this.$refs.scrollCode
       this.leftScroll.scrollBy(0, -100);
     },
     getkeyboard(msg) {
@@ -350,16 +349,19 @@ export default {
         if (!this.reserveTimeList.length) {
           this.messInfo()
         } else {
-          let timeList = filterTime(this.pointedItem.reserveTimeList,this.nowTime)
+          let timeList = filterTime(this.pointedItem.reserveTimeList, this.nowTime)
           let distimelist = disposeTime(timeList)
-          let dataTimes = dataChange(distimelist,this.nowTime);
+          let dataTimes = dataChange(distimelist, this.nowTime);
           this.$set(this.pickData2, 'pData1', dataTimes.pData1)
           this.$set(this.pickData2, 'pData2', dataTimes.pData2)
+          console.log(dataTimes.default)
+          console.log(dataTimes)
+          // dataTimes.default[0].text = "立即入场"
           this.$set(this.pickData2, 'default', dataTimes.default)
           this.defaultTime = dataTimes.defaultTime
           // 获取价格  和 默认离场时间
           this.getPrice(dataTimes.priceTime)
-          this.getDefaultTime( dataTimes.pData1[0].time)
+          this.getDefaultTime(dataTimes.pData1[0].time)
         }
         this._initScroll()
       } else {
@@ -390,9 +392,9 @@ export default {
             this.getparklot()
           }, 10000)
         })
-        .catch(err => {})
+        .catch(err => { })
     },
-    
+
     // 动态遍历 phoneList
     getPhoneList() {
       let phoneNumber = this.phoneNumber.trim()
@@ -408,10 +410,10 @@ export default {
       }
     },
     // 清空input 输入框
-    clearNumber(num){
-      if(num === 1){
+    clearNumber(num) {
+      if (num === 1) {
         this.phoneNumber = ''
-      }else{
+      } else {
         this.code = ''
       }
     },
@@ -433,7 +435,7 @@ export default {
     },
     //短信读秒
     timeCount() {
-      if(this.timer){
+      if (this.timer) {
         clearInterval(this.timer)
       }
       this.timer = setInterval(() => {
@@ -463,16 +465,16 @@ export default {
         let newlogin = Date.parse(new Date())
         let secode = Math.floor((newlogin - this.hiddenTime) / 1000)
         console.log(secode)
-        if(this.counts - secode <= 0){
+        if (this.counts - secode <= 0) {
           clearInterval(this.timer)
           this.isGettingCodes = false
           this.counts = 60
-        }else {
+        } else {
           this.counts = this.counts - secode
           this.timeCount()
         }
       } else {
-        this.hiddenTime =Date.parse(new Date())
+        this.hiddenTime = Date.parse(new Date())
       }
     },
     // 默认的离场时间
@@ -502,7 +504,7 @@ export default {
         var leaveDay = leaveTime.substr(8, 2)
         var leaveMiunte = leaveTime.substr(14, 2)
         var leaveHours = leaveTime.substr(11, 2)
-        this.leaveTime = this.leaveTime =  leaveMonth +'月' +  leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
+        this.leaveTime = this.leaveTime = leaveMonth + '月' + leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
       } else {
         var max = numLeaveTime[0].times
         var len = numLeaveTime.length
@@ -518,7 +520,7 @@ export default {
         var leaveDay = leaveTime.substr(8, 2)
         var leaveMiunte = leaveTime.substr(14, 2)
         var leaveHours = leaveTime.substr(11, 2)
-        this.leaveTime =  leaveMonth +'月' +  leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
+        this.leaveTime = leaveMonth + '月' + leaveDay + '日' + leaveHours + '时' + leaveMiunte + '分'
         this.params.shareStartTime = obj.learve.startTime
         this.params.shareEndTime = this.params.endTime = obj.learve.endTime
         this.params.startTime = timetap
@@ -527,24 +529,30 @@ export default {
 
     // 获取价格信息
     getPrice(priceTime) {
-      var x = null
-      let miunte = parseInt(priceTime / 60000)
-      for (var i = 0; i < this.feeList.length; i++) {
-        if (miunte <= this.feeList[i].finishTime) {
-          x = i
-          break
-        } else {
-          continue
+      console.log(this.defaultTime)
+      if (this.defaultTime == '立即入场') {
+        this.price = '0.00';
+      } else {
+        var x = null
+        let miunte = parseInt(priceTime / 60000)
+        for (var i = 0; i < this.feeList.length; i++) {
+          if (miunte <= this.feeList[i].finishTime) {
+            x = i
+            break
+          } else {
+            continue
+          }
+        }
+        if (i === this.feeList.length) {
+          x = i - 1
+        }
+        if (this.feeList[x]) {
+          this.price = (
+            this.feeList[x].fee * this.pointedItem.integralPermissionsCoefficient
+          ).toFixed(2)
         }
       }
-      if (i === this.feeList.length) {
-        x = i - 1
-      }
-      if (this.feeList[x]) {
-        this.price = (
-          this.feeList[x].fee * this.pointedItem.integralPermissionsCoefficient
-        ).toFixed(2)
-      }
+
     },
     // 选择入场时间段
     openPicker() {
@@ -564,14 +572,25 @@ export default {
     },
     // 选择时间后的确定按钮
     confirmFn(e) {
-      this.priceTime = e.select2.time - new Date().getTime()
-      this.getPrice(this.priceTime)
-      this.defaultTime =
-        e.select1.text.substring(0, e.select1.text.length - 2) +
-        ':' +
-        e.select2.text.substring(0, e.select2.text.length - 2) +
-        '前'
-      this.getDefaultTime(e.select2.time)
+      console.log(e)
+      if (e.select1.text == '立即入场') {
+        this.defaultTime = '立即入场'
+        this.getDefaultTime(e.select1.time)
+        this.priceTime = e.select1.time - new Date().getTime()
+        this.getPrice(this.priceTime)
+        console.log(123)
+      } else {
+        this.priceTime = e.select2.time - new Date().getTime()
+
+        this.defaultTime =
+          e.select1.text.substring(0, e.select1.text.length - 2) +
+          ':' +
+          e.select2.text.substring(0, e.select2.text.length - 2) +
+          '前'
+        this.getDefaultTime(e.select2.time)
+        this.getPrice(this.priceTime)
+        console.log(234)
+      }
       this.show1 = false
       this.isshow = false
     },
@@ -603,7 +622,7 @@ export default {
           this.$router.push('payToComplete')
         }, 1500)
       } else {
-         this.clickFlag = true
+        this.clickFlag = true
         Toast({
           message: res.error_message,
           duration: 1500
@@ -612,7 +631,7 @@ export default {
     },
     //立即预约
     async goApoint() {
-      if(!this.clickFlag){
+      if (!this.clickFlag) {
         return;
       }
       this.clickFlag = false
@@ -651,11 +670,7 @@ export default {
         this.clickFlag = true
       } else {
         // 测试一下
-        // "startTime":15000000,
-        // "endTime":160000000,
-        // "shareStartTime":120000000,
-        // "shareEndTime":1600000000,
-
+        
         this.params.plateNumber = this.plateNo
         this.params.phone = this.phoneNumber
         this.params.totalFee = this.price
@@ -667,7 +682,9 @@ export default {
         this.params.openId = localStorage.getItem('openId')
         this.params.jpushId = 'H5'
         this.params.timestamp = +new Date()
-
+        if(this.defaultTime == '立即入场'){
+          this.params.isImmediatelyEnter = 1
+        }
         let res = await saveUserBind(this.params)
         if (res.error_code == 2000) {
           let orderId = res.data.orderId //订单号
@@ -700,8 +717,8 @@ export default {
                 this.clickFlag = true
                 this.$router.push('reservationPaking')
               }, 1500);
-            } else if(res.data.orderState == 1300){
-               let toastNum = Toast({
+            } else if (res.data.orderState == 1300) {
+              let toastNum = Toast({
                 message: '您还有订单未完成',
                 duration: 1500
               })
@@ -711,7 +728,7 @@ export default {
                 this.clickFlag = true
                 this.$router.push('reservationBookingUnpaid');
               }, 1500);
-            }else {
+            } else {
               this.clickFlag = true
               Indicator.close()
               Toast({
@@ -740,7 +757,7 @@ export default {
           })
           this.clickFlag = true
           return
-        }  else if (res.error_code == 2906) {
+        } else if (res.error_code == 2906) {
           Toast({
             message: '您暂无预约资格，请联系物业管理员',
             duration: 1500
@@ -762,35 +779,43 @@ export default {
         }
       }
     },
-    routerPage(orderState){
-       this.clickFlag = true
-       let title = null;
-       switch(orderState){
-         case 1301:
-          let toastNum = Toast({message: '您还有订单未完成', duration: 1500})
+    routerPage(orderState) {
+      this.clickFlag = true
+      let title = null;
+      switch (orderState) {
+        case 1301:
+          let toastNum = Toast({ message: '您还有订单未完成', duration: 1500 })
           let timeOutId = setTimeout(() => {
-              clearTimeout(timeOutId);
-              toastNum.close();
-              this.clickFlag = true
-              this.$router.push('reservationInfo')
+            clearTimeout(timeOutId);
+            toastNum.close();
+            this.clickFlag = true
+            this.$router.push('reservationInfo')
           }, 1500);
-       }
+      }
     },
     // 对拿到的当前系统时间做处理
     timeToget() {
-      var time = Number(new Date().getTime()) + 900000
-      this.nowTime = time
+      // new Date 转换的时候要考虑到ios 的兼容性
+      let currentTime = new Date().getTime()//获取当前日期
+      let timestamp = formatTimeStamp(currentTime);
+      timestamp = timestamp.replace(/\-/g, '/');
+      let ymd = timestamp.split(" ")[0]
+      let weeHours = new Date(ymd + " " + "00:00:00:00")
+      weeHours = weeHours.getTime()
+      let Difference = Math.floor((currentTime - weeHours) / 900000) + 1;
+      this.nowTime = weeHours + (Difference * 900000)
+      console.log(this.nowTime)
     }
   },
-   activated() {
-     // 获取车场ID
+  activated() {
+    // 获取车场ID
     this.parkLotId = localStorage.getItem('myParklotId')
     // this.parkLotId = 302
-    document.addEventListener('visibilitychange', this.documentEvent,false)
+    document.addEventListener('visibilitychange', this.documentEvent, false)
     this.clickFlag = true;
     window.addEventListener(
       'online',
-      function() {
+      function () {
         Toast({
           message: '当前网络连接正常',
           position: 'bottom',
@@ -802,7 +827,7 @@ export default {
     )
     window.addEventListener(
       'offline',
-      function() {
+      function () {
         Toast({
           message: '当前网络无连接',
           position: 'bottom',
@@ -830,7 +855,7 @@ export default {
     // 清空定时器， 后台运行的状态 后台运行的秒数 缓存的秒数时间 页面监听的事件
     clearInterval(this.timer)
     common.setStorage('H5_lslogin_time')
-    document.removeEventListener('visibilitychange', this.documentEvent,false)
+    document.removeEventListener('visibilitychange', this.documentEvent, false)
     window.removeEventListener('resize', this.handleInput, false)
     this.$destroy(true)
   },
@@ -899,6 +924,9 @@ export default {
         padding 0.1125rem 0.2125rem
         text-align center
         border-radius 10%
+      .distance-dis
+        display flex
+        align-items center
     .text-plate
       line-height 1.25rem
       margin-top 0.5625rem
@@ -907,7 +935,8 @@ export default {
       background-color #fff
       border-bottom 0
       .car-distance
-        // margin-top 0.55rem
+        // display flex
+        // align-items center
       .selct-plate
         background-color #ffffff
         // padding 1.125rem 2rem
@@ -1037,6 +1066,9 @@ export default {
         border none
         out-line none
         text-align right
+    .dis-margin
+      padding-left 20px
+      flex 1
   .to-appoint
     position fixed
     width 100%
